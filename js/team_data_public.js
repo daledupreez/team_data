@@ -1,0 +1,1 @@
+var team_data_public = {};

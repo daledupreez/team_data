@@ -25,6 +25,7 @@ License: GPL2
 
 require_once 'TeamDataAdmin.php';
 require_once 'TeamDataTables.php';
+require_once 'TeamDataAjax.php';
 require_once 'TeamDataAdminAjax.php';
 
 $team_data = new TeamData();
@@ -42,7 +43,7 @@ class TeamDataBase {
 
 	public function __construct() {
 		$this->tables = new TeamDataTables();
-		$this->permitted_options = array( 'version', 'max_matches' );
+		$this->permitted_options = array( 'version', 'max_matches', 'current_season' );
 	}
 
 	public function add_actions() {
@@ -217,6 +218,8 @@ class TeamData extends TeamDataBase {
 				opposition_id INT NOT NULL,
 				our_score INT,
 				opposition_score INT,
+				season_id INT NOT NULL,
+				result VARCHAR(1) NOT NULL DEFAULT '',
 				PRIMARY KEY  (id)
 			) $charset_collate";
 			$all_sql = $all_sql . $sql_sep . $sql_part;
@@ -246,6 +249,15 @@ class TeamData extends TeamDataBase {
 				member_id INT NOT NULL,
 				match_id INT NOT NULL,
 				PRIMARY KEY  (id)
+			) $charset_collate";
+			$all_sql = $all_sql . $sql_sep . $sql_part;
+
+			$sql_part = "CREATE TABLE $tables->season (
+				id INT NOT NULL AUTO_INCREMENT,
+				year VARCHAR(10) NOT NULL,
+				season VARCHAR(20) NOT NULL,
+				PRIMARY KEY  (id),
+				UNIQUE KEY fullname (year,season)
 			) $charset_collate";
 			$all_sql = $all_sql . $sql_sep . $sql_part;
 
@@ -283,6 +295,9 @@ class TeamData extends TeamDataBase {
 					),
 					'opposition_id' => array(
 						'table' => $tables->opposition
+					),
+					'season_id' => array(
+						'table' => $tables->season
 					)
 				),
 				$tables->match_stat => array(

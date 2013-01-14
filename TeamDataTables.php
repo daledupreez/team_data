@@ -2,7 +2,7 @@
 
 class TeamDataTables {
 
-	public static $permitted_tables = array( 'cap', 'level', 'match', 'match_stat', 'member', 'member_role', 'opposition', 'role', 'stat', 'venue');
+	public static $permitted_tables = array( 'cap', 'level', 'match', 'match_stat', 'member', 'member_role', 'opposition', 'role', 'season', 'stat', 'venue');
 	
 	public $cap;
 	public $level;
@@ -12,6 +12,7 @@ class TeamDataTables {
 	public $member_role;
 	public $opposition;
 	public $role;
+	public $season;
 	public $stat;
 	public $venue;
 	
@@ -27,6 +28,7 @@ class TeamDataTables {
 		$this->member_role = $table_prefix . 'member_role';
 		$this->opposition = $table_prefix . 'opposition';
 		$this->role = $table_prefix . 'role';
+		$this->season = $table_prefix . 'season';
 		$this->stat = $table_prefix . 'stat';
 		$this->venue = $table_prefix . 'venue';
 	}

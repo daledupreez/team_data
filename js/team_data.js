@@ -16,6 +16,7 @@ var team_data = {
 		"member": "Members",
 		"opposition": "Opponents",
 		"role": "Roles",
+		"season": "Seasons",
 		"stat": "Stats",
 		"venue": "Venues"
 	},
@@ -223,11 +224,49 @@ team_data.api.opposition.getFields = function opposition_getFields()
 
 team_data.api.role = new team_data.apiObject('role');
 
+team_data.api.season = new team_data.apiObject('season');
+team_data.api.season.getFields = function season_getFields()
+{
+	return [ 'id', 'year', 'season', 'is_current' ];
+}
+
+team_data.api.season.repeatLastSeason = function season_repeatLastSeason()
+{
+	var myForm = this.getForm();
+	if (!myForm) return;
+	var control = myForm['season_year'];
+	if (control) {
+		var newYear = team_data.fn.getControlValue(control);
+		if (newYear != '') {
+			var confirmText = team_data.fn.getLocText("Are you sure you want to repeat the season names for new season '%1'?",newYear);
+			var callServer = confirm(confirmText);
+			if (callServer) {
+				var ajaxData = { 'action': 'team_data_put_season_repeat', 'year': newYear };
+				var apiObject = this;
+				jQuery.post(ajaxurl,ajaxData,function(repeatResult) { apiObject.repeatLastSeasonHandler(repeatResult); });
+			}
+	}
+}
+
+team_data.api.season.repeatLastSeasonHandler = function season_repeatLastSeasonHandler(repeatResult)
+{
+	if (!repeatResult) return;
+	if (repeatResult.result == 'error') {
+		var msg = team_data.fn.getLocText('Error in update');
+		if (repeatResult.error_message) msg += '\n' + repeatResult.error_message;
+		alert(msg);
+	}
+	else {
+		this.loadList();
+	}
+}
+
 team_data.api.stat = new team_data.apiObject('stat');
 team_data.api.stat.getFields = function stat_getFields()
 {
 	return [ 'id', 'name', 'value_type' ];
 }
+
 
 team_data.api.options = {};
 team_data.api.options.getControls = function options_getControls() {
@@ -261,7 +300,7 @@ team_data.api.options.saveHandler = function options_saveHandler(saveResult) {
 
 team_data.api.match = {
 	"fields": [ 'time', 'level', 'is_league', 'is_postseason', 'our_score', 'opposition_score' ],
-	"sharedFields": [ 'date', 'opposition', 'venue' ]
+	"sharedFields": [ 'date', 'opposition', 'venue', 'season' ]
 };
 team_data.api.match.allFields = team_data.api.match.sharedFields.concat(team_data.api.match.fields, [ 'id' ]);
 
@@ -595,7 +634,7 @@ team_data.ui.renderSimpleTable = function(parentDiv,tableName)
 	parentDiv.innerHTML = html.join('');
 }
 
-team_data.ui.apiList = [ 'venue', 'level', 'role', 'stat', 'opposition' ];
+team_data.ui.apiList = [ 'venue', 'level', 'role', 'stat', 'opposition', 'season' ];
 
 team_data.ui.reportErrors = function(errors,focusList) {
 	if (errors && errors.length) {

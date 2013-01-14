@@ -5,33 +5,37 @@
 */
 class TeamDataAdminAjax extends TeamDataBase {
 
-	public function add_actions($group = 'simple') {
+	public function add_actions() {
 		// to decide: member, match_stat, cap, match
+		$ajax_prefix = 'wp_ajax_team_data_';
 		$actions = array();
-		$actions = array( 'venue', 'level', 'role', 'opposition', 'stat' );
+		$actions = array( 'venue', 'level', 'role', 'opposition', 'stat', 'season' );
 		foreach($actions as $simple_action) {
-			add_action('wp_ajax_team_data_get_' . $simple_action, array($this, 'get_' . $simple_action));
-			add_action('wp_ajax_team_data_put_' . $simple_action, array($this, 'put_' . $simple_action));
-			add_action('wp_ajax_team_data_get_all_' . $simple_action . 's', array($this, 'get_all_' . $simple_action . 's'));
+			add_action($ajax_prefix . 'get_' . $simple_action, array($this, 'get_' . $simple_action));
+			add_action($ajax_prefix . 'put_' . $simple_action, array($this, 'put_' . $simple_action));
+			add_action($ajax_prefix . 'get_all_' . $simple_action . 's', array($this, 'get_all_' . $simple_action . 's'));
 		}
 		
 		// member
-		add_action('wp_ajax_team_data_get_member', array($this, 'get_member'));
-		add_action('wp_ajax_team_data_put_member', array($this, 'put_member'));
-		add_action('wp_ajax_team_data_get_all_members', array($this, 'get_all_members'));
+		add_action($ajax_prefix . 'get_member', array($this, 'get_member'));
+		add_action($ajax_prefix . 'put_member', array($this, 'put_member'));
+		add_action($ajax_prefix . 'get_all_members', array($this, 'get_all_members'));
 		// set_option
-		add_action('wp_ajax_team_data_set_option', array($this, 'ajax_set_option'));
+		add_action($ajax_prefix . 'set_option', array($this, 'ajax_set_option'));
 		// match
-		add_action('wp_ajax_team_data_put_new_matches', array($this, 'put_new_matches'));
-		add_action('wp_ajax_team_data_update_score', array($this, 'update_score'));
-		add_action('wp_ajax_team_data_update_match', array($this, 'update_match'));
-		add_action('wp_ajax_team_data_get_basic_match', array($this, 'get_basic_match'));
+		add_action($ajax_prefix . 'put_new_matches', array($this, 'put_new_matches'));
+		add_action($ajax_prefix . 'update_score', array($this, 'update_score'));
+		add_action($ajax_prefix . 'update_match', array($this, 'update_match'));
+		add_action($ajax_prefix . 'get_basic_match', array($this, 'get_basic_match'));
+		// season
+		add_action($ajax_prefix . 'get_season_names', array($this, 'get_season_names'));
+		add_action($ajax_prefix . 'put_season_repeat', array($this, 'put_season_repeat'));
 	}
 	
 	public function ajax_set_option() {
 		header('Content-Type: application/json');
 		$response_data = array( 'set' => false );
-		if (isset($_POST['option_name']) && isset($_POST['option_value'])) {
+		if ($this->check_nonce() && isset($_POST['option_name']) && isset($_POST['option_value'])) {
 			$option = $_POST['option_name'];
 			$op_value = $_POST['option_value'];
 			if (($op_value != 'null') && ($op_value !== '')) {
@@ -43,12 +47,14 @@ class TeamDataAdminAjax extends TeamDataBase {
 		exit;
 	}
 
+	// MATCH operation
+
 	public function put_new_matches() {
 		global $wpdb;
 
 		header('Content-Type: application/json');
 		$response_data = array( 'result' => 'error', 'results' => array() );
-		if (isset($_POST['match_data'])) {
+		if ($this->check_nonce() && isset($_POST['match_data'])) {
 			$match_data = $_POST['match_data'];
 			$match_data = stripslashes($match_data);
 			$matches = json_decode($match_data,true);
@@ -109,6 +115,7 @@ class TeamDataAdminAjax extends TeamDataBase {
 			'opposition_id' => '',
 			'our_score' => '',
 			'opposition_score' => '',
+			'season_id' => '',
 		);
 		$match_id = $this->get_post_values($fields);
 		// remove our_score and opposition_score if not set
@@ -119,8 +126,10 @@ class TeamDataAdminAjax extends TeamDataBase {
 			unset($fields['opposition_score']);
 		}
 		$response_data = array( 'result' => 'error' );
-		// id is required for update
-		if ($match_id == '') {
+		if (!$this->check_nonce()) {
+			$response_data['error_message'] = __("Invalid nonce", 'team_data');
+		}
+		else if ($match_id == '') { // id is required for update
 			$response_data['error_message'] = sprintf(__("Property '%s' is required", 'team_data'),'id');
 		}
 		else {
@@ -133,7 +142,7 @@ class TeamDataAdminAjax extends TeamDataBase {
 
 	private function is_valid_match($match,$check_score) {
 		if (!$match) return false;
-		$fields = array( 'time', 'venue_id', 'date', 'opposition_id', 'level_id', 'is_league', 'is_postseason' );
+		$fields = array( 'time', 'venue_id', 'date', 'opposition_id', 'level_id', 'is_league', 'is_postseason', 'season_id' );
 		if ($check_score) {
 			$fields[] = 'our_score';
 			$fields[] = 'opposition_score';
@@ -159,11 +168,13 @@ class TeamDataAdminAjax extends TeamDataBase {
 		$match_id = $this->get_post_values($fields);
 
 		$response_data = array( 'result' => 'error' );
-		// our_score and opposition_score are required
-		if ($fields['our_score'] == '') {
+		if (!$this->check_nonce()) {
+			$response_data['error_message'] = __("Invalid nonce", 'team_data');
+		}
+		elseif ($fields['our_score'] == '') { // our_score and opposition_score are required
 			$response_data['error_message'] = sprintf(__("Property '%s' is required", 'team_data'),'our_score');
 		}
-		else if ($fields['opposition_score'] == '') {
+		elseif ($fields['opposition_score'] == '') {
 			$response_data['error_message'] = sprintf(__("Property '%s' is required", 'team_data'),'opposition_score');
 		}
 		else {
@@ -173,7 +184,9 @@ class TeamDataAdminAjax extends TeamDataBase {
 		echo json_encode($response_data);
 		exit;
 	}
-	
+
+	// VENUE operations
+
 	public function get_venue() {
 		$this->run_select($this->tables->venue,'venue_id');
 		exit;
@@ -192,8 +205,10 @@ class TeamDataAdminAjax extends TeamDataBase {
 		$venue_id = $this->get_post_values($fields);
 
 		$response_data = array( 'result' => 'error' );
-		// name is required
-		if ($fields['name'] == '') {
+		if (!$this->check_nonce()) {
+			$response_data['error_message'] = __("Invalid nonce", 'team_data');
+		}
+		elseif ($fields['name'] == '') { // name is required
 			$response_data['error_message'] = sprintf(__("Property '%s' is required", 'team_data'),'name');
 		}
 		else {
@@ -208,6 +223,8 @@ class TeamDataAdminAjax extends TeamDataBase {
 		$this->run_select_all($this->tables->venue);
 		exit;
 	}
+
+	// LEVEL operations
 
 	public function get_level() {
 		$this->run_select($this->tables->level,'level_id');
@@ -224,8 +241,10 @@ class TeamDataAdminAjax extends TeamDataBase {
 		$level_id = $this->get_post_values($fields);
 
 		$responseData = array( "result" => "error" );
-		// name is required
-		if ($fields["name"] == '') {
+		if (!$this->check_nonce()) {
+			$response_data['error_message'] = __("Invalid nonce", 'team_data');
+		}
+		elseif ($fields["name"] == '') { // name is required
 			$responseData['error_message'] = sprintf(__("Property '%s' is required", 'team_data'),'name');
 		}
 		else {
@@ -235,11 +254,13 @@ class TeamDataAdminAjax extends TeamDataBase {
 		echo json_encode($responseData);
 		exit;
 	}
-	
+
 	public function get_all_levels() {
 		$this->run_select_all($this->tables->level);
 		exit;
 	}
+
+	// MEMBER operations
 
 	public function get_member() {
 		$this->run_select($this->tables->member,'member_id');
@@ -274,11 +295,13 @@ class TeamDataAdminAjax extends TeamDataBase {
 		$member_id = $this->get_post_values($fields);
 
 		$responseData = array( "result" => "error" );
-		// first_name and last_name are required
-		if ($fields['first_name'] == '') {
+		if (!$this->check_nonce()) {
+			$response_data['error_message'] = __("Invalid nonce", 'team_data');
+		}
+		elseif ($fields['first_name'] == '') { // first_name and last_name are required
 			$responseData['error_message'] = sprintf(__("Property '%s' is required", 'team_data'),'first_name');
 		}
-		if ($fields['last_name'] == '') {
+		elseif ($fields['last_name'] == '') {
 			$responseData['error_message'] = sprintf(__("Property '%s' is required", 'team_data'),'last_name');
 		}
 		else {
@@ -288,11 +311,13 @@ class TeamDataAdminAjax extends TeamDataBase {
 		echo json_encode($responseData);
 		exit;
 	}
-	
+
 	public function get_all_members() {
-		$this->run_select_all($this->tables->member,"CONCAT(first_name,' ',last_name)");
+		$this->run_select_all($this->tables->member,"CONCAT(first_name,' ',last_name) As name");
 		exit;
 	}
+
+	// ROLE operations
 
 	public function get_role() {
 		$this->run_select($this->tables->role,'role_id');
@@ -308,14 +333,16 @@ class TeamDataAdminAjax extends TeamDataBase {
 		$role_id = $this->get_post_values($fields);
 
 		$responseData = array( 'result' => 'error' );
-		// name is required
-		if ($fields['name'] == '') {
+		if (!$this->check_nonce()) {
+			$response_data['error_message'] = __("Invalid nonce", 'team_data');
+		}
+		elseif ($fields['name'] == '') { // name is required
 			$responseData['error_message'] = sprintf(__("Property '%s' is required", 'team_data'),'name');
 		}
 		else {
 			$responseData = $this->run_update($this->tables->role,$fields,$role_id);
 		}
-		
+
 		echo json_encode($responseData);
 		exit;
 	}
@@ -324,6 +351,8 @@ class TeamDataAdminAjax extends TeamDataBase {
 		$this->run_select_all($this->tables->role);
 		exit;
 	}
+
+	// OPPOSITION operations
 
 	public function get_opposition() {
 		$this->run_select($this->tables->opposition,'opposition_id');
@@ -341,14 +370,16 @@ class TeamDataAdminAjax extends TeamDataBase {
 		$opposition_id = $this->get_post_values($fields);
 
 		$responseData = array( 'result' => 'error' );
-		// name is required
-		if ($fields['name'] == '') {
+		if (!$this->check_nonce()) {
+			$response_data['error_message'] = __("Invalid nonce", 'team_data');
+		}
+		elseif ($fields['name'] == '') {
 			$responseData['error_message'] = sprintf(__("Property '%s' is required", 'team_data'),'name');
 		}
 		else {
 			$responseData = $this->run_update($this->tables->opposition,$fields,$opposition_id);
 		}
-		
+
 		echo json_encode($responseData);
 		exit;
 	}
@@ -357,7 +388,9 @@ class TeamDataAdminAjax extends TeamDataBase {
 		$this->run_select_all($this->tables->opposition);
 		exit;
 	}
-	
+
+	// STAT operations
+
 	public function get_stat() {
 		$this->run_select($this->tables->stat,'stat_id');
 		exit;
@@ -373,20 +406,140 @@ class TeamDataAdminAjax extends TeamDataBase {
 		$stat_id = $this->get_post_values($fields);
 
 		$responseData = array( 'result' => 'error' );
-		// name is required
-		if ($fields['name'] == '') {
+		if (!$this->check_nonce()) {
+			$response_data['error_message'] = __("Invalid nonce", 'team_data');
+		}
+		elseif ($fields['name'] == '') {
 			$responseData['error_message'] = sprintf(__("Property '%s' is required", 'team_data'),'name');
 		}
 		else {
 			$responseData = $this->run_update($this->tables->stat,$fields,$stat_id);
 		}
-		
+
 		echo json_encode($responseData);
 		exit;
 	}
 
 	public function get_all_stats() {
 		$this->run_select_all($this->tables->stat);
+		exit;
+	}
+
+	// SEASON operations
+
+	public function get_season() {
+		global $wpdb;
+
+		$id_field = 'season_id';
+		header('Content-Type: application/json');
+		if ($this->check_nonce() && isset($_POST[$id_field])) {
+			$id_value = $wpdb->escape(intval($_POST[$id_field]));
+			$query = "SELECT * FROM $table WHERE id = $id_value";
+			$row_data = $wpdb->get_row($query);
+
+			$current_season = $this->get_option('current_season');
+			$row_data['is_current'] = 0;
+			if (($current_season <> '') && ($current_season == $id_value)) {
+				$row_data['is_current'] = 1;
+			}
+			echo json_encode($row_data);
+		}
+		else {
+			echo 'null';
+		}
+		exit;
+	}
+
+	public function put_season() {
+		header('Content-Type: application/json');
+		$fields = array(
+			'id' => '',
+			'year' => '',
+			'season' => ''
+		);
+		$season_id = $this->get_post_values($fields);
+
+		$responseData = array( "result" => "error" );
+		if (!$this->check_nonce()) {
+			$response_data['error_message'] = __("Invalid nonce", 'team_data');
+		}
+		elseif ($fields["year"] == '') { // year and season are required
+			$responseData['error_message'] = sprintf(__("Property '%s' is required", 'team_data'),'year');
+		}
+		elseif ($fields["season"] == '') {
+			$responseData['error_message'] = sprintf(__("Property '%s' is required", 'team_data'),'season');
+		}
+		else {
+			$responseData = $this->run_update($this->tables->season,$fields,$season_id);
+			if (isset($_POST['is_current']) && ($_POST['is_current'] == 1) && isset($responseData['result'])) {
+				$this->set_option('current_season',$responseData['result']);
+			}
+		}
+
+		echo json_encode($responseData);
+		exit;
+	}
+
+	public function put_season_repeat() {
+		header('Content-Type: application/json');
+
+		$responseData = array( "result" => "error" );
+		$year = '';
+		if (isset($_POST['year'])) {
+			$year = $_POST['year'];
+		}
+		if (!$this->check_nonce()) {
+			$response_data['error_message'] = __("Invalid nonce", 'team_data');
+		}
+		elseif ($year == '') {
+			$responseData['error_message'] = sprintf(__("Property '%s' is required", 'team_data'),'year');
+		}
+		else {
+			$responseData['error_message'] = '';
+			$responseData['result'] = '';
+			$last_season_query = "SELECT `season` FROM `$this->tables->season` s 
+				JOIN 
+					( SELECT `year` FROM `$this->tables->season` ORDER BY ID DESC Limit 1) sub 
+				ON s.`year` = sub.`year`
+				ORDER BY s.ID ASC";
+			$seasons = $wpdb->get_results($last_season_query);
+			$showErrors = $wpdb->hide_errors();
+			foreach($seasons as $season) {
+				$fields = array(
+					'year' => $year,
+					'season' => $season
+				);
+				$insertOK = $wpdb->insert($this->tables->season,$fields);
+				if ($insertOK) {
+					$responseData['result'] .= $wpdb->insert_id . ',';
+				}
+				else {
+					$responseData['error_message'] .= $wpdb->last_error . ',';
+				}
+			}
+			if ($responseData['result'] == '') unset $responseData['result'];
+			if ($responseData['error_message'] == '') unset $responseData['error_message'];
+			if ($showErrors) $wpdb->show_errors();
+		}
+		echo json_encode($responseData);
+		exit;
+	}
+
+	public function get_all_seasons() {
+		$this->run_select_all($this->tables->season,"CONCAT(`year`,' ',`season`) As name");
+		exit;
+	}
+
+	public function get_season_names() {
+		header('Content-Type: application/json');
+		if (!$this->check_nonce()) {
+			echo 'null';
+		}
+		else {
+			$name_query = "SELECT DISTINCT `season` FROM $this->tables->season GROUP BY `season`";
+			$results = $wpdb->get_results($name_query, ARRAY_A);
+			echo json_encode($results);
+		}
 		exit;
 	}
 
@@ -455,7 +608,7 @@ class TeamDataAdminAjax extends TeamDataBase {
 		global $wpdb;
 
 		header('Content-Type: application/json');
-		if (isset($_POST[$id_field])) {
+		if ($this->check_nonce() && isset($_POST[$id_field])) {
 			$id_value = $wpdb->escape(intval($_POST[$id_field]));
 			$query = "SELECT * FROM $table WHERE id = $id_value";
 			$row_data = $wpdb->get_row($query);
@@ -478,9 +631,18 @@ class TeamDataAdminAjax extends TeamDataBase {
 		global $wpdb;
 		
 		header('Content-Type: application/json');
-		$all_query = "SELECT id, $name_col FROM $table";
-		$results = $wpdb->get_results($all_query, ARRAY_A);
-		echo json_encode($results);
+		if (!$this->check_nonce()) {
+			echo 'null';
+		}
+		else {
+			$all_query = "SELECT id, $name_col FROM $table";
+			$results = $wpdb->get_results($all_query, ARRAY_A);
+			echo json_encode($results);
+		}
+	}
+	
+	private function check_nonce() {
+		return (isset($_POST['nonce']) && wp_verify_nonce($_POST['nonce', 'team_data_nonce'));
 	}
 }
 ?>
