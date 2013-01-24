@@ -364,7 +364,7 @@ class TeamDataAdmin extends TeamDataBase {
 		$newline = "\n";
 		$api_list = array(
 			'main' => "'venue', 'level', 'role', 'stat', 'opposition', 'season'",
-			'matches' => "'venue', 'level', 'opposition'",
+			'matches' => "'venue', 'level', 'opposition', 'season'",
 			'members' => "'member', 'role', 'stat'",
 		);
 		echo '<script type="text/javascript">' . $newline;
