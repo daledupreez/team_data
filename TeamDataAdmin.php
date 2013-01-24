@@ -35,7 +35,8 @@ class TeamDataAdmin extends TeamDataBase {
 	public function render_matches() {	
 		$this->render_match_list();
 
-		echo '<br/><input class="team_data_button" id="team_data_new_match_button" type="button" value="' . __('Create New Match(es)','team_data') . '" onclick="team_data.api.match.newMatches();" />';
+		echo '<br/>';
+		echo '<input class="team_data_button" id="team_data_new_match_button" type="button" value="' . __('Create New Match(es)','team_data') . '" onclick="team_data.api.match.newMatches();" />';
 		echo '<div id="team_data_new_match" class="team_data_admin_section" style="display: none;">';
 			echo '<form id="team_data_new_match_shared">';
 				echo '<div class="team_data_inline">';
@@ -519,6 +520,10 @@ class TeamDataAdmin extends TeamDataBase {
 				echo '<div class="team_data_inline">';
 					echo '<label for="team_data_match_edit__id" class="team_data_edit_label">' . __('ID','team_data') . '</label>';
 					echo '<input id="team_data_match_edit__id" class="team_data_edit_input" name="match_id" type="text" size="5" readonly="readonly" disabled="disabled" />';
+				echo '</div>';
+				echo '<div class="team_data_inline">';
+					echo '<label for="team_data_match_edit__season" class="team_data_edit_label">' . __('Season','team_data') . '</label>';
+					echo '<input id="team_data_match_edit__season" class="team_data_edit_input team_data_season" name="match_season" type="text" size="10" />';
 				echo '</div>';
 				echo '<div class="team_data_inline">';
 					echo '<label for="team_data_match_edit__date" class="team_data_edit_label">' . __('Date','team_data') . '</label>';
