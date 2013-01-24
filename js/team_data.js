@@ -80,7 +80,7 @@ team_data.apiObject.prototype.getForm = function apiObject_getForm()
 team_data.apiObject.prototype.load = function apiObject_load(id_val)
 {
 	if (!this.refNameIsValid()) return;
-	var postData = { "action": "team_data_get_" + this.refName };
+	var postData = { "action": "team_data_get_" + this.refName, "nonce": team_data_ajax.nonce };
 	postData[this.refName + '_id'] = id_val;
 	var apiObject = this;
 	jQuery.post(ajaxurl,postData, function(postResponse) { apiObject.updateForm(postResponse); }); 
@@ -89,16 +89,18 @@ team_data.apiObject.prototype.load = function apiObject_load(id_val)
 team_data.apiObject.prototype.loadList = function apiObject_loadList()
 {
 	if (!this.refNameIsValid()) return;
-	var postData = { "action": "team_data_get_all_" + this.refName + "s" };
+	var postData = { "action": "team_data_get_all_" + this.refName + "s", "nonce": team_data_ajax.nonce };
 	var apiObject = this;
 	jQuery.post(ajaxurl,postData, function(postResponse) { apiObject.updateList(postResponse); } );
 }
+
+team_data.apiObject.prototype.nameIsRequired = true;
 
 team_data.apiObject.prototype.objectIsValid = function(object_data)
 {
 	var isValid = true;
 	var msg = [];
-	if ((typeof object_data.name == 'undefined') || (object_data.name == '')) {
+	if (this.nameIsRequired && ((typeof object_data.name == 'undefined') || (object_data.name == ''))) {
 		msg.push(team_data.fn.getLocText("Property '%1' is required",'name'));
 		isValid = false;
 	}
@@ -130,7 +132,7 @@ team_data.apiObject.prototype.save = function apiObject_save()
 	var myForm = this.getForm();
 	var fields = this.getFields();
 	if ((!myForm) || (!fields) || (!fields.length)) return;
-	var newData = { "action": "team_data_put_" + this.refName };
+	var newData = { "action": "team_data_put_" + this.refName, "nonce": team_data_ajax.nonce };
 	for (var i = 0; i < fields.length; i++) {
 		var prop = fields[i];
 		var control = myForm[this.refName + '_' + prop];
@@ -225,6 +227,7 @@ team_data.api.opposition.getFields = function opposition_getFields()
 team_data.api.role = new team_data.apiObject('role');
 
 team_data.api.season = new team_data.apiObject('season');
+team_data.api.season.nameIsRequired = false;
 team_data.api.season.getFields = function season_getFields()
 {
 	return [ 'id', 'year', 'season', 'is_current' ];
@@ -241,10 +244,11 @@ team_data.api.season.repeatLastSeason = function season_repeatLastSeason()
 			var confirmText = team_data.fn.getLocText("Are you sure you want to repeat the season names for new season '%1'?",newYear);
 			var callServer = confirm(confirmText);
 			if (callServer) {
-				var ajaxData = { 'action': 'team_data_put_season_repeat', 'year': newYear };
+				var ajaxData = { "action": "team_data_put_season_repeat", "year": newYear, "nonce": team_data_ajax.nonce };
 				var apiObject = this;
 				jQuery.post(ajaxurl,ajaxData,function(repeatResult) { apiObject.repeatLastSeasonHandler(repeatResult); });
 			}
+		}
 	}
 }
 
@@ -282,7 +286,7 @@ team_data.api.options.save = function options_save() {
 		if (max_matches && !isNaN(max_matches) && (max_matches > 0)) {
 			if (parseInt(controls.original.value,10) != max_matches) {
 				var apiObject = this;
-				var setData = { "action": "team_data_set_option", "option_name": "max_matches", "option_value": max_matches };
+				var setData = { "action": "team_data_set_option", "option_name": "max_matches", "option_value": max_matches, "nonce": team_data_ajax.nonce };
 				jQuery.post(ajaxurl,setData,function(saveResult) { apiObject.saveHandler(saveResult); });
 			}
 		}
@@ -307,7 +311,7 @@ team_data.api.match.allFields = team_data.api.match.sharedFields.concat(team_dat
 team_data.api.match.editMatch = function match_editMatch(match_id)
 {
 	team_data.api.match.toggleNewMatchDiv(false);
-	var postData = { "action": "team_data_get_basic_match", "match_id": match_id };
+	var postData = { "action": "team_data_get_basic_match", "match_id": match_id, "nonce": team_data_ajax.nonce };
 	jQuery.post(ajaxurl,postData,team_data.api.match.editMatchHandler);
 }
 team_data.api.match.editMatchHandler = function match_editMatchHandler(match_data)
@@ -361,7 +365,8 @@ team_data.api.match.editScore = function match_editScore(match_id)
 			"action": "team_data_update_score",
 			"id": match_id,
 			"our_score": team_data.fn.getControlValue(editForm.score_our_score),
-			"opposition_score": team_data.fn.getControlValue(editForm.score_opposition_score)
+			"opposition_score": team_data.fn.getControlValue(editForm.score_opposition_score),
+			"nonce": team_data_ajax.nonce
 		};
 		jQuery.post(ajaxurl,postData,team_data.api.match.editScoreHandler);
 	}
@@ -482,6 +487,7 @@ team_data.api.match.saveMatch = function match_saveMatch()
 		}
 		else {
 			matchData.action = 'team_data_update_match';
+			matchData.nonce = team_data_ajax.nonce;
 			jQuery.post(ajaxurl,matchData,team_data.api.match.saveMatchHandler);
 		}
 	}
@@ -572,7 +578,7 @@ team_data.api.match.saveNewMatches = function match_saveNewMatches() {
 				team_data.ui.reportErrors(errors,focusList);
 			}
 			else {
-				var postData = { "action": "team_data_put_new_matches", "match_data": JSON.stringify(matchData) };
+				var postData = { "action": "team_data_put_new_matches", "match_data": JSON.stringify(matchData), "nonce": team_data_ajax.nonce };
 				jQuery.post(ajaxurl,postData,team_data.api.match.saveNewMatchesHandler);
 			}
 		}

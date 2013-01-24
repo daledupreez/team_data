@@ -3,23 +3,23 @@
 /**
 * TeamData plugin Admin AJAX handler.
 */
-class TeamDataAdminAjax extends TeamDataBase {
+class TeamDataAdminAjax extends TeamDataAjax {
 
 	public function add_actions() {
 		// to decide: member, match_stat, cap, match
 		$ajax_prefix = 'wp_ajax_team_data_';
-		$actions = array();
 		$actions = array( 'venue', 'level', 'role', 'opposition', 'stat', 'season' );
 		foreach($actions as $simple_action) {
 			add_action($ajax_prefix . 'get_' . $simple_action, array($this, 'get_' . $simple_action));
 			add_action($ajax_prefix . 'put_' . $simple_action, array($this, 'put_' . $simple_action));
-			add_action($ajax_prefix . 'get_all_' . $simple_action . 's', array($this, 'get_all_' . $simple_action . 's'));
 		}
-		
+
 		// member
+		/*
 		add_action($ajax_prefix . 'get_member', array($this, 'get_member'));
 		add_action($ajax_prefix . 'put_member', array($this, 'put_member'));
 		add_action($ajax_prefix . 'get_all_members', array($this, 'get_all_members'));
+		*/
 		// set_option
 		add_action($ajax_prefix . 'set_option', array($this, 'ajax_set_option'));
 		// match
@@ -30,8 +30,14 @@ class TeamDataAdminAjax extends TeamDataBase {
 		// season
 		add_action($ajax_prefix . 'get_season_names', array($this, 'get_season_names'));
 		add_action($ajax_prefix . 'put_season_repeat', array($this, 'put_season_repeat'));
+
+		add_action('wp_enqueue_scripts', array( $this, 'add_ajax_url' ) );
 	}
-	
+
+	public function add_ajax_url() {
+		wp_localize_script( 'team_data', 'team_data_ajax', array( 'ajaxurl' => admin_url( 'admin-ajax.php' ), 'nonce' => wp_create_nonce('team_data_nonce') ) );
+	}
+
 	public function ajax_set_option() {
 		header('Content-Type: application/json');
 		$response_data = array( 'set' => false );
@@ -97,7 +103,7 @@ class TeamDataAdminAjax extends TeamDataBase {
 		echo json_encode($response_data);
 		exit;
 	}
-	
+
 	public function get_basic_match() {
 		$this->run_select($this->tables->match,'match_id');
 		exit;
@@ -157,7 +163,7 @@ class TeamDataAdminAjax extends TeamDataBase {
 		}
 		return $is_valid;
 	}
-	
+
 	public function update_score() {
 		header('Content-Type: application/json');
 		$fields = array(
@@ -180,7 +186,7 @@ class TeamDataAdminAjax extends TeamDataBase {
 		else {
 			$response_data = $this->run_update($this->tables->match,$fields,$match_id);
 		}
-		
+
 		echo json_encode($response_data);
 		exit;
 	}
@@ -214,13 +220,8 @@ class TeamDataAdminAjax extends TeamDataBase {
 		else {
 			$response_data = $this->run_update($this->tables->venue,$fields,$venue_id);
 		}
-		
-		echo json_encode($response_data);
-		exit;
-	}
 
-	public function get_all_venues() {
-		$this->run_select_all($this->tables->venue);
+		echo json_encode($response_data);
 		exit;
 	}
 
@@ -252,11 +253,6 @@ class TeamDataAdminAjax extends TeamDataBase {
 		}
 
 		echo json_encode($responseData);
-		exit;
-	}
-
-	public function get_all_levels() {
-		$this->run_select_all($this->tables->level);
 		exit;
 	}
 
@@ -313,8 +309,11 @@ class TeamDataAdminAjax extends TeamDataBase {
 	}
 
 	public function get_all_members() {
-		$this->run_select_all($this->tables->member,"CONCAT(first_name,' ',last_name) As name");
-		exit;
+		return $this->run_select_all($this->tables->member,"CONCAT(first_name,' ',last_name) As name");
+	}
+
+	public function get_all_members_ajax() {
+		$this->run_select_all_ajax($this->tables->member,"CONCAT(first_name,' ',last_name) As name");
 	}
 
 	// ROLE operations
@@ -344,11 +343,6 @@ class TeamDataAdminAjax extends TeamDataBase {
 		}
 
 		echo json_encode($responseData);
-		exit;
-	}
-
-	public function get_all_roles() {
-		$this->run_select_all($this->tables->role);
 		exit;
 	}
 
@@ -384,11 +378,6 @@ class TeamDataAdminAjax extends TeamDataBase {
 		exit;
 	}
 
-	public function get_all_oppositions() {
-		$this->run_select_all($this->tables->opposition);
-		exit;
-	}
-
 	// STAT operations
 
 	public function get_stat() {
@@ -420,11 +409,6 @@ class TeamDataAdminAjax extends TeamDataBase {
 		exit;
 	}
 
-	public function get_all_stats() {
-		$this->run_select_all($this->tables->stat);
-		exit;
-	}
-
 	// SEASON operations
 
 	public function get_season() {
@@ -434,13 +418,13 @@ class TeamDataAdminAjax extends TeamDataBase {
 		header('Content-Type: application/json');
 		if ($this->check_nonce() && isset($_POST[$id_field])) {
 			$id_value = $wpdb->escape(intval($_POST[$id_field]));
-			$query = "SELECT * FROM $table WHERE id = $id_value";
+			$table = $this->tables->season;
+			$query = "SELECT *, 0 As is_current FROM $table WHERE id = $id_value";
 			$row_data = $wpdb->get_row($query);
 
 			$current_season = $this->get_option('current_season');
-			$row_data['is_current'] = 0;
 			if (($current_season <> '') && ($current_season == $id_value)) {
-				$row_data['is_current'] = 1;
+				$row_data->is_current = 1;
 			}
 			echo json_encode($row_data);
 		}
@@ -470,9 +454,15 @@ class TeamDataAdminAjax extends TeamDataBase {
 			$responseData['error_message'] = sprintf(__("Property '%s' is required", 'team_data'),'season');
 		}
 		else {
-			$responseData = $this->run_update($this->tables->season,$fields,$season_id);
-			if (isset($_POST['is_current']) && ($_POST['is_current'] == 1) && isset($responseData['result'])) {
-				$this->set_option('current_season',$responseData['result']);
+			$updateCount = $this->run_update($this->tables->season,$fields,$season_id);
+			if ($updateCount >= 1) {
+				$responseData['result'] = $season_id;
+				if (isset($_POST['is_current']) && ($_POST['is_current'] == 1)) {
+					$this->set_option('current_season',$season_id);
+				}
+			}
+			else {
+				$responseData['error_message'] = $wpdb->last_error;
 			}
 		}
 
@@ -497,9 +487,10 @@ class TeamDataAdminAjax extends TeamDataBase {
 		else {
 			$responseData['error_message'] = '';
 			$responseData['result'] = '';
-			$last_season_query = "SELECT `season` FROM `$this->tables->season` s 
+			$table = $this->tables->season;
+			$last_season_query = "SELECT `season` FROM `$table` s 
 				JOIN 
-					( SELECT `year` FROM `$this->tables->season` ORDER BY ID DESC Limit 1) sub 
+					( SELECT `year` FROM `$table` ORDER BY ID DESC Limit 1) sub 
 				ON s.`year` = sub.`year`
 				ORDER BY s.ID ASC";
 			$seasons = $wpdb->get_results($last_season_query);
@@ -517,16 +508,11 @@ class TeamDataAdminAjax extends TeamDataBase {
 					$responseData['error_message'] .= $wpdb->last_error . ',';
 				}
 			}
-			if ($responseData['result'] == '') unset $responseData['result'];
-			if ($responseData['error_message'] == '') unset $responseData['error_message'];
+			if ($responseData['result'] == '') unset($responseData['result']);
+			if ($responseData['error_message'] == '') unset($responseData['error_message']);
 			if ($showErrors) $wpdb->show_errors();
 		}
 		echo json_encode($responseData);
-		exit;
-	}
-
-	public function get_all_seasons() {
-		$this->run_select_all($this->tables->season,"CONCAT(`year`,' ',`season`) As name");
 		exit;
 	}
 
@@ -620,29 +606,8 @@ class TeamDataAdminAjax extends TeamDataBase {
 		}
 	}
 
-	/**
-	 * Private helper function to SELECT id and name from all rows in table specified by $table
-	 * and then write out the data in JSON format
-	 *
-	 * @param string $table Name of table
-	 * @param string $name_col Name/expression for name value
-	 */
-	private function run_select_all($table,$name_col = "name") {
-		global $wpdb;
-		
-		header('Content-Type: application/json');
-		if (!$this->check_nonce()) {
-			echo 'null';
-		}
-		else {
-			$all_query = "SELECT id, $name_col FROM $table";
-			$results = $wpdb->get_results($all_query, ARRAY_A);
-			echo json_encode($results);
-		}
-	}
-	
 	private function check_nonce() {
-		return (isset($_POST['nonce']) && wp_verify_nonce($_POST['nonce', 'team_data_nonce'));
+		return (isset($_POST['nonce']) && wp_verify_nonce($_POST['nonce'], 'team_data_nonce'));
 	}
 }
 ?>

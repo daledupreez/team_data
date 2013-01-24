@@ -112,6 +112,9 @@ class TeamData extends TeamDataBase {
 		/* Admin AJAX actions */
 		$admin_ajax = new TeamDataAdminAjax();
 		$admin_ajax->add_actions();
+		/* Public AJAX actions */
+		$public_ajax = new TeamDataAjax();
+		$public_ajax->add_actions();
 	}
 
 	public function debug_returned_output() {

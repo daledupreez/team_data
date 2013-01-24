@@ -299,7 +299,7 @@ class TeamDataAdmin extends TeamDataBase {
 							echo '<input id="team_data_season_edit__season" class="team_data_edit_input" name="season_season" type="text" size="30" />';
 						echo '</div>';
 						echo '<div class="team_data_inline">';
-							echo '<label for="team_data_season_edit__is_current" class="team_data_edit_label">' . __('Season','team_data') . '</label>';
+							echo '<label for="team_data_season_edit__is_current" class="team_data_edit_label">' . __('Is Current Season','team_data') . '</label>';
 							echo '<input id="team_data_season_edit__is_current" class="team_data_admin_checkbox" name="season_is_current" type="checkbox" />';
 						echo '</div>';
 					echo '</form>';
@@ -344,6 +344,7 @@ class TeamDataAdmin extends TeamDataBase {
 		wp_enqueue_script('team-data', plugins_url('js/team_data.js', __FILE__ ));
 		wp_enqueue_style('jquery.ui.theme', plugins_url('css/redmond/jquery-ui-1.8.23.custom.css', __FILE__ ));
 		wp_enqueue_style('team-data-css', plugins_url('css/team_data.css',__FILE__));
+		wp_localize_script('team-data', 'team_data_ajax', array( 'nonce' => wp_create_nonce('team_data_nonce') ) );
 	}
 	
 	public function render_loc_js($hook) {
@@ -362,7 +363,7 @@ class TeamDataAdmin extends TeamDataBase {
 	private function render_footer_js($page = 'main') {
 		$newline = "\n";
 		$api_list = array(
-			'main' => "'venue', 'level', 'role', 'stat', 'opposition'",
+			'main' => "'venue', 'level', 'role', 'stat', 'opposition', 'season'",
 			'matches' => "'venue', 'level', 'opposition'",
 			'members' => "'member', 'role', 'stat'",
 		);
