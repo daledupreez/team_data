@@ -3,7 +3,7 @@
 Plugin Name: Team Data
 Plugin URI: http://slowthoughts.wordpress.com
 Description: An initial attempt to modularize the custom data needs of the Mystic River site in a plugin.
-Version: 0.2
+Version: 0.21
 Author: Dale du Preez
 License: GPL2
 */

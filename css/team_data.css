@@ -117,6 +117,7 @@ input.team_data_admin_checkbox {
 	max-height: 300px;
 	border: 1px solid #999;
 	margin: 5px 15px 5px 5px;
+	overflow-y: auto;
 	border-radius: 5px;
 }
 .team_data_simple_header {
