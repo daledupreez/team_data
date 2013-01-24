@@ -149,16 +149,34 @@ class TeamDataAdminAjax extends TeamDataAjax {
 	private function is_valid_match($match,$check_score) {
 		if (!$match) return false;
 		$fields = array( 'time', 'venue_id', 'date', 'opposition_id', 'level_id', 'is_league', 'is_postseason', 'season_id' );
-		if ($check_score) {
-			$fields[] = 'our_score';
-			$fields[] = 'opposition_score';
-		}
 		$is_valid = true;
 		foreach ($fields as $field) {
-			if ((!isset($match[$field])) || ($match[$field] == '')) {
+			if ((!isset($match[$field])) || ($match[$field] === '')) {
 				$is_valid = false;
 				$this->debug("declaring invalid because match['$field'] is " . (isset($match[$field]) ? '[empty]' : 'unset'));
 				break;
+			}
+		}
+		if ($is_valid && $check_score) {
+			if (isset($match['result'])) {
+				if (($match['result'] == 'W') || ($match['result'] == 'D') || ($match['result'] == 'L')) {
+					$is_valid = (!isset($match['our_score'])) && (!isset($match['opposition_score']));
+					if (!$is_valid) $this->debug("declaring invalid because match['our_score'] or match['opposition_score'] is defined");
+				}
+				else {
+					$is_valid = false;
+					$this->debug("declaring invalid because match['result'] is " . ($match['result'] === '') ? '[empty]' : $match['result']);
+				}
+			}
+			else {
+				if ((!isset($match['our_score'])) || ($match['our_score'] === '')) {
+					$is_valid = false;
+					$this->debug("declaring invalid because match['our_score'] is " . (isset($match['our_score']) ? '[empty]' : 'unset'));
+				}
+				elseif ((!isset($match['opposition_score'])) || ($match['opposition_score'] === '')) {
+					$is_valid = false;
+					$this->debug("declaring invalid because match['opposition_score'] is " . (isset($match['opposition_score']) ? '[empty]' : 'unset'));
+				}
 			}
 		}
 		return $is_valid;
@@ -170,22 +188,38 @@ class TeamDataAdminAjax extends TeamDataAjax {
 			'id' => '',
 			'our_score' => '',
 			'opposition_score' => '',
+			'result' => '',
 		);
 		$match_id = $this->get_post_values($fields);
 
 		$response_data = array( 'result' => 'error' );
+		$ok = false;
 		if (!$this->check_nonce()) {
 			$response_data['error_message'] = __("Invalid nonce", 'team_data');
 		}
-		elseif ($fields['our_score'] == '') { // our_score and opposition_score are required
-			$response_data['error_message'] = sprintf(__("Property '%s' is required", 'team_data'),'our_score');
-		}
-		elseif ($fields['opposition_score'] == '') {
-			$response_data['error_message'] = sprintf(__("Property '%s' is required", 'team_data'),'opposition_score');
+		elseif ($fields['result'] !== '') {
+			if (($fields['result'] == 'W') || ($fields['result'] == 'D') || ($fields['result'] == 'L')) {
+				$ok = true;
+				unset($fields['our_score']);
+				unset($fields['opposition_score']);
+			}
+			else {
+				$response_data['error_message'] = sprintf(__("Property '%s' is invalid", 'team_data'),'result');
+			}
 		}
 		else {
-			$response_data = $this->run_update($this->tables->match,$fields,$match_id);
+			if ($fields['our_score'] === '') { // our_score and opposition_score are required
+				$response_data['error_message'] = sprintf(__("Property '%s' is required", 'team_data'),'our_score');
+			}
+			elseif ($fields['opposition_score'] === '') {
+				$response_data['error_message'] = sprintf(__("Property '%s' is required", 'team_data'),'opposition_score');
+			}
+			else {
+				$ok = true;
+				$fields['result'] = '';
+			}
 		}
+		if ($ok) $response_data = $this->run_update($this->tables->match,$fields,$match_id);
 
 		echo json_encode($response_data);
 		exit;

@@ -366,6 +366,7 @@ team_data.api.match.editScore = function match_editScore(match_id)
 			"id": match_id,
 			"our_score": team_data.fn.getControlValue(editForm.score_our_score),
 			"opposition_score": team_data.fn.getControlValue(editForm.score_opposition_score),
+			"result": team_data.fn.getControlValue(editForm.score_result),
 			"nonce": team_data_ajax.nonce
 		};
 		jQuery.post(ajaxurl,postData,team_data.api.match.editScoreHandler);
@@ -385,9 +386,13 @@ team_data.api.match.editScoreHandler = function match_editScoreHandler(saveResul
 		var editForm = team_data.api.match.getScoreEditForm(match_id);
 		var displayDiv = team_data.api.match.getScoreDisplayDiv(match_id);
 		if (editForm && displayDiv) {
+			var result = team_data.fn.getControlValue(editForm.score_result);
 			var our_score = parseInt(team_data.fn.getControlValue(editForm.score_our_score),10);
 			var opposition_score = parseInt(team_data.fn.getControlValue(editForm.score_opposition_score),10);
-			if (isNaN(our_score) || isNaN(opposition_score)) {
+			if ((result == 'W') || (result == 'D') || (result == 'L')) {
+				displayDiv.innerHTML = result;
+			}
+			else if (isNaN(our_score) || isNaN(opposition_score)) {
 				displayDiv.innerHTML = '&nbsp;-&nbsp;';
 			}
 			else {

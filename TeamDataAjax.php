@@ -139,6 +139,7 @@ class TeamDataAjax extends TeamDataBase {
 			$sql = $wpdb->prepare($sql . ' AND ' . $sql_sub_where, $where_data['args']);
 		}
 		$sql .= ' ORDER BY match.date ASC, match.time ASC';
+
 		return $wpdb->get_results($sql, ARRAY_A);
 	}
 
@@ -240,6 +241,10 @@ class TeamDataAjax extends TeamDataBase {
 		else if ($count == 1) {
 			$value = ($start == '' ? $end : $start);
 			$data['value'] = value;
+		}
+		else if (($count == 0) && isset($conditions[$field_name])) {
+			$count = 1;
+			$data['value'] = ( $is_int ? intval($conditions[$field_name]) : $conditions[$field_name] );
 		}
 		$data['count'] = $count;
 		return $data;

@@ -405,9 +405,9 @@ class TeamDataAdmin extends TeamDataBase {
 			echo "team_data.paging.resultCount = $matchCount;";
 			echo '</script>';
 
-			$match_query = "SELECT m.id, m.date, DATE_FORMAT(m.date,'%M %d, %Y') As pretty_date, TIME_FORMAT(m.time,'%h:%i %p') as time, m.venue_id, v.name as venue_name, m.opposition_id, o.name as opposition_name, m.level_id, l.name as level_name, m.our_score, m.opposition_score, m.is_league, m.is_postseason
-				FROM $tables->match m, $tables->venue v, $tables->opposition o, $tables->level l
-				WHERE m.opposition_id = o.id AND m.venue_id = v.id AND m.level_id = l.id
+			$match_query = "SELECT m.id, m.season_id, CONCAT(s.year,' ',s.season) as season, m.date, DATE_FORMAT(m.date,'%M %d, %Y') As pretty_date, TIME_FORMAT(m.time,'%h:%i %p') as time, m.venue_id, v.name as venue_name, m.opposition_id, o.name as opposition_name, m.level_id, l.name as level_name, m.our_score, m.opposition_score, m.result, m.is_league, m.is_postseason
+				FROM $tables->match m, $tables->venue v, $tables->opposition o, $tables->level l, $tables->season s
+				WHERE m.opposition_id = o.id AND m.venue_id = v.id AND m.level_id = l.id AND m.season_id = s.id
 				ORDER BY m.date DESC, m.time ASC" . $limit;
 
 			$matches = $wpdb->get_results($match_query);
@@ -427,6 +427,7 @@ class TeamDataAdmin extends TeamDataBase {
 				echo '</div>';
 				echo '<table class="team_data_matches">';
 				echo '<tr>';
+				echo '<th>' . __('Season', 'team_data') . '</th>';
 				echo '<th>' . __('Date', 'team_data') . '</th>';
 				echo '<th>' . __('Time', 'team_data') . '</th>';
 				echo '<th>' . __('Opponent', 'team_data') . '</th>';
@@ -438,6 +439,7 @@ class TeamDataAdmin extends TeamDataBase {
 				echo '</tr>';
 				foreach ($matches as $match) {
 					echo '<tr id="team_data_match_row_' . $match->id . '">';
+					echo '<td>' . $match->season . '</td>';
 					echo '<td>' . $match->pretty_date . '</td>';
 					echo '<td>' . $match->time . '</td>';
 					echo '<td>' . $match->opposition_name . '</td>';
@@ -445,7 +447,7 @@ class TeamDataAdmin extends TeamDataBase {
 					echo '<td>' . $match->venue_name . '</td>';
 					echo '<td>' . ($match->is_league == '1' ? 'L' : ($match->is_postseason == '1' ? 'P' : '&nbsp;')) . '</td>';
 					
-					$match_result = $this->get_match_result_string($match->our_score,$match->opposition_score);
+					$match_result = $this->get_match_result_string($match->our_score,$match->opposition_score,$match->result);
 					echo '<td>';
 						echo '<div id="team_data_edit__score_display_' . $match->id . '">';
 							echo (($match_result == '') ? '&nbsp;-&nbsp;' : $match_result);
@@ -454,6 +456,7 @@ class TeamDataAdmin extends TeamDataBase {
 							echo '<input id="team_data_edit__score_edit_' . $match->id . '_our" class="team_data_input" placeholder="' . __('ours','team_data') . '" name="score_our_score" type="text" size="3" value="' . (($match->our_score == null) || ($match->our_score == '') ? '' : $match->our_score) . '"/>';
 							echo '&nbsp;';
 							echo '<input id="team_data_edit__score_edit_' . $match->id . '_opposition" class="team_data_input" placeholder="' . __('theirs','team_data') . '" name="score_opposition_score" type="text" size="3" value="' . (($match->opposition_score == null) || ($match->opposition_score == '') ? '' : $match->opposition_score) . '"/>';
+							echo '<input id="team_data_edit_score_edit_' . $match->id . '_result" class="team_data_input" placeholder="' . __('result','team_data') . '" name="score_result" type="text" size="1" value="' . (($match->result == null) || ($match->result == '') ? '' : $match->result) . '"/>';
 						echo '</form>';
 					echo '</td>';
 					echo '<td>';
@@ -494,7 +497,8 @@ class TeamDataAdmin extends TeamDataBase {
 		$this->render_match_edit_div($wpdb,false);
 	}
 
-	private function get_match_result_string($our_score,$opposition_score) {
+	private function get_match_result_string($our_score,$opposition_score,$stored_result = '') {
+		if ($stored_result !== '') return $stored_result;
 		if (($our_score == null) || ($opposition_score == null)) return '';
 		$result = 'W';
 		if ($our_score < $opposition_score) {
