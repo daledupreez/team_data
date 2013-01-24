@@ -94,7 +94,7 @@ class TeamDataBase {
 */
 class TeamData extends TeamDataBase {
 
-	public $version = 0.2;
+	public $version = 0.21;
 
 	public function add_actions() {
 		global $wpdb;
