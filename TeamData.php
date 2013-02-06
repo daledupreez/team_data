@@ -27,6 +27,8 @@ require_once 'TeamDataAdmin.php';
 require_once 'TeamDataTables.php';
 require_once 'TeamDataAjax.php';
 require_once 'TeamDataAdminAjax.php';
+require_once 'TeamData_LastMatchWidget.php';
+require_once 'TeamData_NextMatchWidget.php';
 
 $team_data = new TeamData();
 $team_data->add_actions();
@@ -106,6 +108,8 @@ class TeamData extends TeamDataBase {
 		}
 		register_uninstall_hook( __FILE__, array( 'TeamData', 'delete_tables' ) );
 
+		add_action( 'widgets_init', array( $this, 'register_widgets' ) );
+
 		/* Admin actions */
 		$team_data_admin = new TeamDataAdmin();
 		$team_data_admin->add_actions();
@@ -115,6 +119,11 @@ class TeamData extends TeamDataBase {
 		/* Public AJAX actions */
 		$public_ajax = new TeamDataAjax();
 		$public_ajax->add_actions();
+	}
+	
+	public function register_widgets() {
+		if ( class_exists('TeamData_LastMatchWidget') ) register_widget( 'TeamData_LastMatchWidget' );
+		if ( class_exists('TeamData_NextMatchWidget') ) register_widget( 'TeamData_NextMatchWidget' );
 	}
 
 	public function debug_returned_output() {
