@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Team Data
-Plugin URI: http://slowthoughts.wordpress.com
+Plugin URI: http://github.com/daledupreez/team_data/
 Description: An initial attempt to modularize the custom data needs of the Mystic River site in a plugin.
 Version: 0.21
 Author: Dale du Preez
