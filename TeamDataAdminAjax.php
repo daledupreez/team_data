@@ -8,7 +8,7 @@ class TeamDataAdminAjax extends TeamDataAjax {
 	public function add_actions() {
 		// to decide: member, match_stat, cap, match
 		$ajax_prefix = 'wp_ajax_team_data_';
-		$actions = array( 'venue', 'level', 'role', 'opposition', 'stat', 'season' );
+		$actions = array( 'venue', 'level', 'role', 'team', 'stat', 'season' );
 		foreach($actions as $simple_action) {
 			add_action($ajax_prefix . 'get_' . $simple_action, array($this, 'get_' . $simple_action));
 			add_action($ajax_prefix . 'put_' . $simple_action, array($this, 'put_' . $simple_action));
@@ -380,14 +380,14 @@ class TeamDataAdminAjax extends TeamDataAjax {
 		exit;
 	}
 
-	// OPPOSITION operations
+	// TEAM operations
 
-	public function get_opposition() {
-		$this->run_select($this->tables->opposition,'opposition_id');
+	public function get_team() {
+		$this->run_select_with_option($this->tables->team,'team_id','our_team','is_us');
 		exit;
 	}
 
-	public function put_opposition() {
+	public function put_team() {
 		header('Content-Type: application/json');
 		$fields = array(
 			'id' => '',
@@ -395,7 +395,7 @@ class TeamDataAdminAjax extends TeamDataAjax {
 			'logo_link' => '',
 			'abbreviation' => '',
 		);
-		$opposition_id = $this->get_post_values($fields);
+		$team_id = $this->get_post_values($fields);
 
 		$responseData = array( 'result' => 'error' );
 		if (!$this->check_nonce()) {
@@ -405,7 +405,10 @@ class TeamDataAdminAjax extends TeamDataAjax {
 			$responseData['error_message'] = sprintf(__("Property '%s' is required", 'team_data'),'name');
 		}
 		else {
-			$responseData = $this->run_update($this->tables->opposition,$fields,$opposition_id);
+			$responseData = $this->run_update($this->tables->team,$fields,$team_id);
+			if (($responseData >= 1) && isset($_POST['is_us']) && ($_POST['is_us'] == 1)) {
+				$this->set_option('our_team',$team_id);
+			}
 		}
 
 		echo json_encode($responseData);
@@ -446,25 +449,7 @@ class TeamDataAdminAjax extends TeamDataAjax {
 	// SEASON operations
 
 	public function get_season() {
-		global $wpdb;
-
-		$id_field = 'season_id';
-		header('Content-Type: application/json');
-		if ($this->check_nonce() && isset($_POST[$id_field])) {
-			$id_value = $wpdb->escape(intval($_POST[$id_field]));
-			$table = $this->tables->season;
-			$query = "SELECT *, 0 As is_current FROM $table WHERE id = $id_value";
-			$row_data = $wpdb->get_row($query);
-
-			$current_season = $this->get_option('current_season');
-			if (($current_season <> '') && ($current_season == $id_value)) {
-				$row_data->is_current = 1;
-			}
-			echo json_encode($row_data);
-		}
-		else {
-			echo 'null';
-		}
+		$this->run_select_with_option($this->tables->season,'season_id','current_season','is_current');
 		exit;
 	}
 
@@ -488,15 +473,11 @@ class TeamDataAdminAjax extends TeamDataAjax {
 			$responseData['error_message'] = sprintf(__("Property '%s' is required", 'team_data'),'season');
 		}
 		else {
-			$updateCount = $this->run_update($this->tables->season,$fields,$season_id);
-			if ($updateCount >= 1) {
-				$responseData['result'] = $season_id;
+			$responseData = $this->run_update($this->tables->season,$fields,$season_id);
+			if ($response['result'] == $season_id) {
 				if (isset($_POST['is_current']) && ($_POST['is_current'] == 1)) {
 					$this->set_option('current_season',$season_id);
 				}
-			}
-			else {
-				$responseData['error_message'] = $wpdb->last_error;
 			}
 		}
 
@@ -633,6 +614,37 @@ class TeamDataAdminAjax extends TeamDataAjax {
 			$query = "SELECT * FROM $table WHERE id = $id_value";
 			$row_data = $wpdb->get_row($query);
 
+			echo json_encode($row_data);
+		}
+		else {
+			echo 'null';
+		}
+	}
+
+	/**
+	 * Private helper function to SELECT a row from $table where ID is the value in the POSTed variable $id_field,
+	 * as well as including a 0 or 1 in property $option_field to indicate whether the value of option $option_name
+	 * matches the value of $id_field.
+	 * The combined data is then written out as a JSON object
+	 *
+	 * @param string $table Name of table
+	 * @param string $id_field Name of the POSTed variable that should contain the ID
+	 * @param string $option_name Name of the TeamData option to compare against
+	 * @param string $option_field Name of the field in the returned JSON
+	 */
+	private function run_select_with_option($table,$id_field,$option_name,$option_field) {
+		global $wpdb;
+
+		header('Content-Type: application/json');
+		if ($this->check_nonce() && isset($_POST[$id_field])) {
+			$id_value = $wpdb->escape(intval($_POST[$id_field]));
+			$query = "SELECT *, 0 As $option_field FROM $table WHERE id = $id_value";
+			$row_data = $wpdb->get_row($query);
+
+			$option_value = $this->get_option($option_name);
+			if (($option_value <> '') && ($option_value == $id_value)) {
+				$row_data->$option_field = 1;
+			}
 			echo json_encode($row_data);
 		}
 		else {

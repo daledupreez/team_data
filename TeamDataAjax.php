@@ -8,7 +8,7 @@ class TeamDataAjax extends TeamDataBase {
 	public function add_actions() {
 		$ajax_prefix = 'wp_ajax_team_data_';
 		$public_ajax_pefix = 'wp_ajax_nopriv_team_data';
-		$actions = array( 'venue', 'level', 'role', 'opposition', 'stat', 'season' );
+		$actions = array( 'venue', 'level', 'role', 'team', 'stat', 'season' );
 		foreach($actions as $simple_action) {
 			add_action($ajax_prefix . 'get_all_' . $simple_action . 's', array($this, 'get_all_' . $simple_action . 's_ajax'));
 		}
@@ -45,12 +45,12 @@ class TeamDataAjax extends TeamDataBase {
 	}
 
 
-	public function get_all_oppositions() {
-		return $this->run_select_all($this->tables->opposition);
+	public function get_all_teams() {
+		return $this->run_select_all($this->tables->team);
 	}
 
-	public function get_all_oppositions_ajax() {
-		$this->run_select_all_ajax($this->tables->opposition);
+	public function get_all_teams_ajax() {
+		$this->run_select_all_ajax($this->tables->team);
 	}
 
 
@@ -89,7 +89,7 @@ class TeamDataAjax extends TeamDataBase {
 	 *	ID values:
 	 *		start_season, end_season, season
 	 *		level
-	 *		opposition
+	 *		team
 	 *		venue
 	 *	String values:
 	 *		start_year, end_year, year
@@ -121,7 +121,7 @@ class TeamDataAjax extends TeamDataBase {
 			$this->tables->season . ' As season',
 			$this->tables->match . ' As `match`',
 			$this->tables->level . ' As level',
-			$this->tables->opposition . ' As team',
+			$this->tables->team . ' As team',
 			$this->tables->venue . ' As venue',
 		);
 
@@ -158,7 +158,7 @@ class TeamDataAjax extends TeamDataBase {
 
 		// TODO - support multiple levels
 
-		$simpleFields = array( 'level' => true, 'opposition' => true, 'venue' => true );
+		$simpleFields = array( 'level' => true, 'team' => true, 'venue' => true );
 
 		foreach ($simpleFields as $field => $is_int) {
 			if (isset($_POST[$field])) $conditions[$field] = ($is_int ? intval($_POST[$field]) : $_POST[$field]);
@@ -201,7 +201,7 @@ class TeamDataAjax extends TeamDataBase {
 
 		$integerFields = array(
 			'level' => 'level',
-			'opposition' => 'team',
+			'team' => 'team',
 			'venue' => 'venue'
 		);
 		foreach ($integerFields as $field => $table) {

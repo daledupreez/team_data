@@ -247,34 +247,38 @@ class TeamDataAdmin extends TeamDataBase {
 				echo '</div>';
 			echo '</div>';
 			echo '<div>';
-				echo '<div class="section_title">' . __('Opponents', 'team_data') . '</div>';
+				echo '<div class="section_title">' . __('Teams', 'team_data') . '</div>';
 				echo '<div>';
 					echo '<div class="team_data_help">';
 						echo __('A list of all the teams that you play against.','team_data');
 						echo ' ' . __('You must add any team you play against to this list before you can add or edit any matches.','team_data');
 					echo '</div>';
-					echo '<div id="team_data_opposition_table" class="team_data_simple_table_opposition"></div>';
-					echo '<form id="team_data_opposition_edit" class="team_data_admin_section">';
+					echo '<div id="team_data_team_table" class="team_data_simple_table_team"></div>';
+					echo '<form id="team_data_team_edit" class="team_data_admin_section">';
 						echo '<div class="team_data_inline">';
-							echo '<label for="team_data_opposition_edit__id" class="team_data_edit_label">' . __('ID','team_data') . '</label>';
-							echo '<input id="team_data_opposition_edit__id" class="team_data_edit_input" name="opposition_id" type="text" readonly="readonly" disabled="disabled" size="5" />';
+							echo '<label for="team_data_team_edit__id" class="team_data_edit_label">' . __('ID','team_data') . '</label>';
+							echo '<input id="team_data_team_edit__id" class="team_data_edit_input" name="team_id" type="text" readonly="readonly" disabled="disabled" size="5" />';
 						echo '</div>';
 						echo '<div class="team_data_inline">';
-							echo '<label for="team_data_opposition_edit__name" class="team_data_edit_label">' . __('Name','team_data') . '</label>';
-							echo '<input id="team_data_opposition_edit__name" class="team_data_edit_input" name="opposition_name" type="text" size="50" />';
+							echo '<label for="team_data_team_edit__name" class="team_data_edit_label">' . __('Name','team_data') . '</label>';
+							echo '<input id="team_data_team_edit__name" class="team_data_edit_input" name="team_name" type="text" size="50" />';
 						echo '</div>';
 						echo '<div class="team_data_inline">';
-							echo '<label for="team_data_opposition_edit__abbreviation" class="team_data_edit_label">' . __('Short Name','team_data') . '</label>';
-							echo '<input id="team_data_opposition_edit__abbreviation" class="team_data_edit_input" name="opposition_abbreviation" type="text" size="30" />';
+							echo '<label for="team_data_team_edit__abbreviation" class="team_data_edit_label">' . __('Short Name','team_data') . '</label>';
+							echo '<input id="team_data_team_edit__abbreviation" class="team_data_edit_input" name="team_abbreviation" type="text" size="30" />';
 						echo '</div>';
 						echo '<div class="team_data_inline">';
-							echo '<label for="team_data_opposition_edit__logo_link" class="team_data_edit_label">' . __('Logo Link','team_data') . '</label>';
-							echo '<input id="team_data_opposition_edit__logo_link" class="team_data_edit_input" name="opposition_logo_link" type="text" size="60" />';
+							echo '<label for="team_data_team_edit__logo_link" class="team_data_edit_label">' . __('Logo Link','team_data') . '</label>';
+							echo '<input id="team_data_team_edit__logo_link" class="team_data_edit_input" name="team_logo_link" type="text" size="60" />';
+						echo '</div>';
+						echo '<div class="team_data_inline">';
+							echo '<label for="team_data_team_edit__is_us" class="team_data_edit_label">' . __('Our Team','team_data') . '</label>';
+							echo '<input id="team_data_team_edit__is_us" class="team_data_admin_checkbox" name="team_is_us" type="checkbox" />';
 						echo '</div>';
 					echo '</form>';
 					echo '<div style="padding: 5px;">';
-						echo '<input id="team_data_opposition_edit__save" class="team_data_button" type="button" value="' . __('Save Changes', 'team_data') . '" onclick="team_data.api.opposition.save();" />';
-						echo '<input class="team_data_button" type="button" value="' . __('Create New Opponent','team_data') . '" onclick="team_data.api.opposition.clearForm();" />';
+						echo '<input id="team_data_team_edit__save" class="team_data_button" type="button" value="' . __('Save Changes', 'team_data') . '" onclick="team_data.api.team.save();" />';
+						echo '<input class="team_data_button" type="button" value="' . __('Create New Team','team_data') . '" onclick="team_data.api.team.clearForm();" />';
 					echo '</div>';
 				echo '</div>';
 			echo '</div>';
@@ -364,8 +368,8 @@ class TeamDataAdmin extends TeamDataBase {
 	private function render_footer_js($page = 'main') {
 		$newline = "\n";
 		$api_list = array(
-			'main' => "'venue', 'level', 'role', 'stat', 'opposition', 'season'",
-			'matches' => "'venue', 'level', 'opposition', 'season'",
+			'main' => "'venue', 'level', 'role', 'stat', 'team', 'season'",
+			'matches' => "'venue', 'level', 'team', 'season'",
 			'members' => "'member', 'role', 'stat'",
 		);
 		echo '<script type="text/javascript">' . $newline;
@@ -406,9 +410,9 @@ class TeamDataAdmin extends TeamDataBase {
 			echo "team_data.paging.resultCount = $matchCount;";
 			echo '</script>';
 
-			$match_query = "SELECT m.id, m.season_id, CONCAT(s.year,' ',s.season) as season, m.date, DATE_FORMAT(m.date,'%M %d, %Y') As pretty_date, TIME_FORMAT(m.time,'%h:%i %p') as time, m.venue_id, v.name as venue_name, m.opposition_id, o.name as opposition_name, m.level_id, l.name as level_name, m.our_score, m.opposition_score, m.result, m.is_league, m.is_postseason
-				FROM $tables->match m, $tables->venue v, $tables->opposition o, $tables->level l, $tables->season s
-				WHERE m.opposition_id = o.id AND m.venue_id = v.id AND m.level_id = l.id AND m.season_id = s.id
+			$match_query = "SELECT m.id, m.season_id, CONCAT(s.year,' ',s.season) as season, m.date, DATE_FORMAT(m.date,'%M %d, %Y') As pretty_date, TIME_FORMAT(m.time,'%h:%i %p') as time, m.venue_id, v.name as venue_name, m.opposition_id, t.name as opposition_name, m.level_id, l.name as level_name, m.our_score, m.opposition_score, m.result, m.is_league, m.is_postseason
+				FROM $tables->match m, $tables->venue v, $tables->team t, $tables->level l, $tables->season s
+				WHERE m.opposition_id = t.id AND m.venue_id = v.id AND m.level_id = l.id AND m.season_id = s.id
 				ORDER BY m.date DESC, m.time ASC" . $limit;
 
 			$matches = $wpdb->get_results($match_query);
@@ -474,7 +478,7 @@ class TeamDataAdmin extends TeamDataBase {
 				foreach ($matches as $match) {
 					$our_score = ($match->our_score == null ? 'null' : $match->our_score);
 					$opposition_score = ($match->opposition_score == null ? 'null' : $match->opposition_score);
-					echo "team_data.matchData[$match->id] = { \"date\": \"$match->date\", \"time\": \"$match->time\", \"venue\": \"$match->venue_name\", \"opposition\": \"$match->opposition_id\", \"level\": \"$match->level_id\", \"our_score\": $our_score, \"opposition_score\": $opposition_score, \"stat\": { ";
+					echo "team_data.matchData[$match->id] = { \"date\": \"$match->date\", \"time\": \"$match->time\", \"venue\": \"$match->venue_name\", \"team\": \"$match->opposition_id\", \"level\": \"$match->level_id\", \"our_score\": $our_score, \"opposition_score\": $opposition_score, \"stat\": { ";
 					
 					$stats = $wpdb->get_results("SELECT ms.id, ms.member_id, ms.stat_id, s.name as stat_name, CASE s.value_type WHEN '0' THEN ms.stat_intvalue WHEN '1' THEN ms.stat_stringvalue ELSE NULL END AS stat_value FROM $tables->stat s, $tables->match_stat ms WHERE ms.match_id = $match->id AND ms.stat_id = s.id");
 					$first_stat = true;

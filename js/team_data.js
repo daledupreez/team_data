@@ -14,7 +14,7 @@ var team_data = {
 	"tables": {
 		"level": "Levels",
 		"member": "Members",
-		"opposition": "Opponents",
+		"team": "Teams",
 		"role": "Roles",
 		"season": "Seasons",
 		"stat": "Stats",
@@ -218,10 +218,10 @@ team_data.api.level.getFields = function level_getFields()
 	return [ 'id', 'name', 'abbreviation' ];
 }
 
-team_data.api.opposition = new team_data.apiObject('opposition');
-team_data.api.opposition.getFields = function opposition_getFields()
+team_data.api.team = new team_data.apiObject('team');
+team_data.api.team.getFields = function team_getFields()
 {
-	return [ 'id', 'name', 'logo_link', 'abbreviation' ];
+	return [ 'id', 'name', 'logo_link', 'abbreviation', 'is_us' ];
 }
 
 team_data.api.role = new team_data.apiObject('role');
@@ -645,7 +645,7 @@ team_data.ui.renderSimpleTable = function(parentDiv,tableName)
 	parentDiv.innerHTML = html.join('');
 }
 
-team_data.ui.apiList = [ 'venue', 'level', 'role', 'stat', 'opposition', 'season' ];
+team_data.ui.apiList = [ 'venue', 'level', 'role', 'stat', 'team', 'season' ];
 
 team_data.ui.reportErrors = function(errors,focusList) {
 	if (errors && errors.length) {

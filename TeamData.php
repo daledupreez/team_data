@@ -7,7 +7,7 @@ Version: 0.21
 Author: Dale du Preez
 License: GPL2
 */
-/*  Copyright 2012  Dale du Preez  (email: daledupreez+teamdataplugin@gmail.com)
+/*  Copyright 2013  Dale du Preez  (email: daledupreez+teamdataplugin@gmail.com)
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License, version 2, as 
@@ -45,7 +45,7 @@ class TeamDataBase {
 
 	public function __construct() {
 		$this->tables = new TeamDataTables();
-		$this->permitted_options = array( 'version', 'max_matches', 'current_season' );
+		$this->permitted_options = array( 'version', 'max_matches', 'current_season', 'our_team' );
 	}
 
 	public function add_actions() {
@@ -96,7 +96,7 @@ class TeamDataBase {
 */
 class TeamData extends TeamDataBase {
 
-	public $version = 0.21;
+	public $version = 0.3;
 
 	public function add_actions() {
 		global $wpdb;
@@ -160,7 +160,7 @@ class TeamData extends TeamDataBase {
 			) $charset_collate";
 			$all_sql .= $sql_part;
 
-			$sql_part = "CREATE TABLE $tables->opposition (
+			$sql_part = "CREATE TABLE $tables->team (
 				id INT NOT NULL AUTO_INCREMENT,
 				name VARCHAR(255) NOT NULL,
 				logo_link VARCHAR(1024) DEFAULT '',
@@ -306,7 +306,7 @@ class TeamData extends TeamDataBase {
 						'table' => $tables->level
 					),
 					'opposition_id' => array(
-						'table' => $tables->opposition
+						'table' => $tables->team
 					),
 					'season_id' => array(
 						'table' => $tables->season
@@ -329,18 +329,23 @@ class TeamData extends TeamDataBase {
 
 			foreach(array_keys($foreign_keys) as $curr_table) {
 				foreach(array_keys($foreign_keys[$curr_table]) as $curr_field) {
-					$key_target = $foreign_keys[$curr_table][$curr_field]['table'];
-					$alter_sql = "ALTER TABLE $curr_table ADD FOREIGN KEY ($curr_field) REFERENCES $key_target (id)";
-					if (isset($foreign_keys[$curr_table][$curr_field]['action'])) {
-						$alter_sql .= $foreign_keys[$curr_table][$curr_field]['action'];
+					$fk_name = 'fk_' . $curr_table . '__' . $curr_field;
+					$exists_sql = "SELECT COUNT(*) As fk_exists FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS WHERE CONSTRAINT_SCHEMA = DATABASE() AND TABLE_NAME = '$curr_table' AND CONSTRAINT_NAME = '$fk_name' AND CONSTRAINT_TYPE = 'FOREIGN KEY'";
+					$fk_exists = $wpdb->get_var($exists_sql);
+					if (!$fk_exists) {
+						$key_target = $foreign_keys[$curr_table][$curr_field]['table'];
+						$alter_sql = "ALTER TABLE $curr_table ADD CONSTRAINT $fk_name FOREIGN KEY ($curr_field) REFERENCES $key_target (id)";
+						if (isset($foreign_keys[$curr_table][$curr_field]['action'])) {
+							$alter_sql .= $foreign_keys[$curr_table][$curr_field]['action'];
+						}
+						$createOK = $wpdb->query($alter_sql);
 					}
-					$createOK = $wpdb->query($alter_sql);
 				}
 			}
 
 			$this->debug("Completed team_data::update_tables() for version '$this->version'");
 			$this->set_option('version', $this->version);
-			
+
 			$max_matches = $this->get_option('max_matches');
 			if (!$max_matches) {
 				$this->set_option('max_matches', 3);

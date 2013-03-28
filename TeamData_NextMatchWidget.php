@@ -130,7 +130,7 @@ class TeamData_NextMatchWidget extends WP_Widget {
 				"$tables->match As `match`",
 				"$tables->level As level",
 				"$tables->venue As venue",
-				"$tables->opposition As team"
+				"$tables->team As team"
 			);
 			$where = array(
 				'match.venue_id = venue.id',
