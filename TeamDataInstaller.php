@@ -100,6 +100,7 @@ class TeamDataInstaller extends TeamDataBase {
 			$sql_part = "CREATE TABLE $tables->role (
 				id INT NOT NULL AUTO_INCREMENT,
 				name VARCHAR(50) NOT NULL,
+				comment VARCHAR(255),
 				PRIMARY KEY  (id)
 			) $charset_collate";
 			$all_sql = $all_sql . $sql_sep . $sql_part;

@@ -364,7 +364,8 @@ class TeamDataAdminAjax extends TeamDataAjax {
 		header('Content-Type: application/json');
 		$fields = array(
 			'id' => '',
-			'name' => ''
+			'name' => '',
+			'comment' => '',
 		);
 		$role_id = $this->get_post_values($fields);
 

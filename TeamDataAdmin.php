@@ -241,6 +241,10 @@ class TeamDataAdmin extends TeamDataBase {
 							echo '<label for="team_data_role_edit__name" class="team_data_edit_label">' . __('Name','team_data') . '</label>';
 							echo '<input id="team_data_role_edit__name" class="team_data_edit_input" name="role_name" type="text" size="40" />';
 						echo '</div>';
+						echo '<div class="team_data_inline">';
+							echo '<label for="team_data_role_edit__comment" class="team_data_edit_label">' . __('Details','team_data') . '</label>';
+							echo '<textarea id="team_data_role_edit__comment" class="team_data_edit_input" name="role_comment" cols="80" rows="3"></textarea>';
+						echo '</div>';
 					echo '</form>';
 					echo '<div style="padding: 5px;">';
 						echo '<input id="team_data_role_edit__save" class="team_data_button" type="button" value="' . __('Save Changes', 'team_data') . '" onclick="team_data.api.role.save();" />';
