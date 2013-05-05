@@ -225,6 +225,10 @@ team_data.api.team.getFields = function team_getFields()
 }
 
 team_data.api.role = new team_data.apiObject('role');
+team_data.api.role.getFields = function role_getFields()
+{
+	return [ 'id', 'name', 'comment' ];
+}
 
 team_data.api.season = new team_data.apiObject('season');
 team_data.api.season.nameIsRequired = false;
@@ -685,7 +689,7 @@ team_data.fn.getControlValue = function(control) {
 		if ((control.nodeName == 'INPUT') && (typeof control.type == 'string')) {
 			controlValue = (control.type == 'checkbox' ? (control.checked ? '1' : '0') : control.value);
 		}
-		else if (control.nodeName == 'SELECT') {
+		else if ((control.nodeName == 'SELECT') || (control.nodeName == 'TEXTAREA')) {
 			controlValue = control.value;
 		}
 	}
