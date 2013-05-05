@@ -137,6 +137,7 @@ input.team_data_admin_checkbox {
 	font-style: italic;
 	color: #888;
 }
+.team_data_buttonDiv,
 .team_data_help {
 	padding: 5px;
 }

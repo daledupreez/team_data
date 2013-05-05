@@ -116,231 +116,235 @@ class TeamDataAdmin extends TeamDataBase {
 	public function render_admin_main() {
 		global $wpdb;
 		echo '<h2>' . __('Main TeamData Administration Page', 'team_data') . '</h2>';
-		echo '<div>' . __('Manage the main infrastructure for the TeamData plugin.','team_data') . __('Each of the boxes below represents a list of available options to show when entering matches, stats, results or members.', 'team_data') . '</div>';
-		echo '<div id="team_data_admin_options">';
-			echo '<div>';
-				echo '<div class="section_title">' . __('Venues', 'team_data') . '</div>';
-				echo '<div>';
-					echo '<div class="team_data_help">';
-						echo __('A list of all the venues where you play matches.','team_data');
-						echo ' ' . __('In general, venues are not associated with a specific team, except for your home venue(s).','team_data');
-					echo '</div>';
-					echo '<div id="team_data_venue_table" class="team_data_simple_table_venue"></div>';
-					echo '<form id="team_data_venue_edit" class="team_data_admin_section">';
-						echo '<div class="team_data_inline">';
-							echo '<label for="team_data_venue_edit__id" class="team_data_edit_label">' . __('ID','team_data') . '</label>';
-							echo '<input id="team_data_venue_edit__id" class="team_data_edit_input" name="venue_id" type="text" readonly="readonly" disabled="disabled" size="5" />';
-						echo '</div>';
-						echo '<div class="team_data_inline">';
-							echo '<label for="team_data_venue_edit__name" class="team_data_edit_label">' . __('Name','team_data') . '</label>';
-							echo '<input id="team_data_venue_edit__name" class="team_data_edit_input" name="venue_name" type="text" size="50" />';
-						echo '</div>';
-						echo '<div class="team_data_inline">';
-							echo '<label for="team_data_venue_edit__abbreviation" class="team_data_edit_label">' . __('Short Name','team_data') . '</label>';
-							echo '<input id="team_data_venue_edit__abbreviation" class="team_data_edit_input" name="venue_abbreviation" type="text" size="30" />';
-						echo '</div>';	
-						echo '<div class="team_data_inline">';
-							echo '<label for="team_data_venue_edit__is_home" class="team_data_edit_label">' . __('Home Venue','team_data') . '</label>';
-							echo '<input id="team_data_venue_edit__is_home" class="team_data_admin_checkbox" name="venue_is_home" type="checkbox" />';
-						echo '</div>';
-						echo '<div class="team_data_inline">';
-							echo '<label for="team_data_venue_edit__info_link" class="team_data_edit_label">' . __('Info Link','team_data') . '</label>';
-							echo '<input id="team_data_venue_edit__info_link" class="team_data_edit_input" name="venue_info_link" type="text" size="60" />';
-						echo '</div>';
-						echo '<div class="team_data_inline">';
-							echo '<label for="team_data_venue_edit__directions_link" class="team_data_edit_label">' . __('Directions/Map Link','team_data') . '</label>';
-							echo '<input id="team_data_venue_edit__directions_link" class="team_data_edit_input" name="venue_directions_link" type="text" size="60" />';
-						echo '</div>';	
-					echo '</form>';
-					echo '<div style="padding: 5px;">';
-						echo '<input id="team_data_venue_edit__save" class="team_data_button" type="button" value="' . __('Save Changes', 'team_data') . '" onclick="team_data.api.venue.save();" />';
-						echo '<input class="team_data_button" type="button" value="' . __('Create New Venue','team_data') . '" onclick="team_data.api.venue.clearForm();" />';
-					echo '</div>';
-				echo '</div>';
-			echo '</div>';
-			echo '<div>';
-				echo '<div class="section_title">' . __('Stats', 'team_data') . '</div>';
-				echo '<div>';
-					echo '<div class="team_data_help">';
-						echo __('A list of all the statistics which you collect for your matches.','team_data');
-						echo ' ' . __('This is fairly flexible, but you should be careful about datatypes.','team_data');
-						echo ' ' . __('Unless you are sure you will only have integer or float data, it is likely best to use strings for your statistics.','team_data');
-					echo '</div>';
-					echo '<div id="team_data_stat_table" class="team_data_simple_table_stat"></div>';
-					echo '<form id="team_data_stat_edit" class="team_data_admin_section">';
-						echo '<div class="team_data_inline">';
-							echo '<label for="team_data_stat_edit__id" class="team_data_edit_label">' . __('ID','team_data') . '</label>';
-							echo '<input id="team_data_stat_edit__id" class="team_data_edit_input" name="stat_id" type="text" readonly="readonly" disabled="disabled" size="5" />';
-						echo '</div>';
-						echo '<div class="team_data_inline">';
-							echo '<label for="team_data_stat_edit__name" class="team_data_edit_label">' . __('Name','team_data') . '</label>';
-							echo '<input id="team_data_stat_edit__name" class="team_data_edit_input" name="stat_name" type="text" size="50" />';
-						echo '</div>';
-						echo '<div class="team_data_inline">';
-							echo '<div class="team_data_edit_radioset">';
-								echo '<div>' . __('Data type for stat', 'team_data') . '</div>';
-								echo '<input id="team_data_stat_edit__value_type_integer" class="team_data_edit_input" name="stat_value_type" type="radio" value="0"/>';
-								echo '<label for="team_data_stat_edit__value_type_integer" class="team_data_edit_label_radioset">' . __('Integer (Whole Number)', 'team_data') . '</label>';
-								echo '<input id="team_data_stat_edit__value_type_string" class="team_data_edit_input" name="stat_value_type" type="radio" value="1"/>';
-								echo '<label for="team_data_stat_edit__value_type_string" class="team_data_edit_label_radioset">' . __('String (Text)', 'team_data') . '</label>';
-								echo '<input id="team_data_stat_edit__value_type_float" class="team_data_edit_input" name="stat_value_type" type="radio" value="2"/>';
-								echo '<label for="team_data_stat_edit__value_type_float" class="team_data_edit_label_radioset">' . __('Float (Number with Decimals)', 'team_data') . '</label>';
-								echo '<input id="team_data_stat_edit_value_type" type="hidden" value="0" />';
-							echo '</div>';	
-						echo '</div>';
-					echo '</form>';
-					echo '<div style="padding: 5px;">';
-						echo '<input id="team_data_stat_edit__save" class="team_data_button" type="button" value="' . __('Save Changes', 'team_data') . '" onclick="team_data.api.stat.save();" />';
-						echo '<input class="team_data_button" type="button" value="' . __('Create New Stat','team_data') . '" onclick="team_data.api.stat.clearForm();" />';
-					echo '</div>';
-				echo '</div>';
-			echo '</div>';
-			echo '<div>';
-				echo '<div class="section_title">' . __('Levels', 'team_data') . '</div>';
-				echo '<div>';
-					echo '<div class="team_data_help">';
-						echo __('A list of all the levels/leagues/competitions in which your teams compete.','team_data');
-						echo ' ' . __('This is fairly flexible, but becomes important when calculating stats and organising matches.','team_data');
-					echo '</div>';
-					echo '<div id="team_data_level_table" class="team_data_simple_table_level"></div>';
-					echo '<form id="team_data_level_edit" class="team_data_admin_section">';
-						echo '<div class="team_data_inline">';
-							echo '<label for="team_data_level_edit__id" class="team_data_edit_label">' . __('ID','team_data') . '</label>';
-							echo '<input id="team_data_level_edit__id" class="team_data_edit_input" name="level_id" type="text" readonly="readonly" disabled="disabled" size="5" />';
-						echo '</div>';
-						echo '<div class="team_data_inline">';
-							echo '<label for="team_data_level_edit__name" class="team_data_edit_label">' . __('Name','team_data') . '</label>';
-							echo '<input id="team_data_level_edit__name" class="team_data_edit_input" name="level_name" type="text" size="40" />';
-						echo '</div>';
-						echo '<div class="team_data_inline">';
-							echo '<label for="team_data_level_edit__abbreviation" class="team_data_edit_label">' . __('Short Name','team_data') . '</label>';
-							echo '<input id="team_data_level_edit__abbreviation" class="team_data_edit_input" name="level_abbreviation" type="text" size="15" />';
-						echo '</div>';
-					echo '</form>';
-					echo '<div style="padding: 5px;">';
-						echo '<input id="team_data_level_edit__save" class="team_data_button" type="button" value="' . __('Save Changes', 'team_data') . '" onclick="team_data.api.level.save();" />';
-						echo '<input class="team_data_button" type="button" value="' . __('Create New Level','team_data') . '" onclick="team_data.api.level.clearForm();" />';
-					echo '</div>';
-				echo '</div>';
-			echo '</div>';
-			echo '<div>';
-				echo '<div class="section_title">' . __('Roles', 'team_data') . '</div>';
-				echo '<div>';
-					echo '<div class="team_data_help">';
-						echo __('A list of all the roles that you can assign to members.','team_data');
-						echo ' ' . __('You can also think of this as specific groups of members.','team_data');
-						echo ' ' . __('In either case, you must define the values here so they are available elsewhere.','team_data');
-					echo '</div>';
-					echo '<div id="team_data_role_table" class="team_data_simple_table_role"></div>';
-					echo '<form id="team_data_role_edit" class="team_data_admin_section">';
-						echo '<div class="team_data_inline">';
-							echo '<label for="team_data_role_edit__id" class="team_data_edit_label">' . __('ID','team_data') . '</label>';
-							echo '<input id="team_data_role_edit__id" class="team_data_edit_input" name="role_id" type="text" readonly="readonly" disabled="disabled" size="5" />';
-						echo '</div>';
-						echo '<div class="team_data_inline">';
-							echo '<label for="team_data_role_edit__name" class="team_data_edit_label">' . __('Name','team_data') . '</label>';
-							echo '<input id="team_data_role_edit__name" class="team_data_edit_input" name="role_name" type="text" size="40" />';
-						echo '</div>';
-						echo '<div class="team_data_inline">';
-							echo '<label for="team_data_role_edit__comment" class="team_data_edit_label">' . __('Details','team_data') . '</label>';
-							echo '<textarea id="team_data_role_edit__comment" class="team_data_edit_input" name="role_comment" cols="80" rows="3"></textarea>';
-						echo '</div>';
-					echo '</form>';
-					echo '<div style="padding: 5px;">';
-						echo '<input id="team_data_role_edit__save" class="team_data_button" type="button" value="' . __('Save Changes', 'team_data') . '" onclick="team_data.api.role.save();" />';
-						echo '<input class="team_data_button" type="button" value="' . __('Create New Role','team_data') . '" onclick="team_data.api.role.clearForm();" />';
-					echo '</div>';
-				echo '</div>';
-			echo '</div>';
-			echo '<div>';
-				echo '<div class="section_title">' . __('Teams', 'team_data') . '</div>';
-				echo '<div>';
-					echo '<div class="team_data_help">';
-						echo __('A list of all the teams that you play against.','team_data');
-						echo ' ' . __('You must add any team you play against to this list before you can add or edit any matches.','team_data');
-					echo '</div>';
-					echo '<div id="team_data_team_table" class="team_data_simple_table_team"></div>';
-					echo '<form id="team_data_team_edit" class="team_data_admin_section">';
-						echo '<div class="team_data_inline">';
-							echo '<label for="team_data_team_edit__id" class="team_data_edit_label">' . __('ID','team_data') . '</label>';
-							echo '<input id="team_data_team_edit__id" class="team_data_edit_input" name="team_id" type="text" readonly="readonly" disabled="disabled" size="5" />';
-						echo '</div>';
-						echo '<div class="team_data_inline">';
-							echo '<label for="team_data_team_edit__name" class="team_data_edit_label">' . __('Name','team_data') . '</label>';
-							echo '<input id="team_data_team_edit__name" class="team_data_edit_input" name="team_name" type="text" size="50" />';
-						echo '</div>';
-						echo '<div class="team_data_inline">';
-							echo '<label for="team_data_team_edit__abbreviation" class="team_data_edit_label">' . __('Short Name','team_data') . '</label>';
-							echo '<input id="team_data_team_edit__abbreviation" class="team_data_edit_input" name="team_abbreviation" type="text" size="30" />';
-						echo '</div>';
-						echo '<div class="team_data_inline">';
-							echo '<label for="team_data_team_edit__logo_link" class="team_data_edit_label">' . __('Logo Link','team_data') . '</label>';
-							echo '<input id="team_data_team_edit__logo_link" class="team_data_edit_input" name="team_logo_link" type="text" size="60" />';
-						echo '</div>';
-						echo '<div class="team_data_inline">';
-							echo '<label for="team_data_team_edit__is_us" class="team_data_edit_label">' . __('Our Team','team_data') . '</label>';
-							echo '<input id="team_data_team_edit__is_us" class="team_data_admin_checkbox" name="team_is_us" type="checkbox" />';
-						echo '</div>';
-					echo '</form>';
-					echo '<div style="padding: 5px;">';
-						echo '<input id="team_data_team_edit__save" class="team_data_button" type="button" value="' . __('Save Changes', 'team_data') . '" onclick="team_data.api.team.save();" />';
-						echo '<input class="team_data_button" type="button" value="' . __('Create New Team','team_data') . '" onclick="team_data.api.team.clearForm();" />';
-					echo '</div>';
-				echo '</div>';
-			echo '</div>';
-			echo '<div>';
-				echo '<div class="section_title">' . __('Seasons', 'team_data') . '</div>';
-				echo '<div>';
-					echo '<div class="team_data_help">';
-						echo __('A list of all available seasons.','team_data');
-						echo ' ' . __('You must add any seasons to this list before you can add any matches in that season.','team_data');
-					echo '</div>';
-					echo '<div id="team_data_season_table" class="team_data_simple_table_season"></div>';
-					echo '<form id="team_data_season_edit" class="team_data_admin_section">';
-						echo '<div class="team_data_inline">';
-							echo '<label for="team_data_season_edit__id" class="team_data_edit_label">' . __('ID','team_data') . '</label>';
-							echo '<input id="team_data_season_edit__id" class="team_data_edit_input" name="season_id" type="text" readonly="readonly" disabled="disabled" size="5" />';
-						echo '</div>';
-						echo '<div class="team_data_inline">';
-							echo '<label for="team_data_season_edit__year" class="team_data_edit_label">' . __('Year','team_data') . '</label>';
-							echo '<input id="team_data_season_edit__year" class="team_data_edit_input" name="season_year" type="text" size="5" />';
-						echo '</div>';
-						echo '<div class="team_data_inline">';
-							echo '<label for="team_data_season_edit__season" class="team_data_edit_label team_data_season">' . __('Season','team_data') . '</label>';
-							echo '<input id="team_data_season_edit__season" class="team_data_edit_input" name="season_season" type="text" size="30" />';
-						echo '</div>';
-						echo '<div class="team_data_inline">';
-							echo '<label for="team_data_season_edit__is_current" class="team_data_edit_label">' . __('Is Current Season','team_data') . '</label>';
-							echo '<input id="team_data_season_edit__is_current" class="team_data_admin_checkbox" name="season_is_current" type="checkbox" />';
-						echo '</div>';
-					echo '</form>';
-					echo '<div style="padding: 5px;">';
-						echo '<input id="team_data_season_edit__repeat_season" class="team_data_button" type="button" value="' . __('Same as last Season', 'team_data') . '" onclick="team_data.api.season.repeatLastSeason();" />';
-						echo '<input id="team_data_season_edit__save" class="team_data_button" type="button" value="' . __('Save Changes', 'team_data') . '" onclick="team_data.api.season.save();" />';
-						echo '<input class="team_data_button" type="button" value="' . __('Create New Season','team_data') . '" onclick="team_data.api.season.clearForm();" />';
-					echo '</div>';
-				echo '</div>';
-			echo '</div>';
-			echo '<div>';
-				echo '<div class="section_title">' . __('General Options', 'team_data') . '</div>';
-				echo '<div>';
-					echo '<div class="team_data_help">';
-						echo __('General configuration options for the TeamData plugin.','team_data');
-					echo '</div>';
-					echo '<form id="team_data_options_edit" class="team_data_admin_section">';
-						echo '<div class="team_data_inline">';
-							echo '<label for="team_data_options_edit__max_matches">' . __('Max Edit Matches','team_data') . '</label>';
-							echo '<input id="team_data_options_edit__max_matches" class="team_data_edit_input" name="options_max_matches" type="text" size="5" value="' . $this->get_option('max_matches') . '" />';
-							echo '<input id="team_data_options_edit__max_matches_orig" type="hidden" value="' . $this->get_option('max_matches') . '" />';
-						echo '</div>';
-					echo '</form>';
-					echo '<div style="padding: 5px;">';
-						echo '<input id="team_data_options_edit__save" class="team_data_button" type="button" value="' . __('Save Changes', 'team_data') . '" onclick="team_data.api.options.save();" />';
-					echo '</div>';
-				echo '</div>';
-			echo '</div>';
-		
-		echo '</div>';
+		echo '<div>' . __('Manage the main infrastructure for the TeamData plugin.','team_data') . '<br/>' . __('Each of the boxes below represents a list of available options to show when entering matches, stats, results or members.', 'team_data') . '</div>';
+?>
+<div id="team_data_admin_options">
+	<div>
+		<div class="section_title"><?php echo __('Venues', 'team_data'); ?></div>
+		<div>
+			<div class="team_data_help"><?php 
+				echo __('A list of all the venues where you play matches.','team_data');
+				echo ' ' . __('In general, venues are not associated with a specific team, except for your home venue(s).','team_data'); ?>
+			</div>
+			<div id="team_data_venue_table" class="team_data_simple_table_venue"></div>
+			<form id="team_data_venue_edit" class="team_data_admin_section">
+				<div class="team_data_inline">
+					<label for="team_data_venue_edit__id" class="team_data_edit_label"><?php echo __('ID','team_data'); ?></label>
+					<input id="team_data_venue_edit__id" class="team_data_edit_input" name="venue_id" type="text" readonly="readonly" disabled="disabled" size="5" />
+				</div>
+				<div class="team_data_inline">
+					<label for="team_data_venue_edit__name" class="team_data_edit_label"><?php echo __('Name','team_data'); ?></label>
+					<input id="team_data_venue_edit__name" class="team_data_edit_input" name="venue_name" type="text" size="50" />
+				</div>
+				<div class="team_data_inline">
+					<label for="team_data_venue_edit__abbreviation" class="team_data_edit_label"><?php echo __('Short Name','team_data'); ?></label>
+					<input id="team_data_venue_edit__abbreviation" class="team_data_edit_input" name="venue_abbreviation" type="text" size="30" />
+				</div>
+				<div class="team_data_inline">
+					<label for="team_data_venue_edit__is_home" class="team_data_edit_label"><?php echo __('Home Venue','team_data'); ?></label>
+					<input id="team_data_venue_edit__is_home" class="team_data_admin_checkbox" name="venue_is_home" type="checkbox" />
+				</div>
+				<div class="team_data_inline">
+					<label for="team_data_venue_edit__info_link" class="team_data_edit_label"><?php echo __('Info Link','team_data'); ?></label>
+					<input id="team_data_venue_edit__info_link" class="team_data_edit_input" name="venue_info_link" type="text" size="60" />
+				</div>
+				<div class="team_data_inline">
+					<label for="team_data_venue_edit__directions_link" class="team_data_edit_label"><?php echo __('Directions/Map Link','team_data'); ?></label>
+					<input id="team_data_venue_edit__directions_link" class="team_data_edit_input" name="venue_directions_link" type="text" size="60" />
+				</div>
+			</form>';
+			<div class="team_data_buttonDiv">
+				<input id="team_data_venue_edit__save" class="team_data_button" type="button" value="<?php echo __('Save Changes', 'team_data'); ?>" onclick="team_data.api.venue.save();" />
+				<input class="team_data_button" type="button" value="<?php echo __('Create New Venue','team_data'); ?>" onclick="team_data.api.venue.clearForm();" />
+			</div>
+		</div>
+	</div>
+	<div>
+		<div class="section_title"><?php echo __('Stats', 'team_data'); ?></div>
+		<div>
+			<div class="team_data_help"><?php
+				echo __('A list of all the statistics which you collect for your matches.','team_data');
+				echo ' ' . __('This is fairly flexible, but you should be careful about datatypes.','team_data');
+				echo ' ' . __('Unless you are sure you will only have integer or float data, it is likely best to use strings for your statistics.','team_data');
+				?>
+			</div>
+			<div id="team_data_stat_table" class="team_data_simple_table_stat"></div>
+			<form id="team_data_stat_edit" class="team_data_admin_section">
+				<div class="team_data_inline">
+					<label for="team_data_stat_edit__id" class="team_data_edit_label"><?php echo __('ID','team_data'); ?></label>
+					<input id="team_data_stat_edit__id" class="team_data_edit_input" name="stat_id" type="text" readonly="readonly" disabled="disabled" size="5" />
+				</div>
+				<div class="team_data_inline">
+					<label for="team_data_stat_edit__name" class="team_data_edit_label"><?php echo __('Name','team_data'); ?></label>
+					<input id="team_data_stat_edit__name" class="team_data_edit_input" name="stat_name" type="text" size="50" />
+				</div>
+				<div class="team_data_inline">
+					<div class="team_data_edit_radioset">
+						<div><?php echo __('Data type for stat', 'team_data'); ?></div>
+						<input id="team_data_stat_edit__value_type_integer" class="team_data_edit_input" name="stat_value_type" type="radio" value="0"/>
+						<label for="team_data_stat_edit__value_type_integer" class="team_data_edit_label_radioset"><?php echo __('Integer (Whole Number)', 'team_data'); ?></label>
+						<input id="team_data_stat_edit__value_type_string" class="team_data_edit_input" name="stat_value_type" type="radio" value="1"/>
+						<label for="team_data_stat_edit__value_type_string" class="team_data_edit_label_radioset"><?php echo __('String (Text)', 'team_data'); ?></label>
+						<input id="team_data_stat_edit__value_type_float" class="team_data_edit_input" name="stat_value_type" type="radio" value="2"/>
+						<label for="team_data_stat_edit__value_type_float" class="team_data_edit_label_radioset"><?php echo __('Float (Number with Decimals)', 'team_data'); ?></label>
+						<input id="team_data_stat_edit_value_type" type="hidden" value="0" />
+					</div>
+				</div>
+			</form>
+			<div class="team_data_buttonDiv">
+				<input id="team_data_stat_edit__save" class="team_data_button" type="button" value="<?php echo __('Save Changes', 'team_data'); ?>" onclick="team_data.api.stat.save();" />
+				<input class="team_data_button" type="button" value="<?php echo __('Create New Stat','team_data'); ?>" onclick="team_data.api.stat.clearForm();" />
+			</div>
+		</div>
+	</div>
+	<div>
+		<div class="section_title"><?php echo __('Levels', 'team_data'); ?></div>
+		<div>
+			<div class="team_data_help"><?php
+					echo __('A list of all the levels/leagues/competitions in which your teams compete.','team_data');
+					echo ' ' . __('This is fairly flexible, but becomes important when calculating stats and organising matches.','team_data');
+				?>
+			</div>
+			<div id="team_data_level_table" class="team_data_simple_table_level"></div>
+			<form id="team_data_level_edit" class="team_data_admin_section">
+				<div class="team_data_inline">
+					<label for="team_data_level_edit__id" class="team_data_edit_label"><?php echo __('ID','team_data'); ?></label>
+					<input id="team_data_level_edit__id" class="team_data_edit_input" name="level_id" type="text" readonly="readonly" disabled="disabled" size="5" />
+				</div>
+				<div class="team_data_inline">
+					<label for="team_data_level_edit__name" class="team_data_edit_label"><?php echo __('Name','team_data'); ?></label>
+					<input id="team_data_level_edit__name" class="team_data_edit_input" name="level_name" type="text" size="40" />
+				</div>
+				<div class="team_data_inline">
+					<label for="team_data_level_edit__abbreviation" class="team_data_edit_label"><?php echo __('Short Name','team_data'); ?></label>
+					<input id="team_data_level_edit__abbreviation" class="team_data_edit_input" name="level_abbreviation" type="text" size="15" />
+				</div>
+			</form>
+			<div class="team_data_buttonDiv">
+				<input id="team_data_level_edit__save" class="team_data_button" type="button" value="<?php echo __('Save Changes', 'team_data'); ?>" onclick="team_data.api.level.save();" />
+				<input class="team_data_button" type="button" value="<?php echo __('Create New Level','team_data'); ?>" onclick="team_data.api.level.clearForm();" />
+			</div>
+		</div>
+	</div>
+	<div>
+		<div class="section_title"><?php echo __('Roles', 'team_data'); ?></div>
+		<div>
+			<div class="team_data_help"><?php
+				echo __('A list of all the roles that you can assign to members.','team_data');
+				echo ' ' . __('You can also think of this as specific groups of members.','team_data');
+				echo ' ' . __('In either case, you must define the values here so they are available elsewhere.','team_data');
+			?>
+			</div>
+			<div id="team_data_role_table" class="team_data_simple_table_role"></div>
+			<form id="team_data_role_edit" class="team_data_admin_section">
+				<div class="team_data_inline">
+					<label for="team_data_role_edit__id" class="team_data_edit_label"><?php echo __('ID','team_data'); ?></label>
+					<input id="team_data_role_edit__id" class="team_data_edit_input" name="role_id" type="text" readonly="readonly" disabled="disabled" size="5" />
+				</div>
+				<div class="team_data_inline">
+					<label for="team_data_role_edit__name" class="team_data_edit_label"><?php echo __('Name','team_data'); ?></label>
+					<input id="team_data_role_edit__name" class="team_data_edit_input" name="role_name" type="text" size="40" />
+				</div>
+				<div class="team_data_inline">
+					<label for="team_data_role_edit__comment" class="team_data_edit_label"><?php echo __('Details','team_data'); ?></label>
+					<textarea id="team_data_role_edit__comment" class="team_data_edit_input" name="role_comment" cols="80" rows="3"></textarea>
+				</div>
+			</form>
+			<div class="team_data_buttonDiv">
+				<input id="team_data_role_edit__save" class="team_data_button" type="button" value="<?php echo __('Save Changes', 'team_data'); ?>" onclick="team_data.api.role.save();" />
+				<input class="team_data_button" type="button" value="<?php echo __('Create New Role','team_data'); ?>" onclick="team_data.api.role.clearForm();" />
+			</div>
+		</div>
+	</div>
+	<div>
+		<div class="section_title"><?php echo __('Teams', 'team_data'); ?></div>
+		<div>
+			<div class="team_data_help"><?php
+				echo __('A list of all the teams that you play against.','team_data');
+				echo ' ' . __('You must add any team you play against to this list before you can add or edit any matches.','team_data');
+			?>
+			</div>
+			<div id="team_data_team_table" class="team_data_simple_table_team"></div>
+			<form id="team_data_team_edit" class="team_data_admin_section">
+				<div class="team_data_inline">
+					<label for="team_data_team_edit__id" class="team_data_edit_label"><?php echo __('ID','team_data'); ?></label>
+					<input id="team_data_team_edit__id" class="team_data_edit_input" name="team_id" type="text" readonly="readonly" disabled="disabled" size="5" />
+				</div>
+				<div class="team_data_inline">
+					<label for="team_data_team_edit__name" class="team_data_edit_label"><?php echo __('Name','team_data'); ?></label>
+					<input id="team_data_team_edit__name" class="team_data_edit_input" name="team_name" type="text" size="50" />
+				</div>
+				<div class="team_data_inline">
+					<label for="team_data_team_edit__abbreviation" class="team_data_edit_label"><?php echo __('Short Name','team_data'); ?></label>
+					<input id="team_data_team_edit__abbreviation" class="team_data_edit_input" name="team_abbreviation" type="text" size="30" />
+				</div>
+				<div class="team_data_inline">
+					<label for="team_data_team_edit__logo_link" class="team_data_edit_label"><?php echo __('Logo Link','team_data'); ?></label>
+					<input id="team_data_team_edit__logo_link" class="team_data_edit_input" name="team_logo_link" type="text" size="60" />
+				</div>
+				<div class="team_data_inline">
+					<label for="team_data_team_edit__is_us" class="team_data_edit_label"><?php echo __('Our Team','team_data'); ?></label>
+					<input id="team_data_team_edit__is_us" class="team_data_admin_checkbox" name="team_is_us" type="checkbox" />
+				</div>
+			</form>
+			<div class="team_data_buttonDiv">
+				<input id="team_data_team_edit__save" class="team_data_button" type="button" value="<?php echo __('Save Changes', 'team_data'); ?>" onclick="team_data.api.team.save();" />
+				<input class="team_data_button" type="button" value="<?php echo __('Create New Team','team_data'); ?>" onclick="team_data.api.team.clearForm();" />
+			</div>
+		</div>
+	</div>
+	<div>
+		<div class="section_title"><?php echo __('Seasons', 'team_data'); ?></div>
+		<div>
+			<div class="team_data_help"><?php
+				echo __('A list of all available seasons.','team_data');
+				echo ' ' . __('You must add any seasons to this list before you can add any matches in that season.','team_data');
+			?>
+			</div>
+			<div id="team_data_season_table" class="team_data_simple_table_season"></div>
+			<form id="team_data_season_edit" class="team_data_admin_section">
+				<div class="team_data_inline">
+					<label for="team_data_season_edit__id" class="team_data_edit_label"><?php echo __('ID','team_data'); ?></label>
+					<input id="team_data_season_edit__id" class="team_data_edit_input" name="season_id" type="text" readonly="readonly" disabled="disabled" size="5" />
+				</div>
+				<div class="team_data_inline">
+					<label for="team_data_season_edit__year" class="team_data_edit_label"><?php echo __('Year','team_data'); ?></label>
+					<input id="team_data_season_edit__year" class="team_data_edit_input" name="season_year" type="text" size="5" />
+				</div>
+				<div class="team_data_inline">
+					<label for="team_data_season_edit__season" class="team_data_edit_label team_data_season"><?php echo __('Season','team_data'); ?></label>
+					<input id="team_data_season_edit__season" class="team_data_edit_input" name="season_season" type="text" size="30" />
+				</div>
+				<div class="team_data_inline">
+					<label for="team_data_season_edit__is_current" class="team_data_edit_label"><?php echo __('Is Current Season','team_data'); ?></label>
+					<input id="team_data_season_edit__is_current" class="team_data_admin_checkbox" name="season_is_current" type="checkbox" />
+				</div>
+			</form>
+			<div class="team_data_buttonDiv">
+				<input id="team_data_season_edit__repeat_season" class="team_data_button" type="button" value="<?php echo __('Same as last Season', 'team_data'); ?>" onclick="team_data.api.season.repeatLastSeason();" />
+				<input id="team_data_season_edit__save" class="team_data_button" type="button" value="<?php echo __('Save Changes', 'team_data'); ?>" onclick="team_data.api.season.save();" />
+				<input class="team_data_button" type="button" value="<?php echo __('Create New Season','team_data'); ?>" onclick="team_data.api.season.clearForm();" />
+			</div>
+		</div>
+	</div>
+	<div>
+		<div class="section_title"><?php echo __('General Options', 'team_data'); ?></div>
+		<div>
+			<div class="team_data_help"><?php echo __('General configuration options for the TeamData plugin.','team_data'); ?></div>
+			<form id="team_data_options_edit" class="team_data_admin_section">
+				<div class="team_data_inline">
+					<label for="team_data_options_edit__max_matches"><?php echo __('Max Edit Matches','team_data'); ?></label>
+					<input id="team_data_options_edit__max_matches" class="team_data_edit_input" name="options_max_matches" type="text" size="5" value="<?php echo $this->get_option('max_matches'); ?>" />
+					<input id="team_data_options_edit__max_matches_orig" type="hidden" value="<?php echo $this->get_option('max_matches'); ?>" />
+				</div>
+			</form>
+			<div class="team_data_buttonDiv">
+				<input id="team_data_options_edit__save" class="team_data_button" type="button" value="<?php echo __('Save Changes', 'team_data'); ?>" onclick="team_data.api.options.save();" />
+			</div>
+		</div>
+	</div>
+</div>
+<?php // end render_admin_main()
 	}
 
 	public function queue_admin_js($hook) {
