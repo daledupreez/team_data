@@ -18,9 +18,11 @@ class TeamDataAdmin extends TeamDataBase {
 	}
 
 	public function add_actions() {
+		if ( $this->actions_added ) return;
 		add_action('admin_menu', array($this, 'add_admin_menu'));
 		add_action('admin_enqueue_scripts', array($this, 'queue_admin_js'));
 		add_action('admin_enqueue_scripts', array($this, 'render_loc_js'));
+		$this->actions_added = true;
 	}
 
 	public function add_admin_menu() {

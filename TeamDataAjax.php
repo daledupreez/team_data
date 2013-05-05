@@ -6,6 +6,7 @@
 class TeamDataAjax extends TeamDataBase {
 
 	public function add_actions() {
+		if ( $this->actions_added ) return;
 		$ajax_prefix = 'wp_ajax_team_data_';
 		$public_ajax_pefix = 'wp_ajax_nopriv_team_data';
 		$actions = array( 'venue', 'level', 'role', 'team', 'stat', 'season' );
@@ -16,6 +17,7 @@ class TeamDataAjax extends TeamDataBase {
 		//add_action('wp_ajax_team_data_get_basic_match', array($this, 'get_basic_match'));
 		add_action('wp_ajax_nopriv_team_data_public_get_matches', array($this, 'get_matches_ajax'));
 		add_action('wp_ajax_team_data_public_get_matches', array($this, 'get_matches_ajax'));
+		$this->actions_added = true;
 	}
 
 	public function get_all_venues() {

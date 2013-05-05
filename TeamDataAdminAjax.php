@@ -6,6 +6,7 @@
 class TeamDataAdminAjax extends TeamDataAjax {
 
 	public function add_actions() {
+		if ( $this->actions_added ) return;
 		// to decide: member, match_stat, cap, match
 		$ajax_prefix = 'wp_ajax_team_data_';
 		$actions = array( 'venue', 'level', 'role', 'team', 'stat', 'season' );
@@ -32,6 +33,8 @@ class TeamDataAdminAjax extends TeamDataAjax {
 		add_action($ajax_prefix . 'put_season_repeat', array($this, 'put_season_repeat'));
 
 		add_action('wp_enqueue_scripts', array( $this, 'add_ajax_url' ) );
+
+		$this->actions_added = true;
 	}
 
 	public function add_ajax_url() {
