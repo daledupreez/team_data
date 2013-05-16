@@ -64,7 +64,7 @@ class TeamDataBase {
 			$date = new DateTime();
 			$date = $date->format('Y-m-d H:i:s');
 			$sep = "\n-------------------------------------------------------\n";
-			file_put_contents($debug_file, $sep . $date . " Activation output:" . $sep . $debug_output, FILE_APPEND);
+			file_put_contents($debug_file, $sep . $date . " Debug output:" . $sep . $debug_output, FILE_APPEND);
 		}
 	}
 
