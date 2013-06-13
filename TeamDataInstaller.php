@@ -76,6 +76,7 @@ class TeamDataInstaller extends TeamDataBase {
 				last_name VARCHAR(255) NOT NULL,
 				first_name VARCHAR(127) NOT NULL,
 				nick_name VARCHAR(127),
+				active TINYINT NOT NULL DEFAULT 1,
 				email VARCHAR(255),
 				backup_email VARCHAR(255),
 				cell VARCHAR(20),
