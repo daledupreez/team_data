@@ -15,7 +15,7 @@ var team_data = {
 		"level": "Levels",
 		"member": "Members",
 		"team": "Teams",
-		"role": "Roles",
+		"list": "Email Lists",
 		"season": "Seasons",
 		"stat": "Stats",
 		"venue": "Venues"
@@ -224,8 +224,8 @@ team_data.api.team.getFields = function team_getFields()
 	return [ 'id', 'name', 'logo_link', 'abbreviation', 'is_us' ];
 }
 
-team_data.api.role = new team_data.apiObject('role');
-team_data.api.role.getFields = function role_getFields()
+team_data.api.list = new team_data.apiObject('list');
+team_data.api.list.getFields = function list_getFields()
 {
 	return [ 'id', 'name', 'comment' ];
 }
@@ -649,7 +649,7 @@ team_data.ui.renderSimpleTable = function(parentDiv,tableName)
 	parentDiv.innerHTML = html.join('');
 }
 
-team_data.ui.apiList = [ 'venue', 'level', 'role', 'stat', 'team', 'season' ];
+team_data.ui.apiList = [ 'venue', 'level', 'list', 'stat', 'team', 'season' ];
 
 team_data.ui.reportErrors = function(errors,focusList) {
 	if (errors && errors.length) {

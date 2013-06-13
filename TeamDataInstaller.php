@@ -98,7 +98,7 @@ class TeamDataInstaller extends TeamDataBase {
 			) $charset_collate";
 			$all_sql = $all_sql . $sql_sep . $sql_part;
 
-			$sql_part = "CREATE TABLE $tables->role (
+			$sql_part = "CREATE TABLE $tables->list (
 				id INT NOT NULL AUTO_INCREMENT,
 				name VARCHAR(50) NOT NULL,
 				comment VARCHAR(255),
@@ -106,10 +106,10 @@ class TeamDataInstaller extends TeamDataBase {
 			) $charset_collate";
 			$all_sql = $all_sql . $sql_sep . $sql_part;
 
-			$sql_part = "CREATE TABLE $tables->member_role (
+			$sql_part = "CREATE TABLE $tables->member_list (
 				id INT NOT NULL AUTO_INCREMENT,
 				member_id INT NOT NULL,
-				role_id INT NOT NULL,
+				list_id INT NOT NULL,
 				PRIMARY KEY  (id)
 			) $charset_collate";
 			$all_sql = $all_sql . $sql_sep . $sql_part;
@@ -183,13 +183,13 @@ class TeamDataInstaller extends TeamDataBase {
 						'action' => ' ON DELETE CASCADE'
 					)
 				),
-				$tables->member_role => array(
+				$tables->member_list => array(
 					'member_id' => array(
 						'table' => $tables->member,
 						'action' => ' ON DELETE CASCADE'
 					),
-					'role_id' => array(
-						'table' => $tables->role,
+					'list_id' => array(
+						'table' => $tables->list,
 						'action' => ' ON DELETE CASCADE'
 					)
 				),

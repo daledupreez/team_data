@@ -227,32 +227,28 @@ class TeamDataAdmin extends TeamDataBase {
 		</div>
 	</div>
 	<div>
-		<div class="section_title"><?php echo __('Roles', 'team_data'); ?></div>
+		<div class="section_title"><?php echo __('Email Lists', 'team_data'); ?></div>
 		<div>
-			<div class="team_data_help"><?php
-				echo __('A list of all the roles that you can assign to members.','team_data');
-				echo ' ' . __('You can also think of this as specific groups of members.','team_data');
-				echo ' ' . __('In either case, you must define the values here so they are available elsewhere.','team_data');
-			?>
+			<div class="team_data_help"><?php echo __('All the email lists that are available for use.','team_data'); ?>
 			</div>
-			<div id="team_data_role_table" class="team_data_simple_table_role"></div>
-			<form id="team_data_role_edit" class="team_data_admin_section">
+			<div id="team_data_list_table" class="team_data_simple_table_list"></div>
+			<form id="team_data_list_edit" class="team_data_admin_section">
 				<div class="team_data_inline">
-					<label for="team_data_role_edit__id" class="team_data_edit_label"><?php echo __('ID','team_data'); ?></label>
-					<input id="team_data_role_edit__id" class="team_data_edit_input" name="role_id" type="text" readonly="readonly" disabled="disabled" size="5" />
+					<label for="team_data_list_edit__id" class="team_data_edit_label"><?php echo __('ID','team_data'); ?></label>
+					<input id="team_data_list_edit__id" class="team_data_edit_input" name="list_id" type="text" readonly="readonly" disabled="disabled" size="5" />
 				</div>
 				<div class="team_data_inline">
-					<label for="team_data_role_edit__name" class="team_data_edit_label"><?php echo __('Name','team_data'); ?></label>
-					<input id="team_data_role_edit__name" class="team_data_edit_input" name="role_name" type="text" size="40" />
+					<label for="team_data_list_edit__name" class="team_data_edit_label"><?php echo __('Name','team_data'); ?></label>
+					<input id="team_data_list_edit__name" class="team_data_edit_input" name="list_name" type="text" size="40" />
 				</div>
 				<div class="team_data_inline">
-					<label for="team_data_role_edit__comment" class="team_data_edit_label"><?php echo __('Details','team_data'); ?></label>
-					<textarea id="team_data_role_edit__comment" class="team_data_edit_input" name="role_comment" cols="80" rows="3"></textarea>
+					<label for="team_data_list_edit__comment" class="team_data_edit_label"><?php echo __('Details','team_data'); ?></label>
+					<textarea id="team_data_list_edit__comment" class="team_data_edit_input" name="list_comment" cols="80" rows="3"></textarea>
 				</div>
 			</form>
 			<div class="team_data_buttonDiv">
-				<input id="team_data_role_edit__save" class="team_data_button" type="button" value="<?php echo __('Save Changes', 'team_data'); ?>" onclick="team_data.api.role.save();" />
-				<input class="team_data_button" type="button" value="<?php echo __('Create New Role','team_data'); ?>" onclick="team_data.api.role.clearForm();" />
+				<input id="team_data_list_edit__save" class="team_data_button" type="button" value="<?php echo __('Save Changes', 'team_data'); ?>" onclick="team_data.api.list.save();" />
+				<input class="team_data_button" type="button" value="<?php echo __('Create New Email List','team_data'); ?>" onclick="team_data.api.list.clearForm();" />
 			</div>
 		</div>
 	</div>
@@ -361,11 +357,11 @@ class TeamDataAdmin extends TeamDataBase {
 		wp_enqueue_style('team-data-css', plugins_url('css/team_data.css',__FILE__));
 		wp_localize_script('team-data', 'team_data_ajax', array( 'nonce' => wp_create_nonce('team_data_nonce') ) );
 	}
-	
+
 	public function render_loc_js($hook) {
 		//$this->debug('loc_hook=' . $hook);
 	}
-	
+
 	public function render_main_js() {
 		$this->render_footer_js('main');
 	}
@@ -378,9 +374,9 @@ class TeamDataAdmin extends TeamDataBase {
 	private function render_footer_js($page = 'main') {
 		$newline = "\n";
 		$api_list = array(
-			'main' => "'venue', 'level', 'role', 'stat', 'team', 'season'",
+			'main' => "'venue', 'level', 'list', 'stat', 'team', 'season'",
 			'matches' => "'venue', 'level', 'team', 'season'",
-			'members' => "'member', 'role', 'stat'",
+			'members' => "'member', 'list', 'stat'",
 		);
 		echo '<script type="text/javascript">' . $newline;
 		echo 'jQuery(document).ready( function() {' . $newline;

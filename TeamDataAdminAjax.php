@@ -9,7 +9,7 @@ class TeamDataAdminAjax extends TeamDataAjax {
 		if ( $this->actions_added ) return;
 		// to decide: member, match_stat, cap, match
 		$ajax_prefix = 'wp_ajax_team_data_';
-		$actions = array( 'venue', 'level', 'role', 'team', 'stat', 'season' );
+		$actions = array( 'venue', 'level', 'list', 'team', 'stat', 'season', 'member');
 		foreach($actions as $simple_action) {
 			add_action($ajax_prefix . 'get_' . $simple_action, array($this, 'get_' . $simple_action));
 			add_action($ajax_prefix . 'put_' . $simple_action, array($this, 'put_' . $simple_action));
@@ -353,31 +353,31 @@ class TeamDataAdminAjax extends TeamDataAjax {
 		$this->run_select_all_ajax($this->tables->member,"CONCAT(first_name,' ',last_name) As name");
 	}
 
-	// ROLE operations
+	// LIST operations
 
-	public function get_role() {
-		$this->run_select($this->tables->role,'role_id');
+	public function get_list() {
+		$this->run_select($this->tables->list,'list_id');
 		exit;
 	}
 
-	public function put_role() {
+	public function put_list() {
 		header('Content-Type: application/json');
 		$fields = array(
 			'id' => '',
 			'name' => '',
 			'comment' => '',
 		);
-		$role_id = $this->get_post_values($fields);
+		$list_id = $this->get_post_values($fields);
 
 		$responseData = array( 'result' => 'error' );
 		if (!$this->check_nonce()) {
-			$response_data['error_message'] = __("Invalid nonce", 'team_data');
+			$responseData['error_message'] = __("Invalid nonce", 'team_data');
 		}
 		elseif ($fields['name'] == '') { // name is required
 			$responseData['error_message'] = sprintf(__("Property '%s' is required", 'team_data'),'name');
 		}
 		else {
-			$responseData = $this->run_update($this->tables->role,$fields,$role_id);
+			$responseData = $this->run_update($this->tables->list,$fields,$list_id);
 		}
 
 		echo json_encode($responseData);

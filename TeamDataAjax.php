@@ -9,7 +9,7 @@ class TeamDataAjax extends TeamDataBase {
 		if ( $this->actions_added ) return;
 		$ajax_prefix = 'wp_ajax_team_data_';
 		$public_ajax_pefix = 'wp_ajax_nopriv_team_data';
-		$actions = array( 'venue', 'level', 'role', 'team', 'stat', 'season' );
+		$actions = array( 'venue', 'level', 'team', 'stat', 'season' );
 		foreach($actions as $simple_action) {
 			add_action($ajax_prefix . 'get_all_' . $simple_action . 's', array($this, 'get_all_' . $simple_action . 's_ajax'));
 		}
@@ -28,7 +28,6 @@ class TeamDataAjax extends TeamDataBase {
 		$this->run_select_all_ajax($this->tables->venue);
 	}
 
-
 	public function get_all_levels() {
 		return $this->run_select_all($this->tables->level);
 	}
@@ -36,16 +35,6 @@ class TeamDataAjax extends TeamDataBase {
 	public function get_all_levels_ajax() {
 		$this->run_select_all_ajax($this->tables->level);
 	}
-
-
-	public function get_all_roles() {
-		return $this->run_select_all($this->tables->role);
-	}
-
-	public function get_all_roles_ajax() {
-		$this->run_select_all_ajax($this->tables->role);
-	}
-
 
 	public function get_all_teams() {
 		return $this->run_select_all($this->tables->team);
@@ -55,7 +44,6 @@ class TeamDataAjax extends TeamDataBase {
 		$this->run_select_all_ajax($this->tables->team);
 	}
 
-
 	public function get_all_stats() {
 		return $this->run_select_all($this->tables->stat);
 	}
@@ -64,7 +52,6 @@ class TeamDataAjax extends TeamDataBase {
 		$this->run_select_all_ajax($this->tables->stat);
 	}
 
-
 	public function get_all_seasons() {
 		return $this->run_select_all($this->tables->season,"CONCAT(`year`,' ',`season`) As name");
 	}
@@ -72,6 +59,7 @@ class TeamDataAjax extends TeamDataBase {
 	public function get_all_seasons_ajax() {
 		$this->run_select_all_ajax($this->tables->season,"CONCAT(`year`,' ',`season`) As name");
 	}
+
 	/*
 	 *	See the comments for the get_matches function in this class for the supported filters and return columns.
 	 *	Note that get_ajax_conditions() creates a condition array based on the POSTed fields of the same names.
