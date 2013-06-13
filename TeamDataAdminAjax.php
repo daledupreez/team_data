@@ -549,13 +549,13 @@ class TeamDataAdminAjax extends TeamDataAjax {
 	}
 
 	/**
-	 * Private helper function to populate $fields
+	 * Protected helper function to populate $fields
 	 * with data from the incoming POST values and clean out "id" from POST data
 	 *
 	 * @param array $fields Array of key/value pairs where we will check for the presence of the keys in the POSTed data and update in-place
 	 * @return string $id_value Value of posted 'id' field
 	 */
-	private function get_post_values(&$fields) {
+	protected function get_post_values(&$fields) {
 		foreach (array_keys($fields) as $fieldName ) {
 			if (isset($_POST[$fieldName])) {
 				$fields[$fieldName] = $_POST[$fieldName];
@@ -567,7 +567,7 @@ class TeamDataAdminAjax extends TeamDataAjax {
 	}
 
 	/**
-	 * Private helper function to run an INSERT or UPDATE against the table specified
+	 * Protected helper function to run an INSERT or UPDATE against the table specified
 	 * in $table, using $fields as the column/value pairs to update.
 	 *
 	 * @param string $table Name of table to update
@@ -575,7 +575,7 @@ class TeamDataAdminAjax extends TeamDataAjax {
 	 * @param string $id_val ID value to update. If empty or null, will perform an INSERT, otherwise do an UPDATE
 	 * @return array $responseData associate array to return as a response
 	 */
-	private function run_update($table,$fields,$id_val) {
+	protected function run_update($table,$fields,$id_val) {
 		global $wpdb;
 
 		$responseData = array( 'result' => 'error' );
@@ -603,13 +603,13 @@ class TeamDataAdminAjax extends TeamDataAjax {
 	}
 
 	/**
-	 * Private helper function to SELECT a row from $table where ID is the value in the POSTed variable $id_field
+	 * Protected helper function to SELECT a row from $table where ID is the value in the POSTed variable $id_field
 	 * and write out the data as a JSON object
 	 *
 	 * @param string $table Name of table
 	 * @param string $id_field Name of the POSTed variable that should contain the ID
 	 */
-	private function run_select($table,$id_field) {
+	protected function run_select($table,$id_field) {
 		global $wpdb;
 
 		header('Content-Type: application/json');
@@ -626,7 +626,7 @@ class TeamDataAdminAjax extends TeamDataAjax {
 	}
 
 	/**
-	 * Private helper function to SELECT a row from $table where ID is the value in the POSTed variable $id_field,
+	 * Protected helper function to SELECT a row from $table where ID is the value in the POSTed variable $id_field,
 	 * as well as including a 0 or 1 in property $option_field to indicate whether the value of option $option_name
 	 * matches the value of $id_field.
 	 * The combined data is then written out as a JSON object
@@ -636,7 +636,7 @@ class TeamDataAdminAjax extends TeamDataAjax {
 	 * @param string $option_name Name of the TeamData option to compare against
 	 * @param string $option_field Name of the field in the returned JSON
 	 */
-	private function run_select_with_option($table,$id_field,$option_name,$option_field) {
+	protected function run_select_with_option($table,$id_field,$option_name,$option_field) {
 		global $wpdb;
 
 		header('Content-Type: application/json');
@@ -656,7 +656,7 @@ class TeamDataAdminAjax extends TeamDataAjax {
 		}
 	}
 
-	private function check_nonce() {
+	protected function check_nonce() {
 		return (isset($_POST['nonce']) && wp_verify_nonce($_POST['nonce'], 'team_data_nonce'));
 	}
 }

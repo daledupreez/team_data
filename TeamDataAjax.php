@@ -133,7 +133,7 @@ class TeamDataAjax extends TeamDataBase {
 		return $wpdb->get_results($sql, ARRAY_A);
 	}
 
-	private function get_ajax_conditions() {
+	protected function get_ajax_conditions() {
 		$conditions = array();
 
 		$rangeFields = array( 'season' => true, 'year' => false );
@@ -157,7 +157,7 @@ class TeamDataAjax extends TeamDataBase {
 		return $conditions;
 	}
 
-	private function build_where($conditions) {
+	protected function build_where($conditions) {
 		$where = array(
 			"args" => array(),
 			"statement" => array()
@@ -204,7 +204,7 @@ class TeamDataAjax extends TeamDataBase {
 		return $where;
 	}
 
-	private function get_start_end($conditions,$field_name,$is_int = false) {
+	protected function get_start_end($conditions,$field_name,$is_int = false) {
 		$start = '';
 		$end = '';
 		$count = 0;
@@ -241,20 +241,20 @@ class TeamDataAjax extends TeamDataBase {
 	}
 
 	/**
-	 * Private helper function to SELECT id and name from all rows in table specified by $table
+	 * Protected helper function to SELECT id and name from all rows in table specified by $table
 	 * and then write out the data in JSON format
 	 *
 	 * @param string $table Name of table
 	 * @param string $name_col Name/expression for name value
 	 */
-	private function run_select_all($table,$name_col = "name") {
+	protected function run_select_all($table,$name_col = "name") {
 		global $wpdb;
 
 		$all_query = "SELECT id, $name_col FROM $table";
 		return $wpdb->get_results($all_query, ARRAY_A);
 	}
 
-	private function run_select_all_ajax($table,$name_col = "name") {
+	protected function run_select_all_ajax($table,$name_col = "name") {
 		header('Content-Type: application/json');
 		$results = $this->run_select_all($table,$name_col);
 		echo json_encode($results);
