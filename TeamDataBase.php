@@ -8,7 +8,7 @@ require_once 'TeamDataTables.php';
 */
 class TeamDataBase {
 
-	public $version = 0.32;
+	public $version = 0.33;
 
 	public $actions_added = false;
 
@@ -20,7 +20,7 @@ class TeamDataBase {
 
 	public function __construct() {
 		$this->tables = new TeamDataTables();
-		$this->permitted_options = array( 'version', 'max_matches', 'current_season', 'our_team' );
+		$this->permitted_options = array( 'version', 'max_matches', 'current_season', 'our_team', 'allow_all_member_mail' );
 	}
 
 	public function add_actions() {
@@ -78,7 +78,7 @@ class TeamDataBase {
 	 */
 	public function set_option($option, $value) {
 		if (($option !== '') && ($option !== null) && in_array($option,$this->permitted_options)) {
-			$this->debug("updating option '$option' to value '$value'");
+			$this->debug("Updating option '$option' to value '$value'");
 			update_option('team_data_' . $option, $value);
 		}
 		else {

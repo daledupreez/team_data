@@ -227,7 +227,7 @@ team_data.api.team.getFields = function team_getFields()
 team_data.api.list = new team_data.apiObject('list');
 team_data.api.list.getFields = function list_getFields()
 {
-	return [ 'id', 'name', 'comment' ];
+	return [ 'id', 'name', 'comment', 'auto_enroll', 'display_name' ];
 }
 
 team_data.api.season = new team_data.apiObject('season');
@@ -276,35 +276,318 @@ team_data.api.stat.getFields = function stat_getFields()
 }
 
 
-team_data.api.options = {};
-team_data.api.options.getControls = function options_getControls() {
+team_data.api.options = {
+	"fields": [ "max_matches", "allow_all_member_mail" ]
+};
+team_data.api.options.getControls = function options_getControls(fieldName) {
+	if (this.fields.indexOf(fieldName) == -1) return null;
 	return {
-		"current": document.getElementById('team_data_options_edit__max_matches'),
-		"original": document.getElementById('team_data_options_edit__max_matches_orig')
+		"current": document.getElementById('team_data_options_edit__' + fieldName),
+		"original": document.getElementById('team_data_options_edit__' + fieldName + '_orig')
 	};
 }
 team_data.api.options.save = function options_save() {
-	var controls = this.getControls();
-	if (controls && controls.current && controls.original) {
-		var max_matches = parseInt(controls.current.value,10);
-		if (max_matches && !isNaN(max_matches) && (max_matches > 0)) {
-			if (parseInt(controls.original.value,10) != max_matches) {
+	for (var i = 0; i < this.fields.length; i++) {
+		var field = this.fields[i];
+		var controls = this.getControls(field);
+		if (controls && controls.current && controls.original) {
+			var value = controls.current.value;
+			var orig_value = controls.original.value;
+			if (field == 'max_matches') {
+				value = parseInt(value,10);
+				orig_value = parseInt(orig_value,10);
+				if (isNaN(value) || (value <= 0)) {
+					continue;
+				}
+			}
+			if (value != orig_value) {
 				var apiObject = this;
-				var setData = { "action": "team_data_set_option", "option_name": "max_matches", "option_value": max_matches, "nonce": team_data_ajax.nonce };
-				jQuery.post(ajaxurl,setData,function(saveResult) { apiObject.saveHandler(saveResult); });
+				var setData = { "action": "team_data_set_option", "option_name": field, "option_value": value, "nonce": team_data_ajax.nonce };
+				jQuery.post(ajaxurl,setData,function(saveResult) { apiObject.saveHandler(saveResult, field); });
 			}
 		}
 	}
 }
-team_data.api.options.saveHandler = function options_saveHandler(saveResult) {
+team_data.api.options.saveHandler = function options_saveHandler(saveResult,field) {
 	if (saveResult && saveResult.set) {
-		var controls = this.getControls();
+		var controls = this.getControls(field);
 		if (controls && controls.current && controls.original) {
 			controls.original.value = controls.current.value;
 		}
 	}
 }
 
+team_data.api.member_search = {
+	"propList": [ 'first_name', 'nick_name', 'last_name', 'email', 'active', 'cell' ],
+	"searchFields": [ 'first_name', 'last_name', 'email', 'active' ]
+};
+
+team_data.api.member_search.buildIndex = function member_search_buildIndex()
+{
+	if ((!team_data.member_data) || (!team_data.member_data.members)) return;
+	var index = {};
+	var members = team_data.member_data.members;
+	for (var i = 0; i < members.length; i++) {
+		var member = members[i];
+		if (member && member.id) index[member.id] = i;
+	}
+	team_data.member_data.index = index;
+}
+
+team_data.api.member_search.clear = function member_search_clear()
+{
+	var form = document.getElementById('team_data_member_search');
+	if (form) form.reset();
+	this.render();
+}
+
+team_data.api.member_search.editMember = function member_search_editMember(memberPos)
+{
+	memberPos = parseInt(memberPos,10);
+	if ((!team_data.member_data.currentList) || (!team_data.member_data.currentList[memberPos])) return;
+	var currMember = team_data.member_data.currentList[memberPos];
+	var row = document.getElementById('member_search_result_' + currMember.id);
+	if (!row) return;
+	row.innerHTML = this.getRowContents(currMember,memberPos,true);
+}
+
+team_data.api.member_search.getAllMembers = function member_search_getAllMembers()
+{
+	var postData = { "action": "team_data_get_all_member_data", "nonce": team_data_ajax.nonce };
+	var apiObject = this;
+	jQuery.post(ajaxurl,postData, function(postResponse) { apiObject.updateAllMembers(postResponse); } );
+}
+team_data.api.member_search.getForm = function member_search_getForm()
+{
+	return document.getElementById('team_data_member_search');
+}
+team_data.api.member_search.getRowContents = function member_search_getRowContents(member,pos,editable)
+{
+	var html = [];
+	var haveLists = (team_data.list.list && (team_data.list.list.length > 0));
+	var listIndex = (haveLists ? team_data.list.index : {});
+	props = this.propList;
+	if (editable) {
+		html.push('<td>');
+		html.push('<input id="member_search_result_' + pos + '__update" type="button" class="team_data_button" onclick="team_data.api.member_search.updateMember(\'' + member.id + '\');" value="' + team_data.fn.getLocText('Save') + '"/>');
+		html.push('<input id="member_search_result_' + pos + '__cancel" type="button" class="team_data_button" onclick="team_data.api.member_search.render();" value="' + team_data.fn.getLocText('Discard') + '"/>')
+		html.push('</td>');
+	}
+	else {
+		html.push('<td><input id="member_search_result_' + member.id + '__edit" type="button" class="team_data_button" onclick="team_data.api.member_search.editMember(\'' + pos + '\');" value="' + team_data.fn.getLocText('Edit') + '"/></td>');
+	}
+	for (var j = 0; j < props.length; j++) {
+		var prop = props[j];
+		var val = (!member[prop]) ? '' : member[prop];
+		if (editable) {
+			var inputType = 'text';
+			var valAttrib = 'value="' + val + '"';
+			switch (prop) {
+				case 'email':
+					inputType = 'email';
+					break;
+				case 'active':
+					inputType = 'checkbox';
+					valAttrib = 'checked="1"';
+					break;
+				case 'cell':
+					inputType = 'tel';
+					break;
+			};
+			val = '<input id="member_search_edit_' + member.id + '__' + prop + '" type="' + inputType + '" name="' + prop + '" ' + valAttrib + ' />';
+		}
+		else {
+			val = (val === '') ? '&nbsp;' : val;
+			if (prop == 'active') val = team_data.fn.getLocText( ( val == '1' ? 'Yes' : 'No') );
+		}
+		html.push('<td>' + val + '</td>');
+	}
+	if ((!member.lists) || (!member.lists.length) || (!haveLists)) {
+		html.push('<td>&nbsp;</td>');
+	}
+	else {
+		if (editable) {
+			html.push('<td id="member_search_edit_' + member.id + '__listTD">');
+			for (var listID in team_data.list.index) {
+				var listHTML = team_data.fn.escapeHTML(team_data.list.index[listID]);
+				var cellID = 'member_search_edit_' + member.id + '_list_' + listID;
+				var checked = (member.lists.indexOf(listID) > -1 ? 'checked="1"' : '');
+				html.push('<span nowrap="1">');
+				html.push('<input type="checkbox" id="' + cellID + '" name="list" listid="' + listID + '" title="' + listHTML + '" value="' + listID + '" ' + checked + ' class="team_data_checkbox" />');
+				html.push('<label for="' + cellID + '" class="team_data_checkbox_label">' + listHTML + '</label>');
+				html.push('</span>');
+			}
+		}
+		else {
+			var listNames = [];
+			for (var k = 0; k < member.lists.length; k++) {
+				var list_id = member.lists[k];
+				if (listIndex[list_id]) listNames.push(listIndex[list_id]);
+			}
+			listNames = listNames.join(', ');
+			listNames = (listNames == '' ? '&nbsp;' : listNames);
+			html.push('<td>' + listNames + '</td>');
+		}
+	}
+	return html.join('');
+}
+
+team_data.api.member_search.render = function member_search_render(members)
+{
+	if ((!members) && team_data.member_data.currentList) members = team_data.member_data.currentList;
+	if ((!members) && team_data.member_data) members = team_data.member_data.members;
+	if (!team_data.member_data.index) this.buildIndex();
+	team_data.member_data.currentList = members;
+	var div = document.getElementById('team_data_members');
+	if ((!members) || (members.length == 0)) {
+		div.innerHTML = '<div class="team_data_member no_results">' + team_data.fn.getLocText('No results') + '</div>';
+		return;
+	}
+	var html = [];
+	html.push('<table class="team_data_table team_data_members">');
+	html.push('<tr class="team_data_members_header">');
+	html.push('<th>&nbsp;</th>');
+	html.push('<th>' + team_data.fn.getLocText('First Name') + '</th>');
+	html.push('<th>' + team_data.fn.getLocText('Nickname') + '</th>');
+	html.push('<th>' + team_data.fn.getLocText('Last Name') + '</th>');
+	html.push('<th>' + team_data.fn.getLocText('Email') + '</th>');
+	html.push('<th>' + team_data.fn.getLocText('Active') + '</th>');
+	html.push('<th>' + team_data.fn.getLocText('Cell') + '</th>');
+	html.push('<th>' + team_data.fn.getLocText('Email Lists') + '</th>');
+	html.push('</tr>');
+
+	var count = 0;
+	for (var i = members.length; i >= 0; i--) {
+		var member = members[i];
+		html.push('<tr id="member_search_result_' + member.id + '" resultpos="' + i + '">');
+		html.push(this.getRowContents(member,i,false));
+		html.push('</tr>');
+		count++;
+		if (count == 50) {
+			html.push('<tr class="team_data_more_data">');
+			html.push('<td colspan="' + props.length + '">');
+			html.push(team_data.fn.getLocText('More members exist.') + 'nbsp;' + team_data.fn.getLocText('Use search criteria to narrow down results.'));
+			html.push('</td></tr>');
+			break;
+		}
+	}
+	html.push('</table>');
+
+	div.innerHTML = html.join('');
+}
+
+team_data.api.member_search.search = function member_search_search()
+{
+	if ((!team_data.member_data) || (!team_data.member_data.members)) return;
+	var form = this.getForm();
+	if (!form) return;
+	var fields = this.searchFields;
+	var criteria = [];
+	for (var i = 0; i < fields.length; i++) {
+		var ctrl = form['team_data_member_search__' + fields[i]];
+		var val = '';
+		if (ctrl) val = team_data.fn.getControlValue(ctrl);
+		if (val !== '') criteria.push( { "property": fields[i], "value": String(val).toLowerCase() } );
+	}
+	var listControls = form.member_search_lists;
+	if (listControls && listControls.length) {
+		for (var i = 0; i < listControls.length; i++) {
+			var ctrl = listControls.item(i);
+			if (ctrl && ctrl.checked) {
+				criteria.push( { "property": "list", "value": String(ctrl.value) } );
+			}
+		}
+	}
+	if (!criteria.length) {
+		this.render(team_data.member_data.members);
+		return;
+	}
+	var results = [];
+	var member_data = team_data.member_data.members;
+	for (var i = 0; i < member_data.length; i++) {
+		var match = true;
+		var member = member_data[i];
+		for (var j = 0; j < criteria.length; j++) {
+			var criterion = criteria[j];
+			if (criterion.property == 'list') {
+				if (member.lists.indexOf(criterion.value) == -1) {
+					match = false;
+					break;
+				}
+			}
+			else {
+				var compString = String(member[criterion.property]).substring(0,criterion.value.length).toLowerCase();
+				if (compString != criterion.value) {
+					match = false;
+					break;
+				}
+			}
+		}
+		if (match) results.push(member);
+	}
+	this.render(results);
+}
+team_data.api.member_search.updateAllMembers = function member_search_updateAllMembers(member_data)
+{
+	team_data.member_data = {
+		"members": member_data
+	}
+	this.render();
+}
+
+team_data.api.member_search.updateMember = function member_search_updateMember(memberID)
+{
+	memberID = parseInt(memberID,10);
+	if (isNaN(memberID) || !memberID) return;
+	var postData = { "action": "team_data_put_member_simple", "id": memberID, "nonce": team_data_ajax.nonce };
+	var props = this.propList;
+	for (var i = 0; i < props.length; i++) {
+		var prop = props[i];
+		var ctrl = document.getElementById('member_search_edit_' + memberID + '__' + prop);
+		var val = (ctrl ? team_data.fn.getControlValue(ctrl) : '');
+		postData[prop] = val;
+	}
+	var listCell = document.getElementById('member_search_edit_' + memberID + '__listTD');
+	if (listCell) {
+		var lists = {};
+		var listBoxes = listCell.getElementsByTagName('input');
+		for (var i = 0; i < listBoxes.length; i++) {
+			var checkbox = listBoxes.item(i);
+			lists[checkbox.value] = (checkbox.checked ? '1' : '0');
+		}
+		postData.lists = lists;
+	}
+	jQuery.post(ajaxurl,postData,team_data.api.member_search.updateMemberHandler);
+}
+
+team_data.api.member_search.updateMemberHandler = function member_search_updateMemberHandler(memberData)
+{
+	if (!memberData) return;
+	if (memberData.result == 'error') {
+		var msg = team_data.fn.getLocText('Error in save');
+		if (memberData.error_message) msg += '\n' + memberData.error_message;
+		alert(msg);
+	}
+	else if (!memberData.member) {
+		var msg = team_data.fn.getLocText('Save succeeded, but you will need to reload the page to see the new values.');
+		alert(msg);
+	}
+	else {
+		var member = memberData.member;
+		var memberPos = team_data.member_data.index[member.id];
+		if (typeof memberPos == 'number') {
+			team_data.member_data.members[memberPos] = member;
+		}
+		var row = document.getElementById('member_search_result_' + member.id);
+		if (row) {
+			var currPos = row.getAttribute('resultpos');
+			if (team_data.member_data.currentList[currPos]) {
+				team_data.member_data.currentList[currPos] = member;
+			}
+			row.innerHTML = team_data.api.member_search.getRowContents(member,currPos,false);
+		}
+	}
+}
 
 team_data.api.match = {
 	"fields": [ 'time', 'level', 'is_league', 'is_postseason', 'our_score', 'opposition_score' ],
@@ -831,4 +1114,16 @@ team_data.fn.changePage = function(forward,gotoEnd)
 	}
 	team_data.paging.urlParms.push('fixturePage='+pageNum);
 	document.location = url + '?' + team_data.paging.urlParms.join('&');
+}
+
+team_data.fn.escapeHTML = function(str)
+{
+	if (typeof str != 'string') return str;
+	str = str.replace(/&/g,'&amp;');
+	str = str.replace(/</g,'&lt;');
+	str = str.replace(/>/g,'&gt;');
+	str = str.replace(/\"/g,'&quot;');
+	str = str.replace(/\'/g,'&39;');
+	str = str.replace(/\u00A0/g,'&nbsp;');
+	return str;
 }

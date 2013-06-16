@@ -15,15 +15,15 @@ class TeamDataAdminAjax extends TeamDataAjax {
 		$actions = array( 'venue', 'level', 'list', 'team', 'stat', 'season', 'member');
 		foreach($actions as $action) {
 			add_action($ajax_prefix . 'get_' . $action, array($this, 'get_' . $action . '_ajax'));
-			add_action($ajax_prefix . 'put_' . $action, array($this, 'put_' . $action , '_ajax'));
+			add_action($ajax_prefix . 'put_' . $action, array($this, 'put_' . $action . '_ajax'));
 		}
 
-		$get_only = array( 'all_members', 'basic_match', 'season_names' );
+		$get_only = array( 'all_lists', 'all_members', 'all_member_data', 'basic_match', 'season_names' );
 		foreach ($get_only as $get_action) {
 			add_action($ajax_prefix . 'get_' . $get_action, array( $this, 'get_' . $get_action . '_ajax'));
 		}
 
-		$put_only = array( 'new_matches', 'season_repeat' );
+		$put_only = array( 'member_simple', 'new_matches', 'season_repeat' );
 		foreach ($put_only as $put_action) {
 			add_action($ajax_prefix . 'put_' . $put_action, array( $this, 'put_' . $put_action . '_ajax'));
 		}
@@ -313,11 +313,71 @@ class TeamDataAdminAjax extends TeamDataAjax {
 		exit;
 	}
 
-	public function put_member_ajax() {
+	public function put_member_simple_ajax() {
+		global $wpdb;
+
 		header('Content-Type: application/json');
 		$fields = array(
 			'id' => '',
 			'first_name' => '',
+			'last_name' => '',
+			'nick_name' => '',
+			'email' => '',
+			'cell' => '',
+			'active' => true,
+		);
+
+		$member_id = $this->get_post_values($fields);
+
+		$response_data = array( "result" => "error" );
+		if (!$this->check_nonce()) {
+			$response_data['error_message'] = __('Invalid nonce', 'team_data');
+		}
+		elseif ($this->validate_member($member_id,$fields,$response_data)) {
+			$id_check = $wpdb->get_var( $wpdb->prepare('SELECT ID FROM ' . $this->tables->member . ' WHERE ID = %s LIMIT 0, 1', $member_id ) );
+			$this->debug('$id_check = ' . $id_check);
+			if ( $id_check != $member_id ) {
+				$this->debug('Failed to find matching ID for supplied member_id \'' . $member_id . '\'');
+				$response_data['error_message'] = sprintf( __("Member with ID '%s' not found", 'team_data'), $member_id );
+			}
+			else {
+				// It would be preferable to wrap these two sets of updates in a transaction but that will need to wait for another day
+				$list_error = $this->update_member_lists($member_id);
+				if ($list_error != '') {
+					$this->debug('list update failure: ' . $list_error);
+					$response_data['error_message'] = $list_error;
+				}
+				else {
+					$response_data = $this->run_update($this->tables->member,$fields,$member_id);
+					if ($response_data['result'] != 'error') {
+						$response_data['member'] = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM ' . $this->tables->member . ' WHERE ID = %s', $member_id ), ARRAY_A );
+						$response_data['member']['lists'] = $wpdb->get_col( $wpdb->prepare( 'SELECT list_id FROM ' . $this->tables->member_list . ' WHERE member_id = %s', $member_id ), 0 );
+					}
+				}
+			}
+		}
+		echo json_encode($response_data);
+		exit;
+	}
+
+	public function put_member_ajax() {
+		header('Content-Type: application/json');
+		$response_data = $this->put_member();
+		echo json_encode($response_data);
+		exit;
+	}
+
+	/**
+	 * Helper method to save a member. 
+	 */
+	public function put_member() {
+		global $wpdb;
+
+		$fields = array(
+			'id' => '',
+			'first_name' => '',
+			'last_name' => '',
+			'nick_name' => '',
 			'email' => '',
 			'backup_email' => '',
 			'cell' => '',
@@ -335,7 +395,8 @@ class TeamDataAdminAjax extends TeamDataAjax {
 			'college_or_school' => '',
 			'position' => '',
 			'joined' => '',
-			'past_clubs' => ''
+			'past_clubs' => '',
+			'active' => true,
 		);
 
 		$member_id = $this->get_post_values($fields);
@@ -344,22 +405,160 @@ class TeamDataAdminAjax extends TeamDataAjax {
 		if (!$this->check_nonce()) {
 			$response_data['error_message'] = __("Invalid nonce", 'team_data');
 		}
-		elseif ($fields['first_name'] == '') { // first_name and last_name are required
+		elseif ($this->validate_member($member_id,$fields,$response_data)) {
+			$lists = array();
+
+			$show_errors = $wpdb->hide_errors();
+			if (isset( $_POST[ 'list_names' ] )) {
+				foreach ($_POST[ 'list_names' ] as $list_name => $chosen) {
+					$list_id = $wpdb->get_var( $wpdb->prepare( 'SELECT id FROM ' . $this->tables->list . ' WHERE display_name = %s', $list_name ) );
+					if (!$list_id) {
+						$list_id = $wpdb->get_var( $wpdb->prepare( 'SELECT id FROM ' . $this->tables->list . ' WHERE name = %s', $list_name ) );
+					}
+					if ($list_id) {
+						$lists[ $list_id ] = $chosen;
+					}
+				}
+			}
+			// Only check hidden auto_enroll for new members
+			if ($member_id == '') {
+				$auto_lists = $wpdb->get_results( 'SELECT id FROM ' . $this->tables->list . ' WHERE auto_enroll = 1' );
+				foreach ($auto_lists as $auto_list) {
+					if (!isset($lists[ $auto_list->id ])) {
+						$lists[ $auto_list->id ] = true;
+					}
+				}
+			}
+			if ($show_errors) $wpdb->show_errors();
+
+			$response_data = $this->run_update($this->tables->member,$fields,$member_id);
+			// run list operations *AFTER* main UPDATE as we might be dealing with a new registration
+			if ($response_data['result'] != 'error') {
+				// get current member ID
+				$curr_member_id = $response_data['result'];
+
+				// make sure we have a translated lists value - non-admins should only see display names and NOT row ID's
+				if (!isset($_POST[ 'lists' ])) {
+					$_POST[ 'lists' ] = $lists;
+				}
+				$list_error = $this->update_member_lists($curr_member_id);
+			}
+		}
+		return $response_data;
+	}
+
+	/**
+	 * Private helper function to validate that the data in $fields contains enough data to be a valid member record.
+	 *
+	 * @param string $member_id The ID of the member being validated.
+	 * @param array $fields The array containing the field values to be validated.
+	 * @param array $response_data The array containing the eventual AJAX response data, which is passed by reference so any error messages can be returned.
+	 */
+	private function validate_member($member_id = '',$fields,&$response_data) {
+		global $wpdb;
+
+		$is_valid = false;
+		if ($fields['first_name'] == '') { // first_name and last_name are required
 			$response_data['error_message'] = sprintf(__("Property '%s' is required", 'team_data'),'first_name');
 		}
 		elseif ($fields['last_name'] == '') {
 			$response_data['error_message'] = sprintf(__("Property '%s' is required", 'team_data'),'last_name');
 		}
 		else {
-			$response_data = $this->run_update($this->tables->member,$fields,$member_id);
+			$emailOK = true;
+			if ($fields['email'] != '') {
+				// check that we don't introduce duplicate email addresses
+				$id_for_email = $wpdb->get_var( $wpdb->prepare('SELECT ID FROM ' . $this->tables->member . ' WHERE email = %s AND ID <> %s LIMIT 0, 1', $fields['email'], $member_id ) );
+				if ((!is_null($id_for_email)) && ($id_for_email != $member_id)) {
+					$this->debug('Email failed; id_for_email = ' . $id_for_email . '; member_id = ' . $member_id);
+					$emailOK = false;
+					$response_data['error_message'] = __( 'This email address has already been registered. Please contact the website administrator to change your options.' , 'team_data' );
+				}
+			}
+			if ($emailOK) {
+				$is_valid = true;
+			}
 		}
 
-		echo json_encode($response_data);
-		exit;
+		return $is_valid;
+	}
+
+	/**
+	 * Private helper function to update the lists for a given member based on the data in the $_POSTS['lists'] array.
+	 *
+	 * @param string $member_id The ID of the member to run the update for.
+	 */
+	private function update_member_lists($member_id) {
+		global $wpdb;
+
+		$lists = array();
+		if (isset($_POST['lists'])) {
+			$lists = $_POST['lists'];
+		}
+		// turn off errors while running the update/check queries
+		$showErrors = $wpdb->hide_errors();
+		$problems = array();
+		foreach ($lists as $list_id => $add_member) {
+			$query_ok = true;
+			if (!$add_member) {
+				$query_ok = $wpdb->query( $wpdb->prepare( 'DELETE FROM ' . $this->tables->member_list . ' WHERE member_id = %s AND list_id = %s', $member_id, $list_id ) );
+			}
+			else {
+				// check if the list actually exists
+				if ($wpdb->get_var( $wpdb->prepare( 'SELECT ID FROM ' . $this->tables->list . ' WHERE ID = %s', $list_id ) ) ) {
+					// check if the member is registered for the list 
+					if (!$wpdb->get_var( $wpdb->prepare( 'SELECT ID FROM ' . $this->tables->member_list . ' WHERE member_id = %s AND list_id = %s', $member_id, $list_id ) ) ) {
+						// not on the list, register the member
+						$query_ok = $wpdb->insert( $this->tables->member_list, array( 'member_id' => $member_id, 'list_id' => $list_id ), array( '%d', '%d' ) );
+					}
+				}
+			}
+			// Make SURE this is false, as the DELETE may return 0 as a row count
+			if ($query_ok === false) {
+				$problems[] = $list_id;
+			}
+		}
+		// reinstate error display
+		if ($showErrors) $wpdb->show_errors();
+
+		if (count( $problems ) > 0) {
+			return sprintf( __("Failed to update list memberships: %s"), implode(', ', $problems) );
+		}
+		return '';
 	}
 
 	public function get_all_members_ajax() {
 		$this->run_select_all_ajax($this->tables->member,"CONCAT(first_name,' ',last_name) As name");
+	}
+
+	public function get_all_member_data_ajax() {
+		header('Content-Type: application/json');
+		if (!$this->check_nonce()) {
+			$results = null;
+		}
+		else {
+			$results = $this->get_all_member_data();
+		}
+		echo json_encode($results);
+		exit;
+	}
+
+	public function get_all_member_data() {
+		global $wpdb;
+
+		$member_query = 'SELECT * FROM ' . $this->tables->member;
+		$list_query = 'SELECT list_id FROM ' . $this->tables->member_list . ' WHERE member_id = ';
+		$results = $wpdb->get_results($member_query, ARRAY_A);
+		foreach ($results as &$result) {
+			if (isset($result['id']) && ($result['id'] > 0)) {
+				$lists = $wpdb->get_col($list_query . $result['id'], 0);
+				$result['lists'] = $lists;
+			}
+			else {
+				$result['lists'] = array();
+			}
+		}
+		return $results;
 	}
 
 	public function get_list_ajax() {
@@ -373,6 +572,8 @@ class TeamDataAdminAjax extends TeamDataAjax {
 			'id' => '',
 			'name' => '',
 			'comment' => '',
+			'auto_enroll' => 0,
+			'display_name' => '',
 		);
 		$list_id = $this->get_post_values($fields);
 
@@ -389,6 +590,18 @@ class TeamDataAdminAjax extends TeamDataAjax {
 
 		echo json_encode($response_data);
 		exit;
+	}
+
+	public function get_all_lists_ajax() {
+		header('Content-Type: application/json');
+		$response_data = $this->get_all_lists();
+
+		echo json_encode($response_data);
+		exit;
+	}
+
+	public function get_all_lists() {
+		return $this->run_select_all($this->tables->list);
 	}
 
 	public function get_team_ajax() {
@@ -593,7 +806,7 @@ class TeamDataAdminAjax extends TeamDataAjax {
 		}
 		else {
 			$updateCount = $wpdb->update($table, $fields, array("id" => $id_val));
-			if ($updateCount >= 1) {
+			if (($updateCount >= 1) || ($wpdb->last_error == '')) {
 				$response_data['result'] = $id_val;
 			}
 			else {
@@ -658,8 +871,5 @@ class TeamDataAdminAjax extends TeamDataAjax {
 		}
 	}
 
-	protected function check_nonce() {
-		return (isset($_POST['nonce']) && wp_verify_nonce($_POST['nonce'], 'team_data_nonce'));
-	}
 }
 ?>

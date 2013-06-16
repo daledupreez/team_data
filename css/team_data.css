@@ -1,5 +1,7 @@
 input.team_data_button[type="button"],
-input.team_data_edit_button[type="button"] {
+input.team_data_edit_button[type="button"],
+input.team_data_button[type="submit"],
+input.team_data_edit_button[type="submit"] {
 	cursor: pointer;
 }
 input.team_data_button[disabled="disabled"],
@@ -9,47 +11,44 @@ input.team_data_edit_button[disabled="disabled"]:hover {
 	color: #464646;
 	cursor: default;
 }
-input.team_data_edit_button[type="button"] {
+input.team_data_edit_button[type="button"],
+input.team_data_edit_button[type="submit"] {
 	background-color: #EEE;
 	padding: 1px;
 }
-table.team_data_matches {
+
+table.team_data_table {
 	font-size: 1.2em;
 	border-spacing: 0;
 	text-align: center;
 	border: 1px solid gray;
 	border-radius: 5px;
 }
-table.team_data_matches td,
-table.team_data_matches th {
+table.team_data_table td,
+table.team_data_table th {
 	border-left: 1px solid gray;
 	padding: 3px;
 }
-table.team_data_matches td {
+table.team_data_table td {
 	border-top: 1px solid gray;
 }
-table.team_data_matches th {
+table.team_data_table th {
 	background-color: #EEE;
 }
-
-table.team_data_matches tr td:first-child {
+table.team_data_table tr td:first-child {
 	border-left: 0px solid gray;
 }
-
-table.team_data_matches tr:first-child th:first-child {
+table.team_data_table tr:first-child th:first-child {
 	border-left: 0px solid gray;
 	border-top-left-radius: 5px;
 }
-
-table.team_data_matches tr:first-child th:last-child {
+table.team_data_table tr:first-child th:last-child {
 	border-top-right-radius: 5px;
 }
-
-table.team_data_matches tr:last-child td:first-child {
+table.team_data_table tr:last-child td:first-child {
 	border-bottom-left-radius: 5px;
 }
-
-table.team_data_matches tr:last-child td:last-child {
+table.team_data_table tr:last-child td:last-child {
 	border-bottom-right-radius: 5px;
 }
 
@@ -110,8 +109,18 @@ label.team_data_edit_label_radioset {
 input.team_data_admin_checkbox {
 	margin-left: 1.5em;
 }
+input.team_data_checkbox {
+	margin-right: 3px;
+	vertical-align: middle;
+}
 .team_data_inline {
 	display: inline-block;
+}
+.team_data_checkbox_group {
+	padding: 5px;
+}
+.team_data_checkbox_label {
+	padding-right: 5px;
 }
 .team_data_simple_table {
 	max-height: 300px;

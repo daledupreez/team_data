@@ -8,16 +8,43 @@ class TeamDataAjax extends TeamDataBase {
 	public function add_actions() {
 		if ( $this->actions_added ) return;
 		$ajax_prefix = 'wp_ajax_team_data_';
-		$public_ajax_pefix = 'wp_ajax_nopriv_team_data';
+		$public_ajax_prefix = 'wp_ajax_nopriv_team_data_';
 		$actions = array( 'venue', 'level', 'team', 'stat', 'season' );
 		foreach($actions as $simple_action) {
 			add_action($ajax_prefix . 'get_all_' . $simple_action . 's', array($this, 'get_all_' . $simple_action . 's_ajax'));
+			add_action($public_ajax_prefix . 'get_all_' . $simple_action . 's', array($this, 'get_all_' . $simple_action . 's_ajax'));
 		}
 		// match
 		//add_action('wp_ajax_team_data_get_basic_match', array($this, 'get_basic_match'));
-		add_action('wp_ajax_nopriv_team_data_public_get_matches', array($this, 'get_matches_ajax'));
-		add_action('wp_ajax_team_data_public_get_matches', array($this, 'get_matches_ajax'));
+		add_action($public_ajax_prefix . 'public_get_matches', array($this, 'get_matches_ajax'));
+		add_action($ajax_prefix . 'public_get_matches', array($this, 'get_matches_ajax'));
+		add_action($public_ajax_prefix . 'register_member', array($this, 'register_member'));
 		$this->actions_added = true;
+	}
+
+	public function register_member() {
+		global $wpdb;
+
+		header('Content-Type: application/json');
+		// ensure we don't overwrite an existing ID
+		$_POST['id'] = '';
+		if (!$this->check_nonce()) {
+			$response_data = array(
+				'result' => 'error',
+				'error_message' => __("Invalid nonce", 'team_data'),
+			);
+		}
+		else {
+			$admin_ajax = new TeamDataAdminAjax();
+			$response_data = $admin_ajax->put_member();
+			// ensure we never send the member ID back via this channel
+			if (($response_data['result'] != 'error') && ($response_data['result'])) {
+				$response_data['result'] = 1;
+			}
+		}
+
+		echo json_encode($response_data);
+		exit;
 	}
 
 	public function get_all_venues() {
@@ -260,5 +287,14 @@ class TeamDataAjax extends TeamDataBase {
 		echo json_encode($results);
 		exit;
 	}
+
+	/**
+	 * Protected helper function to check that a TeamData nonce has been 
+	 * supplied by the user in the "nonce" request variable.
+	 */
+	protected function check_nonce() {
+		return (isset($_POST['nonce']) && wp_verify_nonce($_POST['nonce'], 'team_data_nonce'));
+	}
+
 }
 ?>

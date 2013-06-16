@@ -32,6 +32,7 @@ class TeamDataAdmin extends TeamDataBase {
 
 		add_action('admin_footer-' . $this->page_codes['main'], array($this, 'render_main_js'));
 		add_action('admin_footer-' . $this->page_codes['matches'], array($this, 'render_matches_js'));
+		add_action('admin_footer-' . $this->page_codes['members'], array($this, 'render_member_js'));
 	}
 
 	public function render_matches() {	
@@ -107,12 +108,50 @@ class TeamDataAdmin extends TeamDataBase {
 	}
 	
 	public function render_members() {
-		global $wpdb;
-
 		echo '<h2>' . __('Member Administration Page', 'team_data') . '</h2>';
-		echo 'members';
+		echo '<h4>' . __('Manage the team membership.', 'team_data') . '</h4>'; ?>
+<div>
+	<form id="team_data_member_search" onsubmit="team_data.api.member_search.search(); return false;">
+		<div><?php echo __('Enter the first few characters of the following fields to narrow down the results.','team_data'); ?></div>
+		<div class="team_data_inline">
+			<label for="team_data_member_search__first_name" class="team_data_edit_label"><?php echo __('First name','team_data'); ?></label>
+			<input id="team_data_member_search__first_name" class="team_data_edit_input" name="member_search_first_name" type="text" size="20" />
+		</div>
+		<div class="team_data_inline">
+			<label for="team_data_member_search__last_name" class="team_data_edit_label"><?php echo __('Last name','team_data'); ?></label>
+			<input id="team_data_member_search__last_name" class="team_data_edit_input" name="member_search_last_name" type="text" size="20" />
+		</div>
+		<div class="team_data_inline">
+			<label for="team_data_member_search__email" class="team_data_edit_label"><?php echo __('Email','team_data'); ?></label>
+			<input id="team_data_member_search__email" class="team_data_edit_input" name="member_search_email" type="text" size="20" />
+		</div>
+		<div class="team_data_inline">
+			<label for="team_data_member_search__active" class="team_data_edit_label"><?php echo __('Active','team_data'); ?></label>
+			<input id="team_data_member_search__active" class="team_data_edit_input" name="member_search_active" type="checkbox" checked="1" />
+		</div>
+		<div class="team_data_inline team_data_checkbox_group">
+			<label class="team_data_edit_label"><strong><?php echo __('Email Lists','team_data'); ?></strong></label>
+<?php
+		$admin_ajax = new TeamDataAdminAjax();
+		$lists = $admin_ajax->get_all_lists();
+		foreach ($lists as $list) {
+			?>
+			<input id="team_data_member_search__list_<?php echo $list['id']; ?>" type="checkbox" class="team_data_edit_input" value="<?php echo $list['id']; ?>" name="member_search_lists" />
+			<label for="team_data_member_search__list_<?php echo $list['id']; ?>" class="team_data_checkbox_label"><?php echo $list['name']; ?></label>
+			<?php
+		}
+?>
+		</div>
+		<div class="team_data_buttonDiv">
+			<input id="team_data_member_search__submit" class="team_data_button" type="submit" value="<?php echo __('Search', 'team_data'); ?>" />
+			<input class="team_data_button" type="button" value="<?php echo __('Reset search','team_data'); ?>" onclick="team_data.api.member_search.clear();" />
+		</div>
+	</form>
+	<div id="team_data_members"></div>
+</div>
+<?php // end render_members()
 	}
-	
+
 	public function render_admin_main() {
 		global $wpdb;
 		echo '<h2>' . __('Main TeamData Administration Page', 'team_data') . '</h2>';
@@ -242,6 +281,14 @@ class TeamDataAdmin extends TeamDataBase {
 					<input id="team_data_list_edit__name" class="team_data_edit_input" name="list_name" type="text" size="40" />
 				</div>
 				<div class="team_data_inline">
+					<label for="team_data_list_edit__auto_enroll" class="team_data_edit_label"><?php echo __('Enroll New Members By Default','team_data'); ?></label>
+					<input id="team_data_list_edit__auto_enroll" class="team_data_admin_checkbox" name="list_auto_enroll" type="checkbox" />
+				</div>
+				<div class="team_data_inline">
+					<label for="team_data_list_edit__display_name" class="team_data_edit_label"><?php echo __('Display Name','team_data'); ?></label>
+					<input id="team_data_list_edit__display_name" class="team_data_edit_input" name="list_display_name" type="text" size="40" />
+				</div>
+				<div class="team_data_inline">
 					<label for="team_data_list_edit__comment" class="team_data_edit_label"><?php echo __('Details','team_data'); ?></label>
 					<textarea id="team_data_list_edit__comment" class="team_data_edit_input" name="list_comment" cols="80" rows="3"></textarea>
 				</div>
@@ -330,8 +377,13 @@ class TeamDataAdmin extends TeamDataBase {
 			<form id="team_data_options_edit" class="team_data_admin_section">
 				<div class="team_data_inline">
 					<label for="team_data_options_edit__max_matches"><?php echo __('Max Edit Matches','team_data'); ?></label>
-					<input id="team_data_options_edit__max_matches" class="team_data_edit_input" name="options_max_matches" type="text" size="5" value="<?php echo $this->get_option('max_matches'); ?>" />
-					<input id="team_data_options_edit__max_matches_orig" type="hidden" value="<?php echo $this->get_option('max_matches'); ?>" />
+					<input id="team_data_options_edit__max_matches" class="team_data_edit_input" name="options_max_matches" type="text" size="5" value="<?php $max_matches = $this->get_option('max_matches'); echo $max_matches; ?>" />
+					<input id="team_data_options_edit__max_matches_orig" type="hidden" value="<?php echo $max_matches; ?>" />
+				</div>
+				<div class="team_data_inline">
+					<label for="team_data_options_edit__allow_all_member_mail"><?php echo __('Allow Email to All Members','team_data'); ?></label>
+					<input id="team_data_options_edit__allow_all_member_mail" class="team_data_admin_checkbox" name="options_allow_all_member_mail" type="checkbox" <?php $allow_all_member_mail = ($this->get_option('allow_all_member_mail') == '1' ? true : false); if ($allow_all_member_mail) { echo 'checked="checked"'; } ?> />
+					<input id="team_data_options_edit__allow_all_member_mail_orig" type="checkbox" style="display: none;" <?php if ($allow_all_member_mail) { echo 'checked="checked"'; } ?> />
 				</div>
 			</form>
 			<div class="team_data_buttonDiv">
@@ -360,6 +412,25 @@ class TeamDataAdmin extends TeamDataBase {
 
 	public function render_loc_js($hook) {
 		//$this->debug('loc_hook=' . $hook);
+	}
+
+	public function render_member_js() {
+		global $wpdb;
+
+		$admin_ajax_obj = new TeamDataAdminAjax();
+		$member_data = $admin_ajax_obj->get_all_member_data();
+		$lists = $admin_ajax_obj->get_all_lists();
+?>
+<script type="text/javascript">
+team_data.member_data = { "members": <?php echo json_encode($member_data); ?> };
+jQuery(document).ready( function() {
+	team_data.ui.apiList = [ 'list' ];
+	var listData = <?php echo json_encode($lists); ?>;
+	team_data.api.list.updateList(listData);
+	team_data.api.member_search.render();
+} );
+</script>
+<?php // end render_member_js()
 	}
 
 	public function render_main_js() {
@@ -436,7 +507,7 @@ class TeamDataAdmin extends TeamDataBase {
 				printf(__('Displaying page %1$s of %2$s'), $pageNum + 1, ceil($matchCount/$pageSize));
 				//echo 'Displaying page ' . ($pageNum + 1) . ' of ' . (ceil($matchCount/$pageSize));
 				echo '</div>';
-				echo '<table class="team_data_matches">';
+				echo '<table class="team_data_table team_data_matches">';
 				echo '<tr>';
 				echo '<th>' . __('Season', 'team_data') . '</th>';
 				echo '<th>' . __('Date', 'team_data') . '</th>';
