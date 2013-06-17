@@ -338,7 +338,7 @@ team_data.api.member_search.clear = function member_search_clear()
 {
 	var form = document.getElementById('team_data_member_search');
 	if (form) form.reset();
-	this.render();
+	this.render(team_data.member_data.members);
 }
 
 team_data.api.member_search.editMember = function member_search_editMember(memberPos)
@@ -457,7 +457,7 @@ team_data.api.member_search.render = function member_search_render(members)
 	html.push('</tr>');
 
 	var count = 0;
-	for (var i = members.length; i >= 0; i--) {
+	for (var i = members.length - 1; i >= 0; i--) {
 		var member = members[i];
 		html.push('<tr id="member_search_result_' + member.id + '" resultpos="' + i + '">');
 		html.push(this.getRowContents(member,i,false));
