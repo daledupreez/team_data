@@ -411,9 +411,9 @@ class TeamDataAdminAjax extends TeamDataAjax {
 			$show_errors = $wpdb->hide_errors();
 			if (isset( $_POST[ 'list_names' ] )) {
 				foreach ($_POST[ 'list_names' ] as $list_name => $chosen) {
-					$list_id = $wpdb->get_var( $wpdb->prepare( 'SELECT id FROM ' . $this->tables->list . ' WHERE display_name = %s', $list_name ) );
+					$list_id = $wpdb->get_var( $wpdb->prepare( 'SELECT id FROM ' . $this->tables->list . ' WHERE display_name = %s ORDER BY id ASC', $list_name ) );
 					if (!$list_id) {
-						$list_id = $wpdb->get_var( $wpdb->prepare( 'SELECT id FROM ' . $this->tables->list . ' WHERE name = %s', $list_name ) );
+						$list_id = $wpdb->get_var( $wpdb->prepare( 'SELECT id FROM ' . $this->tables->list . ' WHERE name = %s ORDER BY id ASC', $list_name ) );
 					}
 					if ($list_id) {
 						$lists[ $list_id ] = $chosen;
