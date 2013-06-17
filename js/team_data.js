@@ -227,7 +227,7 @@ team_data.api.team.getFields = function team_getFields()
 team_data.api.list = new team_data.apiObject('list');
 team_data.api.list.getFields = function list_getFields()
 {
-	return [ 'id', 'name', 'comment', 'auto_enroll', 'display_name' ];
+	return [ 'id', 'name', 'comment', 'auto_enroll', 'display_name', 'admin_only' ];
 }
 
 team_data.api.season = new team_data.apiObject('season');

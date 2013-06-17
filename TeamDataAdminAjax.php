@@ -574,6 +574,7 @@ class TeamDataAdminAjax extends TeamDataAjax {
 			'comment' => '',
 			'auto_enroll' => 0,
 			'display_name' => '',
+			'admin_only' => 1,
 		);
 		$list_id = $this->get_post_values($fields);
 

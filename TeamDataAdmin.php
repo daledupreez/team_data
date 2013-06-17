@@ -289,6 +289,10 @@ class TeamDataAdmin extends TeamDataBase {
 					<input id="team_data_list_edit__display_name" class="team_data_edit_input" name="list_display_name" type="text" size="40" />
 				</div>
 				<div class="team_data_inline">
+					<label for="team_data_list_edit__admin_only" class="team_data_edit_label"><?php echo __('Membership chosen by admins','team_data'); ?></label>
+					<input id="team_data_list_edit__admin_only" class="team_data_admin_checkbox" name="list_admin_only" type="checkbox" />
+				</div>
+				<div class="team_data_inline">
 					<label for="team_data_list_edit__comment" class="team_data_edit_label"><?php echo __('Details','team_data'); ?></label>
 					<textarea id="team_data_list_edit__comment" class="team_data_edit_input" name="list_comment" cols="80" rows="3"></textarea>
 				</div>
