@@ -394,7 +394,6 @@ class TeamDataAdminAjax extends TeamDataAjax {
 			'weight' => '',
 			'college_or_school' => '',
 			'position' => '',
-			'joined' => '',
 			'past_clubs' => '',
 			'active' => true,
 		);
@@ -431,6 +430,8 @@ class TeamDataAdminAjax extends TeamDataAjax {
 			}
 			if ($show_errors) $wpdb->show_errors();
 
+			if ($member_id == '') $fields['joined'] = date("Y-m-d");
+
 			$response_data = $this->run_update($this->tables->member,$fields,$member_id);
 			// run list operations *AFTER* main UPDATE as we might be dealing with a new registration
 			if ($response_data['result'] != 'error') {
@@ -454,7 +455,7 @@ class TeamDataAdminAjax extends TeamDataAjax {
 	 * @param array $fields The array containing the field values to be validated.
 	 * @param array $response_data The array containing the eventual AJAX response data, which is passed by reference so any error messages can be returned.
 	 */
-	private function validate_member($member_id = '',$fields,&$response_data) {
+	private function validate_member($member_id = '',&$fields,&$response_data) {
 		global $wpdb;
 
 		$is_valid = false;
@@ -476,6 +477,7 @@ class TeamDataAdminAjax extends TeamDataAjax {
 				}
 			}
 			if ($emailOK) {
+				if (isset($fields['date_of_birth']) && ($fields['date_of_birth'] == '')) unset($fields['date_of_birth']);
 				$is_valid = true;
 			}
 		}

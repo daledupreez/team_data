@@ -19,6 +19,8 @@ class TeamDataAjax extends TeamDataBase {
 		add_action($public_ajax_prefix . 'public_get_matches', array($this, 'get_matches_ajax'));
 		add_action($ajax_prefix . 'public_get_matches', array($this, 'get_matches_ajax'));
 		add_action($public_ajax_prefix . 'register_member', array($this, 'register_member'));
+		// allow logged in members to call register_member
+		add_action($ajax_prefix . 'register_member', array($this, 'register_member'));
 		$this->actions_added = true;
 	}
 
