@@ -83,7 +83,7 @@ team_data.apiObject.prototype.load = function apiObject_load(id_val)
 	var postData = { "action": "team_data_get_" + this.refName, "nonce": team_data_ajax.nonce };
 	postData[this.refName + '_id'] = id_val;
 	var apiObject = this;
-	jQuery.post(ajaxurl,postData, function(postResponse) { apiObject.updateForm(postResponse); }); 
+	jQuery.post(ajaxurl,postData, function(postResponse) { apiObject.updateForm(postResponse); });
 }
 
 team_data.apiObject.prototype.loadList = function apiObject_loadList()
@@ -106,7 +106,7 @@ team_data.apiObject.prototype.objectIsValid = function(object_data)
 	}
 	if (this.refNameIsValid()) {
 		// check that we aren't reusing/overwriting a name
-		if ((object_data.name != '') 
+		if ((object_data.name != '')
 			&& team_data[this.refName].nameIndex[object_data.name]
 			&& (team_data[this.refName].nameIndex[object_data.name] != object_data.id))
 		{
@@ -639,7 +639,7 @@ team_data.api.match.toggleScoreControls = function match_toggleScoreControls(mat
 	if (editButton) editButton.style.display = (showEdit ? 'none' : '');
 	var displayDiv = team_data.api.match.getScoreDisplayDiv(match_id);
 	if (displayDiv) displayDiv.style.display = (showEdit ? 'none' : '');
-	
+
 }
 
 team_data.api.match.editScore = function match_editScore(match_id)
@@ -833,7 +833,7 @@ team_data.api.match.toggleNewMatchDiv = function match_toggleNewMatchDiv(showNew
 			i++;
 			matchForm = document.getElementById('team_data_new_match_' + i);
 		}
-	}	
+	}
 }
 
 team_data.api.match.saveNewMatches = function match_saveNewMatches() {
@@ -890,7 +890,7 @@ team_data.api.match.saveNewMatchesHandler = function match_saveNewMatchesHandler
 }
 team_data.api.match.validateMatch = function match_validateMatch(matchObject,checkScore) {
 	checkScore = !!checkScore;
-	
+
 }
 // END API construction
 
@@ -961,7 +961,7 @@ team_data.ui.enhanceControls = function()
 team_data.fn.getLocText = function(text,arg1,arg2) {
 	var locText = (team_data.loc[text] ? team_data.loc[text] : text);
 	locText = locText.toString();
-	if ((locText.indexOf('%1') > 0) && (typeof arg1 != 'undefined')) locText = locText.replace(/\%1/g,arg1);	
+	if ((locText.indexOf('%1') > 0) && (typeof arg1 != 'undefined')) locText = locText.replace(/\%1/g,arg1);
 	if ((locText.indexOf('%2') > 0) && (typeof arg2 != 'undefined')) locText = locText.replace(/\%2/g,arg2);
 	return locText;
 }
@@ -1104,7 +1104,7 @@ team_data.fn.changePage = function(forward,gotoEnd)
 {
 	forward = !!forward;
 	gotoEnd = !!gotoEnd;
-	var url = document.location.pathname.toString().split('/').pop();	
+	var url = document.location.pathname.toString().split('/').pop();
 	var pageNum = team_data.paging.pageNum;
 	if (gotoEnd) {
 		pageNum = !forward ? 0 : Math.floor(team_data.paging.resultCount/team_data.paging.pageSize);
