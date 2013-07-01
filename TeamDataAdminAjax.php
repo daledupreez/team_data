@@ -465,6 +465,9 @@ class TeamDataAdminAjax extends TeamDataAjax {
 		elseif ($fields['last_name'] == '') {
 			$response_data['error_message'] = sprintf(__("Property '%s' is required", 'team_data'),'last_name');
 		}
+		elseif ($fields['email'] == '') {
+			$response_data['error_message'] = sprintf(__("Property '%s' is required", 'team_data'),'email');
+		}
 		else {
 			$emailOK = true;
 			if ($fields['email'] != '') {
@@ -473,7 +476,7 @@ class TeamDataAdminAjax extends TeamDataAjax {
 				if ((!is_null($id_for_email)) && ($id_for_email != $member_id)) {
 					$this->debug('Email failed; id_for_email = ' . $id_for_email . '; member_id = ' . $member_id);
 					$emailOK = false;
-					$response_data['error_message'] = __( 'This email address has already been registered. Please contact the website administrator to change your options.' , 'team_data' );
+					$response_data['error_message'] = __( 'This email address has already been registered. Please contact the website administrator for more information.' , 'team_data' );
 				}
 			}
 			if ($emailOK) {
