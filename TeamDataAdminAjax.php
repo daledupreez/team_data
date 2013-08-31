@@ -698,7 +698,7 @@ class TeamDataAdminAjax extends TeamDataAjax {
 		}
 		else {
 			$response_data = $this->run_update($this->tables->season,$fields,$season_id);
-			if ($response['result'] == $season_id) {
+			if ($response_data['result'] == $season_id) {
 				if (isset($_POST['is_current']) && ($_POST['is_current'] == 1)) {
 					$this->set_option('current_season',$season_id);
 				}
@@ -710,6 +710,7 @@ class TeamDataAdminAjax extends TeamDataAjax {
 	}
 
 	public function put_season_repeat_ajax() {
+		global $wpdb;
 		header('Content-Type: application/json');
 
 		$response_data = array( "result" => "error" );
@@ -732,12 +733,12 @@ class TeamDataAdminAjax extends TeamDataAjax {
 					( SELECT `year` FROM `$table` ORDER BY ID DESC Limit 1) sub 
 				ON s.`year` = sub.`year`
 				ORDER BY s.ID ASC";
-			$seasons = $wpdb->get_results($last_season_query);
 			$showErrors = $wpdb->hide_errors();
+			$seasons = $wpdb->get_results($last_season_query);
 			foreach($seasons as $season) {
 				$fields = array(
 					'year' => $year,
-					'season' => $season
+					'season' => $season->season
 				);
 				$insertOK = $wpdb->insert($this->tables->season,$fields);
 				if ($insertOK) {
