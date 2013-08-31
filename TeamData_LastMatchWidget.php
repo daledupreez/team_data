@@ -49,24 +49,29 @@ class TeamData_LastMatchWidget extends WP_Widget {
 				}
 				// otherwise we can leave as W
 			}
+			if ($match['tourney_name'] !== '') {
+				echo '<div class="match_widget_tournament">' . $match['tourney_name'] . '</div>';
+			}
 			echo '<div class="match_widget_result">' . $result . '</div>';
-			echo '<div class="match_widget_pair match_widget_us">'; // open our pair
-			echo '<div class="match_widget_team match_widget_us">' . $team_name . '</div>';
-			echo '<div class="match_widget_score match_widget_us">' . $match['our_score'] . '</div>';
-			echo '</div>'; // close our pair
-			echo '<div class="match_widget_vs">' . ($match['is_home'] ? 'vs' : '@') . '</div>';
-			echo '<div class="match_widget_pair match_widget_them">'; // open their pair
-			echo '<div class="match_widget_team match_widget_them">';
-			if ($match['info_link'] != '') {
-				echo '<a class="match_widget_team_info" href="' . $match['info_link'] . '">';
+			if ($match['tourney_name'] === '') {
+				echo '<div class="match_widget_pair match_widget_us">'; // open our pair
+				echo '<div class="match_widget_team match_widget_us">' . $team_name . '</div>';
+				echo '<div class="match_widget_score match_widget_us">' . $match['our_score'] . '</div>';
+				echo '</div>'; // close our pair
+				echo '<div class="match_widget_vs">' . ($match['is_home'] ? 'vs' : '@') . '</div>';
+				echo '<div class="match_widget_pair match_widget_them">'; // open their pair
+				echo '<div class="match_widget_team match_widget_them">';
+				if ($match['info_link'] != '') {
+					echo '<a class="match_widget_team_info" href="' . $match['info_link'] . '">';
+				}
+				echo $match['team'];
+				if ($match['info_link'] != '') {
+					echo '</a>';
+				}
+				echo '</div>';
+				echo '<div class="match_widget_score match_widget_them">' . $match['opposition_score'] . '</div>';
+				echo '</div>'; // close their pair
 			}
-			echo $match['team'];
-			if ($match['info_link'] != '') {
-				echo '</a>';
-			}
-			echo '</div>';
-			echo '<div class="match_widget_score match_widget_them">' . $match['opposition_score'] . '</div>';
-			echo '</div>'; // close their pair
 			echo '<div class="match_widget_venue">';
 			if ($match['directions_link'] != '') {
 				echo '<a class="match_widget_directions" href="' . $match['directions_link'] . '">';
@@ -132,28 +137,27 @@ class TeamData_LastMatchWidget extends WP_Widget {
 			$tables = new TeamDataTables();
 
 			$select = array(
-				'match.date As `_date`',
-				'match.time As `_time`',
+				"DATE_FORMAT(match.date,'%M %D %Y') AS `_date`",
+				"DATE_FORMAT(match.time,'%l:%i %p') AS `_time`",
 				'match.result',
 				'match.our_score',
 				'match.opposition_score',
+				'match.tourney_name',
 				"IF(level.abbreviation = '', level.name, level.abbreviation) As level",
-				"IF(team.abbreviation = '', team.name, team.abbreviation) As team",
+				"match.team_name AS team",
 				'(venue.is_home = 1) As is_home',
 				"IF(venue.abbreviation = '', venue.name, venue.abbreviation) As venue",
 				'venue.info_link',
 				'venue.directions_link'
 			);
 			$from = array(
-				"$tables->match As `match`",
+				"( SELECT m.date, m.time, m.tourney_name, m.venue_id, m.level_id, m.result, m.our_score, m.opposition_score, IF(m.opposition_id IS NULL, '', IF(t.abbreviation = '', t.name, t.abbreviation)) AS team_name FROM $tables->match m LEFT OUTER JOIN $tables->team t ON m.opposition_id = t.id ) `match`",
 				"$tables->level As level",
 				"$tables->venue As venue",
-				"$tables->team As team"
 			);
 			$where = array(
 				'match.venue_id = venue.id',
 				'match.level_id = level.id',
-				'match.opposition_id = team.id',
 				"( match.result <> '' OR ( match.our_score IS NOT NULL AND match.opposition_score IS NOT NULL ) )",
 				'match.date <= CURDATE()'
 			);
