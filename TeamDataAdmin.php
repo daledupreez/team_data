@@ -56,7 +56,7 @@ class TeamDataAdmin extends TeamDataBase {
 				echo '</div>';
 				echo '<div class="team_data_inline">';
 					echo '<label for="team_data_new_match_shared__opposition" class="team_data_edit_label">' . __('Opponent','team_data') . '</label>';
-					echo '<input id="team_data_new_match_shared__opposition" class="team_data_opposition team_data_edit_input" name="shared_opposition" type="text" size="50" />';
+					echo '<input id="team_data_new_match_shared__opposition" class="team_data_team team_data_edit_input" name="shared_opposition" type="text" size="50" />';
 				echo '</div>';
 				echo '<input id="team_data_new_match_shared__matchCount" type="hidden" value="0" />';
 			echo '</form>';

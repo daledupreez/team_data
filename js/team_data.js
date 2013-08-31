@@ -26,7 +26,7 @@ var team_data = {
 			"date": { "header": "Date", "behaviour": "", "type": "input", "attribs": { "_class": "team_data_date", "type": "text", "size": 10 } },
 			"venue": { "header": "Venue", "behaviour": "lookup", "type": "input", "attribs": { "_class": "team_data_venue", "type": "text" } },
 			"time": { "header": "Time", "behaviour": "time", "type": "input", "attribs": { "_class": "team_data_time", "type": "text", "size": 5 } },
-			"opposition": { "header": "Opposition", "behaviour": "lookup", "type": "input", "attribs": { "_class": "team_data_opposition", "type": "text" } },
+			"opposition": { "header": "Opposition", "behaviour": "lookup", "type": "input", "attribs": { "_class": "team_data_team", "type": "text" } },
 			"level": { "header": "Level", "behaviour": "select", "type": "select", "attribs": {}, "get_options": "getLevelOptions" },
 			"our_score": { "header": "Our Score", "behaviour": "nullable", "type": "input", "attribs": { "type": "text", "size": 5 } },
 			"opposition_score": { "header": "Their Score", "behaviour": "nullable", "type": "input", "attribs": { "type": "text", "size": 5 } },
