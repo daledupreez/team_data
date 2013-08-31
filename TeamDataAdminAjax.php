@@ -138,6 +138,7 @@ class TeamDataAdminAjax extends TeamDataAjax {
 			'is_league' => '0',
 			'is_postseason' => '0',
 			'opposition_id' => '',
+			'tourney_name' => '',
 			'our_score' => '',
 			'opposition_score' => '',
 			'season_id' => '',
@@ -157,7 +158,13 @@ class TeamDataAdminAjax extends TeamDataAjax {
 		else if ($match_id == '') { // id is required for update
 			$response_data['error_message'] = sprintf(__("Property '%s' is required", 'team_data'),'id');
 		}
+		else if (($fields['opposition_id'] === '') && ($fields['tourney_name'] === '')) {
+			$response_data['error_message'] = __('Either tourney name or opposition_id must be supplied');
+		}
 		else {
+			if ($fields['opposition_id'] === '') {
+				unset($fields['opposition_id']);
+			}
 			$response_data = $this->run_update($this->tables->match,$fields,$match_id);
 		}
 
@@ -170,7 +177,7 @@ class TeamDataAdminAjax extends TeamDataAjax {
 	*/
 	private function is_valid_match($match,$check_score) {
 		if (!$match) return false;
-		$fields = array( 'time', 'venue_id', 'date', 'opposition_id', 'level_id', 'is_league', 'is_postseason', 'season_id' );
+		$fields = array( 'time', 'venue_id', 'date', 'level_id', 'is_league', 'is_postseason', 'season_id' );
 		$is_valid = true;
 		foreach ($fields as $field) {
 			if ((!isset($match[$field])) || ($match[$field] === '')) {
@@ -179,15 +186,15 @@ class TeamDataAdminAjax extends TeamDataAjax {
 				break;
 			}
 		}
+		if ((!isset($match['tourney_name']) || ($match['tourney_name'] === '')) && (!isset($match['opposition_id']) || ($match['opposition_id'] === ''))) {
+			$is_valid = false;
+			$this->debug("declaring invalid because neither tourney_name nor opposition_id have been supplied");
+		}
 		if ($is_valid && $check_score) {
 			if (isset($match['result'])) {
-				if (($match['result'] == 'W') || ($match['result'] == 'D') || ($match['result'] == 'L')) {
+				if ($match['result'] != '') {
 					$is_valid = (!isset($match['our_score'])) && (!isset($match['opposition_score']));
 					if (!$is_valid) $this->debug("declaring invalid because match['our_score'] or match['opposition_score'] is defined");
-				}
-				else {
-					$is_valid = false;
-					$this->debug("declaring invalid because match['result'] is " . ($match['result'] === '') ? '[empty]' : $match['result']);
 				}
 			}
 			else {
@@ -220,14 +227,9 @@ class TeamDataAdminAjax extends TeamDataAjax {
 			$response_data['error_message'] = __("Invalid nonce", 'team_data');
 		}
 		elseif ($fields['result'] !== '') {
-			if (($fields['result'] == 'W') || ($fields['result'] == 'D') || ($fields['result'] == 'L')) {
-				$ok = true;
-				unset($fields['our_score']);
-				unset($fields['opposition_score']);
-			}
-			else {
-				$response_data['error_message'] = sprintf(__("Property '%s' is invalid", 'team_data'),'result');
-			}
+			$ok = true;
+			unset($fields['our_score']);
+			unset($fields['opposition_score']);
 		}
 		else {
 			if ($fields['our_score'] === '') { // our_score and opposition_score are required
@@ -621,6 +623,7 @@ class TeamDataAdminAjax extends TeamDataAjax {
 			'id' => '',
 			'name' => '',
 			'logo_link' => '',
+			'info_link' => '',
 			'abbreviation' => '',
 		);
 		$team_id = $this->get_post_values($fields);
@@ -780,7 +783,7 @@ class TeamDataAdminAjax extends TeamDataAjax {
 	protected function get_post_values(&$fields) {
 		foreach (array_keys($fields) as $fieldName ) {
 			if (isset($_POST[$fieldName])) {
-				$fields[$fieldName] = $_POST[$fieldName];
+				$fields[$fieldName] = stripslashes($_POST[$fieldName]);
 			}
 		}
 		$id_value = $fields['id'];

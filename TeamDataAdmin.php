@@ -38,28 +38,35 @@ class TeamDataAdmin extends TeamDataBase {
 	public function render_matches() {	
 		$this->render_match_list();
 
-		echo '<br/>';
-		echo '<input class="team_data_button" id="team_data_new_match_button" type="button" value="' . __('Create New Match(es)','team_data') . '" onclick="team_data.api.match.newMatches();" />';
-		echo '<div id="team_data_new_match" class="team_data_admin_section" style="display: none;">';
-			echo '<form id="team_data_new_match_shared">';
-				echo '<div class="team_data_inline">';
-					echo '<label for="team_data_new_match_shared__season" class="team_data_edit_label">' . __('Season','team_data') . '</label>';
-					echo '<input id="team_data_new_match_shared__season" class="team_data_season team_data_edit_input" name="shared_season" type="text" size="20" />';
-				echo '</div>';
-				echo '<div class="team_data_inline">';
-					echo '<label for="team_data_new_match_shared__date" class="team_data_edit_label">' . __('Date','team_data') . '</label>';
-					echo '<input id="team_data_new_match_shared__date" class="team_data_date team_data_edit_input" name="shared_date" type="text" size="10" />';
-				echo '</div>';
-				echo '<div class="team_data_inline">';
-					echo '<label for="team_data_new_match_shared__venue" class="team_data_edit_label">' . __('Venue','team_data') . '</label>';
-					echo '<input id="team_data_new_match_shared__venue" class="team_data_venue team_data_edit_input" name="shared_venue" type="text" size="50" />';
-				echo '</div>';
-				echo '<div class="team_data_inline">';
-					echo '<label for="team_data_new_match_shared__opposition" class="team_data_edit_label">' . __('Opponent','team_data') . '</label>';
-					echo '<input id="team_data_new_match_shared__opposition" class="team_data_team team_data_edit_input" name="shared_opposition" type="text" size="50" />';
-				echo '</div>';
-				echo '<input id="team_data_new_match_shared__matchCount" type="hidden" value="0" />';
-			echo '</form>';
+?>
+<br/>
+<input class="team_data_button" id="team_data_new_match_button" type="button" value="<?php echo __('Create New Match(es)','team_data'); ?>" onclick="team_data.api.match.newMatches();" />
+<input class="team_data_button" id="team_data_new_tourney_button" type="button" value="<?php echo __('Create New Tournament','team_data'); ?>" onclick="team_data.api.match.newTournament();" />
+<div id="team_data_new_match" class="team_data_admin_section" style="display: none;">
+	<form id="team_data_new_match_shared">
+		<div class="team_data_inline">
+			<label for="team_data_new_match_shared__season" class="team_data_edit_label"><?php echo __('Season','team_data'); ?></label>
+			<input id="team_data_new_match_shared__season" class="team_data_season team_data_edit_input" name="shared_season" type="text" size="20" />
+		</div>
+		<div class="team_data_inline">
+			<label for="team_data_new_match_shared__date" class="team_data_edit_label"><?php echo __('Date','team_data'); ?></label>
+			<input id="team_data_new_match_shared__date" class="team_data_date team_data_edit_input" name="shared_date" type="text" size="10" />
+		</div>
+		<div class="team_data_inline">
+			<label for="team_data_new_match_shared__venue" class="team_data_edit_label"><?php echo __('Venue','team_data'); ?></label>
+			<input id="team_data_new_match_shared__venue" class="team_data_venue team_data_edit_input" name="shared_venue" type="text" size="50" />
+		</div>
+		<div id="team_data_new_match_shared_opposition_div" class="team_data_inline">
+			<label for="team_data_new_match_shared__opposition" class="team_data_edit_label"><?php echo __('Opponent','team_data'); ?></label>
+			<input id="team_data_new_match_shared__opposition" class="team_data_team team_data_edit_input" name="shared_opposition" type="text" size="50" />
+		</div>
+		<div id="team_data_new_match_shared_tourney_div" class="team_data_inline">
+			<label for="team_data_new_match_shared__tourney_name" class="team_data_edit_label"><?php echo __('Tournament Name','team_data'); ?></label>
+			<input id="team_data_new_match_shared__tourney_name" class="team_data_edit_input" name="shared_tourney_name" type="text" size="50" />
+		</div>
+		<input id="team_data_new_match_shared__matchCount" type="hidden" value="0" />
+	</form>
+<?php
 			$max_matches = intval($this->get_option('max_matches'));
 			if ($max_matches < 1) $max_matches = 3;
 			$levels = $this->get_levels();
@@ -89,7 +96,8 @@ class TeamDataAdmin extends TeamDataBase {
 					echo '</div>';
 				echo '</form>';
 			}
-			echo '<input id="team_data_new_match__save" class="team_data_button" type="button" value="' . __('Save Matches', 'team_data') . '" onclick="team_data.api.match.saveNewMatches();" />';
+			echo '<input id="team_data_new_tourney__save" class="team_data_button" type="button" value="' . __('Save Tournament', 'team_data') . '" onclick="team_data.api.match.saveNewMatches(true);" />';
+			echo '<input id="team_data_new_match__save" class="team_data_button" type="button" value="' . __('Save Matches', 'team_data') . '" onclick="team_data.api.match.saveNewMatches(false);" />';
 		echo '</div>';
 	}
 	
@@ -333,6 +341,10 @@ class TeamDataAdmin extends TeamDataBase {
 					<label for="team_data_team_edit__is_us" class="team_data_edit_label"><?php echo __('Our Team','team_data'); ?></label>
 					<input id="team_data_team_edit__is_us" class="team_data_admin_checkbox" name="team_is_us" type="checkbox" />
 				</div>
+				<div class="team_data_inline">
+					<label for="team_data_team_edit__info_link" class="team_data_edit_label"><?php echo __('Website','team_data'); ?></label>
+					<input id="team_data_team_edit__info_link" class="team_data_edit_input" name="team_info_link" type="text" size="60" />
+				</div>
 			</form>
 			<div class="team_data_buttonDiv">
 				<input id="team_data_team_edit__save" class="team_data_button" type="button" value="<?php echo __('Save Changes', 'team_data'); ?>" onclick="team_data.api.team.save();" />
@@ -491,10 +503,14 @@ jQuery(document).ready( function() {
 			echo "team_data.paging.resultCount = $matchCount;";
 			echo '</script>';
 
-			$match_query = "SELECT m.id, m.season_id, CONCAT(s.year,' ',s.season) as season, m.date, DATE_FORMAT(m.date,'%M %d, %Y') As pretty_date, TIME_FORMAT(m.time,'%h:%i %p') as time, m.venue_id, v.name as venue_name, m.opposition_id, t.name as opposition_name, m.level_id, l.name as level_name, m.our_score, m.opposition_score, m.result, m.is_league, m.is_postseason
-				FROM $tables->match m, $tables->venue v, $tables->team t, $tables->level l, $tables->season s
-				WHERE m.opposition_id = t.id AND m.venue_id = v.id AND m.level_id = l.id AND m.season_id = s.id
+			$match_query = "SELECT m.id, m.season_id, CONCAT(s.year,' ',s.season) AS season, m.date, DATE_FORMAT(m.date,'%M %d, %Y') AS pretty_date, TIME_FORMAT(m.time,'%h:%i %p') AS time, m.venue_id, v.name AS venue_name, m.opposition_id, m.opposition_name, m.tourney_name, m.level_id, l.name AS level_name, m.our_score, m.opposition_score, m.result, m.is_league, m.is_postseason
+				FROM 
+					( SELECT match.id, match.season_id, match.date, match.time, match.venue_id, match.opposition_id, match.tourney_name, match.level_id, match.our_score, match.opposition_score, match.result, match.is_league, match.is_postseason, IF(match.opposition_id IS NULL, '', team.name) AS opposition_name
+						FROM $tables->match AS `match` LEFT OUTER JOIN $tables->team AS team ON match.opposition_id = team.id) m,
+						$tables->venue v, $tables->level l, $tables->season s
+				WHERE m.venue_id = v.id AND m.level_id = l.id AND m.season_id = s.id
 				ORDER BY m.date DESC, m.time ASC" . $limit;
+			$this->debug('$match_query = ' . $match_query);
 
 			$matches = $wpdb->get_results($match_query);
 			if (count($matches) < 1) {
@@ -528,7 +544,7 @@ jQuery(document).ready( function() {
 					echo '<td>' . $match->season . '</td>';
 					echo '<td>' . $match->pretty_date . '</td>';
 					echo '<td>' . $match->time . '</td>';
-					echo '<td>' . $match->opposition_name . '</td>';
+					echo '<td>' . ($match->opposition_name != '' ? $match->opposition_name : $match->tourney_name ) . '</td>';
 					echo '<td>' . $match->level_name . '</td>';
 					echo '<td>' . $match->venue_name . '</td>';
 					echo '<td>' . ($match->is_league == '1' ? 'L' : ($match->is_postseason == '1' ? 'P' : '&nbsp;')) . '</td>';
@@ -559,7 +575,7 @@ jQuery(document).ready( function() {
 				foreach ($matches as $match) {
 					$our_score = ($match->our_score == null ? 'null' : $match->our_score);
 					$opposition_score = ($match->opposition_score == null ? 'null' : $match->opposition_score);
-					echo "team_data.matchData[$match->id] = { \"date\": \"$match->date\", \"time\": \"$match->time\", \"venue\": \"$match->venue_name\", \"team\": \"$match->opposition_id\", \"level\": \"$match->level_id\", \"our_score\": $our_score, \"opposition_score\": $opposition_score, \"stat\": { ";
+					echo "team_data.matchData[$match->id] = { \"date\": \"$match->date\", \"time\": \"$match->time\", \"venue\": \"$match->venue_name\", \"team\": \"$match->opposition_id\", \"tourney_name\": \"$match->tourney_name\", \"level\": \"$match->level_id\", \"our_score\": $our_score, \"opposition_score\": $opposition_score, \"stat\": { ";
 					
 					$stats = $wpdb->get_results("SELECT ms.id, ms.member_id, ms.stat_id, s.name as stat_name, CASE s.value_type WHEN '0' THEN ms.stat_intvalue WHEN '1' THEN ms.stat_stringvalue ELSE NULL END AS stat_value FROM $tables->stat s, $tables->match_stat ms WHERE ms.match_id = $match->id AND ms.stat_id = s.id");
 					$first_stat = true;

@@ -58,6 +58,7 @@ class TeamDataInstaller extends TeamDataBase {
 				name VARCHAR(255) NOT NULL,
 				logo_link VARCHAR(1024) DEFAULT '',
 				abbreviation VARCHAR(80) DEFAULT '',
+				info_link VARCHAR(1024) DEFAULT '',
 				PRIMARY KEY  (id)
 			) $charset_collate";
 			$all_sql .= $sql_sep . $sql_part;
@@ -126,11 +127,12 @@ class TeamDataInstaller extends TeamDataBase {
 				level_id INT NOT NULL,
 				is_league TINYINT NOT NULL DEFAULT 0,
 				is_postseason TINYINT NOT NULL DEFAULT 0,
-				opposition_id INT NOT NULL,
+				opposition_id INT,
 				our_score INT,
 				opposition_score INT,
 				season_id INT NOT NULL,
-				result VARCHAR(1) NOT NULL DEFAULT '',
+				result VARCHAR(20) NOT NULL DEFAULT '',
+				tourney_name VARCHAR(150) DEFAULT '',
 				PRIMARY KEY  (id)
 			) $charset_collate";
 			$all_sql = $all_sql . $sql_sep . $sql_part;

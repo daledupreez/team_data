@@ -11,6 +11,9 @@ var team_data = {
 	"fn": {},
 	"api": {},
 	"ui": {},
+	"lookups": {
+		"opposition": "team"
+	},
 	"tables": {
 		"level": "Levels",
 		"member": "Members",
@@ -221,7 +224,7 @@ team_data.api.level.getFields = function level_getFields()
 team_data.api.team = new team_data.apiObject('team');
 team_data.api.team.getFields = function team_getFields()
 {
-	return [ 'id', 'name', 'logo_link', 'abbreviation', 'is_us' ];
+	return [ 'id', 'name', 'logo_link', 'abbreviation', 'is_us', 'info_link' ];
 }
 
 team_data.api.list = new team_data.apiObject('list');
@@ -591,7 +594,7 @@ team_data.api.member_search.updateMemberHandler = function member_search_updateM
 
 team_data.api.match = {
 	"fields": [ 'time', 'level', 'is_league', 'is_postseason', 'our_score', 'opposition_score' ],
-	"sharedFields": [ 'date', 'opposition', 'venue', 'season' ]
+	"sharedFields": [ 'date', 'opposition', 'venue', 'season', 'tourney_name' ]
 };
 team_data.api.match.allFields = team_data.api.match.sharedFields.concat(team_data.api.match.fields, [ 'id' ]);
 
@@ -676,11 +679,8 @@ team_data.api.match.editScoreHandler = function match_editScoreHandler(saveResul
 			var result = team_data.fn.getControlValue(editForm.score_result);
 			var our_score = parseInt(team_data.fn.getControlValue(editForm.score_our_score),10);
 			var opposition_score = parseInt(team_data.fn.getControlValue(editForm.score_opposition_score),10);
-			if ((result == 'W') || (result == 'D') || (result == 'L')) {
-				displayDiv.innerHTML = result;
-			}
-			else if (isNaN(our_score) || isNaN(opposition_score)) {
-				displayDiv.innerHTML = '&nbsp;-&nbsp;';
+			if (isNaN(our_score) || isNaN(opposition_score)) {
+				displayDiv.innerHTML = (result != '' ? result : '&nbsp;-&nbsp;');
 			}
 			else {
 				var result = 'W';
@@ -717,6 +717,7 @@ team_data.api.match.getFieldsFromForm = function match_getFieldsFromForm(formObj
 		var control = formObject[ fieldPrefix + '_' + fieldName];
 		if (control) {
 			var fieldValue = team_data.fn.getControlValue(control);
+			var lookupName = (team_data.lookups[fieldName] ? team_data.lookups[fieldName] : fieldName);
 			if ((typeof fieldValue == 'undefined') || (fieldValue === '') || (fieldValue === null)) {
 				if (!team_data.api.match.fieldIsRequired(fieldName)) {
 					fieldData[fieldName] = '';
@@ -729,8 +730,8 @@ team_data.api.match.getFieldsFromForm = function match_getFieldsFromForm(formObj
 			else if (control.nodeName == 'SELECT') {
 				fieldData[fieldName + '_id'] = fieldValue;
 			}
-			else if (team_data[fieldName] && team_data[fieldName].nameIndex) {
-				fieldValue = team_data[fieldName].nameIndex[fieldValue];
+			else if (team_data[lookupName] && team_data[lookupName].nameIndex) {
+				fieldValue = team_data[lookupName].nameIndex[fieldValue];
 				if (!fieldValue) {
 					errors.push(team_data.fn.getLocText("Please select property '%1' from the drop-down list",fieldValue));
 					focusList.push(control);
@@ -804,7 +805,7 @@ team_data.api.match.newMatches = function match_newMatches()
 	team_data.api.match.toggleEditDiv(false);
 	var matchCount = parseInt(prompt(team_data.fn.getLocText('How many matches?'),2),10);
 	if ((!isNaN(matchCount)) && (matchCount > 0)) {
-		team_data.api.match.toggleNewMatchDiv(true);
+		team_data.api.match.toggleNewMatchDiv(true,false);
 		var matchCountControl = document.getElementById('team_data_new_match_shared__matchCount');
 		if (matchCountControl) matchCountControl.value = matchCount;
 		for (var i = 1; i <= matchCount; i++) {
@@ -814,7 +815,19 @@ team_data.api.match.newMatches = function match_newMatches()
 	}
 }
 
-team_data.api.match.toggleNewMatchDiv = function match_toggleNewMatchDiv(showNewMatch)
+team_data.api.match.newTournament = function match_newTournament()
+{
+	// hide edit div
+	team_data.api.match.toggleEditDiv(false);
+	team_data.api.match.toggleNewMatchDiv(true,true);
+	var matchCountControl = document.getElementById('team_data_new_match_shared__matchCount');
+	if (matchCountControl) matchCountControl.value = 1;
+	var matchForm = document.getElementById('team_data_new_match_1');
+	if (matchForm) matchForm.style.display = '';
+
+}
+
+team_data.api.match.toggleNewMatchDiv = function match_toggleNewMatchDiv(showNewMatch,showTourney)
 {
 	var newMatchDiv = document.getElementById('team_data_new_match');
 	if (newMatchDiv) {
@@ -825,6 +838,14 @@ team_data.api.match.toggleNewMatchDiv = function match_toggleNewMatchDiv(showNew
 			var matchCountControl = document.getElementById('team_data_new_match_shared__matchCount');
 			if (matchCountControl) matchCountControl.value = 0;
 		}
+		var oppositionDiv = document.getElementById('team_data_new_match_shared_opposition_div');
+		if (oppositionDiv) oppositionDiv.style.display = (showTourney ? 'none' : '');
+		var tourneyDiv = document.getElementById('team_data_new_match_shared_tourney_div');
+		if (tourneyDiv) tourneyDiv.style.display = (showTourney ? '' : 'none');
+		var matchSave = document.getElementById('team_data_new_match__save');
+		if (matchSave) matchSave.style.display = (showTourney ? 'none' : '');
+		var tourneySave = document.getElementById('team_data_new_tourney__save');
+		if (tourneySave) tourneySave.style.display = (showTourney ? '' : 'none');
 		var i = 1;
 		var matchForm = document.getElementById('team_data_new_match_' + i);
 		while (matchForm) {
@@ -836,7 +857,7 @@ team_data.api.match.toggleNewMatchDiv = function match_toggleNewMatchDiv(showNew
 	}
 }
 
-team_data.api.match.saveNewMatches = function match_saveNewMatches() {
+team_data.api.match.saveNewMatches = function match_saveNewMatches(isTourney) {
 	if (!window.JSON) {
 		alert(team_data.fn.getLocText('Your browser does not support JSON.') + '\n' + team_data.fn.getLocText('Please upgrade your browser, or use an alternative browser to perform this action.'));
 		return;
@@ -850,7 +871,12 @@ team_data.api.match.saveNewMatches = function match_saveNewMatches() {
 			var focusList = [];
 			var matchData = [];
 			var sharedValues = {};
-			team_data.api.match.getFieldsFromForm(sharedForm,team_data.api.match.sharedFields,sharedValues,errors,focusList,'shared');
+			// copy from sharedFields, and then remove tourney_name or opposition from list, depending on isTourney
+			var sharedFieldList = team_data.api.match.sharedFields.slice(0);
+			var remField = (isTourney ? 'opposition' : 'tourney_name');
+			var remPos = sharedFieldList.indexOf(remField);
+			if (remPos > -1) sharedFieldList.splice(remPos,1);
+			team_data.api.match.getFieldsFromForm(sharedForm,sharedFieldList,sharedValues,errors,focusList,'shared');
 			if (errors.length == 0) {
 				var fields = team_data.api.match.fields;
 				for (var i = 1; i <= matchCount; i++) {
@@ -888,6 +914,7 @@ team_data.api.match.saveNewMatchesHandler = function match_saveNewMatchesHandler
 		document.location.reload();
 	}
 }
+
 team_data.api.match.validateMatch = function match_validateMatch(matchObject,checkScore) {
 	checkScore = !!checkScore;
 

@@ -114,40 +114,39 @@ class TeamDataAjax extends TeamDataBase {
 	 *		start_year, end_year, year
 	 *
 	 *	The return columns are as follows:
-	 *		season, _date, _day, day_name, _month, _year, _time, level, team, our_score, their_score, result, venue, is_home
+	 *		season, _date, _day, day_name, _month, _year, _time, level, team, tourney_name, our_score, their_score, result, venue, is_home
 	 */
 	public function get_matches($conditions) {
 		global $wpdb;
 
 		$sql_select = array( 
-			"CONCAT(season.year,' ',season.season) As season",
-			"match.date As `_date`",
-			"DAYOFMONTH(match.date) As `_day`",
+			"CONCAT(season.year,' ',season.season) AS season",
+			"match.date AS `_date`",
+			"DAYOFMONTH(match.date) AS `_day`",
 			"DAYNAME(match.date) As day_name",
-			"MONTHNAME(match.date) As `_month`",
-			"YEAR(match.date) As `_year`",
-			"match.time As `_time`",
-			"IF(level.abbreviation = '', level.name, level.abbreviation) As level",
-			"IF(team.abbreviation = '', team.name, team.abbreviation) As team",
-			"match.our_score As our_score",
-			"match.opposition_score As their_score",
-			"match.result As result",
-			"IF(venue.abbreviation = '', venue.name, venue.abbreviation) As venue",
-			"(venue.is_home = 1) As is_home",
+			"MONTHNAME(match.date) AS `_month`",
+			"YEAR(match.date) AS `_year`",
+			"match.time AS `_time`",
+			"IF(level.abbreviation = '', level.name, level.abbreviation) AS level",
+			"match.team",
+			"match.tourney_name AS tourney_name",
+			"match.our_score AS our_score",
+			"match.opposition_score AS their_score",
+			"match.result AS result",
+			"IF(venue.abbreviation = '', venue.name, venue.abbreviation) AS venue",
+			"(venue.is_home = 1) AS is_home",
 		);
 
 		$sql_from = array(
-			$this->tables->season . ' As season',
-			$this->tables->match . ' As `match`',
-			$this->tables->level . ' As level',
-			$this->tables->team . ' As team',
-			$this->tables->venue . ' As venue',
+			$this->tables->season . ' AS season',
+			"( SELECT m.season_id, m.level_id, m.venue_id, m.date, m.time, m.tourney_name, m.our_score, m.opposition_score, m.result, IF(m.opposition_id IS NULL, '', t.name) AS team FROM " . $this->tables->match . ' m LEFT OUTER JOIN ' . $this->tables->team . ' t ON m.opposition_id = t.id ) AS `match`',
+			$this->tables->level . ' AS level',
+			$this->tables->venue . ' AS venue',
 		);
 
 		$sql_where = array(
 			'match.season_id = season.id',
 			'match.level_id = level.id',
-			'match.opposition_id = team.id',
 			'match.venue_id = venue.id',
 		);
 
