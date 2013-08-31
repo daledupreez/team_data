@@ -59,11 +59,14 @@ table.team_data_table tr:last-child td:last-child {
 }
 
 #team_data_admin_options {
-	width: 50%;
+	width: 60%;
 }
 
 #team_data_admin_options .ui-icon {
 	display: inline-block;
+}
+div.section_title {
+	cursor: pointer;
 }
 
 .team_data_even {
