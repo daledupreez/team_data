@@ -461,7 +461,7 @@ jQuery(document).ready( function() {
 		echo 'team_data.ui.updateAllData();' . $newline;
 		echo 'team_data.ui.enhanceControls();' . $newline;
 		if ($page == 'main') {
-			echo 'jQuery("#team_data_admin_options").accordion( { "header": "div.section_title", "active": false, "alwaysOpen": false, "animated": false, "autoHeight": false, "collapsible": true } );' . $newline;
+			echo 'jQuery("#team_data_admin_options").accordion( { "header": "div.section_title", "active": false, "alwaysOpen": false, "animated": false, "heightStyle": "content", "collapsible": true } );' . $newline;
 		}
 		echo '} );' . $newline;
 		echo '</script>' . $newline;
