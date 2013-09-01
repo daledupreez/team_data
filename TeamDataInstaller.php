@@ -106,7 +106,7 @@ class TeamDataInstaller extends TeamDataBase {
 				comment VARCHAR(255),
 				auto_enroll TINYINT NOT NULL DEFAULT 0,
 				display_name VARCHAR(50) NOT NULL DEFAULT '',
-				admin_only TINYINT NOT NULL DEFAULT 1
+				admin_only TINYINT NOT NULL DEFAULT 1,
 				PRIMARY KEY  (id)
 			) $charset_collate";
 			$all_sql = $all_sql . $sql_sep . $sql_part;
