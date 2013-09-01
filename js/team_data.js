@@ -1132,6 +1132,15 @@ team_data.fn.changePage = function(forward,gotoEnd)
 	forward = !!forward;
 	gotoEnd = !!gotoEnd;
 	var url = document.location.pathname.toString().split('/').pop();
+	var query = document.location.search;
+	if (query.charAt(0) == '?') query = query.substring(1);
+	query = query.split('&');
+	var newQuery = [];
+	for (var i = 0; i < query.length; i++) {
+		if (String(query[i]).indexOf('fixturePage=') != 0) {
+			newQuery.push(query[i]);
+		}
+	}
 	var pageNum = team_data.paging.pageNum;
 	if (gotoEnd) {
 		pageNum = !forward ? 0 : Math.floor(team_data.paging.resultCount/team_data.paging.pageSize);
@@ -1139,8 +1148,8 @@ team_data.fn.changePage = function(forward,gotoEnd)
 	else {
 		pageNum = pageNum + (forward ? 1 : -1);
 	}
-	team_data.paging.urlParms.push('fixturePage='+pageNum);
-	document.location = url + '?' + team_data.paging.urlParms.join('&');
+	newQuery.push('fixturePage='+pageNum);
+	document.location = url + '?' + newQuery.join('&');
 }
 
 team_data.fn.escapeHTML = function(str)
