@@ -278,7 +278,7 @@ class TeamDataAjax extends TeamDataBase {
 	protected function run_select_all($table,$name_col = "name") {
 		global $wpdb;
 
-		$all_query = "SELECT id, $name_col FROM $table";
+		$all_query = "SELECT id, $name_col FROM $table ORDER BY id ASC";
 		return $wpdb->get_results($all_query, ARRAY_A);
 	}
 
