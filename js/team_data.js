@@ -233,6 +233,28 @@ team_data.api.list.getFields = function list_getFields()
 	return [ 'id', 'name', 'comment', 'auto_enroll', 'display_name', 'admin_only' ];
 }
 
+team_data.api.email = {};
+team_data.api.email.getFields = function email_getFields()
+{
+	return [ 'subject', 'message' ];
+}
+team_data.api.email.sendEmail = function email_sendEmail()
+{
+	var formPrefix = 'team_data_send_email_';
+	var submitData = { "action": "team_data_send_email", "nonce": team_data_ajax.nonce };
+	var fields = this.getFields();
+	for (var i = 0; i < fields.length; i++) {
+		var field = fields[i];
+		var control = document.getElementById(formPrefix + field);
+		if (control) {
+			submitData[field] = team_data.fn.getControlValue(control);
+		}
+	}
+	jQuery.post(ajaxurl, submitData, function(sendResult) { alert(JSON.stringify(sendResult)); });
+}
+
+
+
 team_data.api.season = new team_data.apiObject('season');
 team_data.api.season.nameIsRequired = false;
 team_data.api.season.getFields = function season_getFields()
@@ -280,7 +302,7 @@ team_data.api.stat.getFields = function stat_getFields()
 
 
 team_data.api.options = {
-	"fields": [ "max_matches", "allow_all_member_mail" ]
+	"fields": [ "max_matches", "email_enabled", "allow_all_member_mail", "html_template", "text_footer", "email_from", "email_summary_to", "use_smtp", "smtp_server", "smtp_port", "smtp_user", "smtp_password" ]
 };
 team_data.api.options.getControls = function options_getControls(fieldName) {
 	if (this.fields.indexOf(fieldName) == -1) return null;
@@ -293,30 +315,44 @@ team_data.api.options.save = function options_save() {
 	for (var i = 0; i < this.fields.length; i++) {
 		var field = this.fields[i];
 		var controls = this.getControls(field);
-		if (controls && controls.current && controls.original) {
-			var value = controls.current.value;
-			var orig_value = controls.original.value;
-			if (field == 'max_matches') {
-				value = parseInt(value,10);
-				orig_value = parseInt(orig_value,10);
-				if (isNaN(value) || (value <= 0)) {
-					continue;
+		if (controls && controls.current) {
+			var doUpdate = false;
+			if (controls.original) {
+				var value = team_data.fn.getControlValue(controls.current);
+				var orig_value = team_data.fn.getControlValue(controls.original);
+				if (controls.current.type == 'number') {
+					value = parseInt(value,10);
+					orig_value = parseInt(orig_value,10);
+					if (isNaN(value) || (value <= 0)) {
+						continue;
+					}
+				}
+				if (value != orig_value) {
+					doUpdate = true;
 				}
 			}
-			if (value != orig_value) {
+			else if (field == 'user_password') {
+				var value = controls.current.value;
+				if (value != '') {
+					if (value == -1) value = '';
+					doUpdate = true;
+				}
+			}
+			if (doUpdate) {
 				var apiObject = this;
 				var setData = { "action": "team_data_set_option", "option_name": field, "option_value": value, "nonce": team_data_ajax.nonce };
-				jQuery.post(ajaxurl,setData,function(saveResult) { apiObject.saveHandler(saveResult, field); });
+				jQuery.post(ajaxurl,setData,function(saveResult) { apiObject.saveHandler(saveResult); });
 			}
 		}
 	}
 }
-team_data.api.options.saveHandler = function options_saveHandler(saveResult,field) {
-	if (saveResult && saveResult.set) {
-		var controls = this.getControls(field);
+team_data.api.options.saveHandler = function options_saveHandler(saveResult) {
+	if (saveResult && saveResult.set && saveResult.option) {
+		var controls = this.getControls(saveResult.option);
 		if (controls && controls.current && controls.original) {
 			controls.original.value = controls.current.value;
 		}
+		if (saveResult.option == 'email_enabled') document.location.reload();
 	}
 }
 
