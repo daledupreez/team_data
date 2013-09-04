@@ -636,7 +636,7 @@ jQuery(document).ready( function() {
 				echo '</div>';
 				echo '<div class="team_data_inline">';
 					echo '<label for="team_data_match_edit__opposition" class="team_data_edit_label">' . __('Opponent','team_data') . '</label>';
-					echo '<input id="team_data_match_edit__opposition" class="team_data_edit_input team_data_opposition" name="match_opposition" type="text" size="50" />';
+					echo '<input id="team_data_match_edit__opposition" class="team_data_edit_input team_data_team" name="match_opposition" type="text" size="50" />';
 				echo '</div>';
 				echo '<div class="team_data_inline">';
 					echo '<label for="team_data_match_edit__level" class="team_data_edit_label">' . __('Level','team_data') . '</label>';
