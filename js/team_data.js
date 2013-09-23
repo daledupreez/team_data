@@ -14,6 +14,9 @@ var team_data = {
 	"lookups": {
 		"opposition": "team"
 	},
+	"sourceMap": {
+		"opposition": "team"
+	},
 	"tables": {
 		"level": "Levels",
 		"member": "Members",
@@ -758,8 +761,9 @@ team_data.api.match.setFieldsFromObject = function match_setFieldsFromObject(tar
 		var control = targetForm[namePrefix + '_' + displayField];
 		if (control) {
 			var displayValue = data[fieldName];
-			if ((control.nodeName != 'SELECT') && team_data[displayField] && team_data[displayField].index && team_data[displayField].index[displayValue]) {
-				displayValue = team_data[displayField].index[displayValue];
+			var dataField = ( team_data.sourceMap[displayField] ? team_data.sourceMap[displayField] : displayField );
+			if ((control.nodeName != 'SELECT') && team_data[dataField] && team_data[dataField].index && team_data[dataField].index[displayValue]) {
+				displayValue = team_data[dataField].index[displayValue];
 			}
 			team_data.fn.setControlValue(control,displayValue);
 		}
