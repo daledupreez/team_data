@@ -23,8 +23,8 @@ class TeamData_NextMatchWidget extends WP_Widget {
 		$more_info = apply_filters( 'widget_text', ( empty($instance['more_info']) ) ? '' : $instance['more_info'], $instance );
 
 		$level_id = -1;
-		if (isset($instance['level']) && (intval($instance['level']) > 0)) {
-			$level_id = intval($instance['level']);
+		if (isset($instance['level_id']) && (intval($instance['level_id']) > 0)) {
+			$level_id = intval($instance['level_id']);
 		}
 
 		echo $before_widget;
@@ -87,14 +87,23 @@ class TeamData_NextMatchWidget extends WP_Widget {
 			 // Code cribbed from WP_Widget_Text. Comment there is: wp_filter_post_kses() expects slashed
 			$instance['more_info'] = stripslashes( wp_filter_post_kses( addslashes($new_instance['more_info']) ) );
 		}
+		if ( isset($new_instance['level_id']) && ( intval($new_instance['level_id']) > 0) ) {
+			$instance['level_id'] = intval($new_instance['level_id']);
+		}
+		else {
+			$instance['level_id'] = -1;
+		}
 		return $instance;
 	}
 
 	public function form( $instance ) {
+		global $wpdb;
 		$instance = wp_parse_args( (array) $instance, array( 'title' => '', 'team_name' => '', 'more_info' => '' ) );
 		$title = strip_tags( $instance['title'] );
 		$team_name = strip_tags( $instance['team_name'] );
 		$more_info = esc_textarea( $instance['more_info'] );
+		$level_id = strip_tags( $instance['level_id'] );
+		if ($level_id == '') $level_id = -1;
 
 		echo '<p>';
 		echo '<label for="' . $this->get_field_id('title') . '">' . __('Title:', 'TeamData') . '</label>' . "\n";
@@ -104,6 +113,22 @@ class TeamData_NextMatchWidget extends WP_Widget {
 		echo '<label for="' . $this->get_field_id('team_name') . '">' . __('Your team name:', 'TeamData') . '</label>' . "\n";
 		echo '<input class="widefat" id="' . $this->get_field_id('team_name') . '" name="' . $this->get_field_name('team_name') . '" type="text" value="' . esc_attr($team_name) . '" />' . "\n";
 		echo '</p>';
+		if ( class_exists('TeamDataTables') ) {
+			$tables = new TeamDataTables();
+			$sql = "SELECT id, name FROM $tables->level";
+			$levels = $wpdb->get_results($sql, ARRAY_A);
+			
+			echo '<label for="' . $this->get_field_id('level_id') . '">' . __('Level:', 'TeamData') . '</label>' . "\n";
+			echo '<select class="widefat" id="' . $this->get_field_id('level_id') . '" name="' . $this->get_field_name('level_id') . '" type="text" value="' . esc_attr($level_id) . '">' . "\n";
+			$selected = (-1 == $level_id ? ' selected="1"' : '');
+			echo '<option value="-1"' . $selected . '>' . esc_html( __('Any level', 'TeamData') ) . '</option>';
+			foreach ($levels as $level_key => $level) {
+				$selected = ($level['id'] == $level_id ? ' selected="1"' : '');
+				echo '<option value="' . esc_attr( $level['id'] ) . '"' . $selected . '>' . esc_html( $level['name'] ) . '</option>';
+			}
+			echo '</select>';
+			echo '</p>';
+		}
 		echo '<label for="' . $this->get_field_id('more_info') . '">' . __('Post-result content:', 'TeamData') . '</label>' . "\n";
 		echo '<textarea class="widefat" rows="5" cols="20" id="' . $this->get_field_id('more_info') . '" name="' . $this->get_field_name('more_info') . '">';
 		echo $more_info;
@@ -115,7 +140,7 @@ class TeamData_NextMatchWidget extends WP_Widget {
 	 * 
 	 * @param integer $level_id ID of level we want to get the match for.
 	 */
-	private function get_next_match($level_id) {
+	private function get_next_match($level_id = -1) {
 		global $wpdb;
 		
 		$match = null;
