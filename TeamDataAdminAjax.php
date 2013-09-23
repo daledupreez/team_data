@@ -133,6 +133,7 @@ class TeamDataAdminAjax extends TeamDataAjax {
 		$fields = array(
 			'id' => '',
 			'date' => '',
+			'time' => '',
 			'venue_id' => '',
 			'level_id' => '',
 			'is_league' => '0',
