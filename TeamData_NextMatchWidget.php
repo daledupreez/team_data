@@ -55,8 +55,7 @@ class TeamData_NextMatchWidget extends WP_Widget {
 				</div>
 				<div class="match_widget_vs"><?php echo ($match['is_home'] ? 'vs' : '@'); ?></div>
 				<div class="match_widget_next_details match_widget_them">
-					<div class="match_widget_next match_widget_them">
-<?php
+					<div class="match_widget_next match_widget_them"><?php
 					if ($match['info_link'] != '') {
 						echo '<a class="match_widget_team_info" href="' . $match['info_link'] . '">';
 					}
@@ -64,13 +63,13 @@ class TeamData_NextMatchWidget extends WP_Widget {
 					if ($match['info_link'] != '') {
 						echo '</a>';
 					}
+					echo '</div>';
 					if ($have_logo) {
 						echo '<div class="match_widget_logo match_widget_them">';
 						if ( !empty($match['team_logo']) ) echo '<img src="' . esc_attr($match['team_logo']) . '"' . (!empty($logo_style) ? ' style="' . esc_attr($logo_style) . '"' : '') . ' />';
 						echo '</div>';
 					}
 ?>
-					</div>
 				</div>
 <?php
 			} 
