@@ -336,6 +336,7 @@ class TeamDataAdmin extends TeamDataBase {
 				<div class="team_data_inline">
 					<label for="team_data_team_edit__logo_link" class="team_data_edit_label"><?php echo __('Logo Link','team_data'); ?></label>
 					<input id="team_data_team_edit__logo_link" class="team_data_edit_input" name="team_logo_link" type="text" size="60" />
+					<input class="team_data_select_image_button" type="button" value="<?php echo __('Select or Upload Image','team_data'); ?>" target-id="team_data_team_edit__logo_link" data-frame_title="<?php echo __('Choose or upload a team image','team_data'); ?>" data-button_text="<?php echo __('Select Image','team_data'); ?>" />
 				</div>
 				<div class="team_data_inline">
 					<label for="team_data_team_edit__is_us" class="team_data_edit_label"><?php echo __('Our Team','team_data'); ?></label>
@@ -415,6 +416,7 @@ class TeamDataAdmin extends TeamDataBase {
 		if (false === in_array($hook,$this->page_codes)) return;
 
 		$jquery_ui_dir = get_bloginfo('url') . '/wp-includes/js/jquery/ui/';
+		wp_enqueue_media();
 		wp_enqueue_script('jquery');
 		wp_enqueue_script('jquery-ui-core');
 		wp_enqueue_script('jquery-ui-datepicker', $jquery_ui_dir . 'jquery.ui.datepicker.min.js', array('jquery', 'jquery-ui-core') );
@@ -424,6 +426,7 @@ class TeamDataAdmin extends TeamDataBase {
 		wp_enqueue_style('jquery.ui.theme', plugins_url('css/redmond/jquery-ui-1.8.23.custom.css', __FILE__ ));
 		wp_enqueue_style('team-data-css', plugins_url('css/team_data.css',__FILE__));
 		wp_localize_script('team-data', 'team_data_ajax', array( 'nonce' => wp_create_nonce('team_data_nonce') ) );
+
 	}
 
 	public function render_loc_js($hook) {
@@ -474,6 +477,43 @@ jQuery(document).ready( function() {
 		echo 'team_data.ui.enhanceControls();' . $newline;
 		if ($page == 'main') {
 			echo 'jQuery("#team_data_admin_options").accordion( { "header": "div.section_title", "active": false, "alwaysOpen": false, "animated": false, "heightStyle": "content", "collapsible": true } );' . $newline;
+?>
+var team_data_image_frame;
+jQuery('.team_data_select_image_button').live('click', function( event ){
+	event.preventDefault();
+ 	
+	if ( team_data_image_frame ) {
+		team_data_image_frame.open();
+		team_data_image_frame.team_data_control = this;
+		return;
+	}
+ 
+	team_data_image_frame = wp.media.frames.file_frame = wp.media({
+		title: jQuery( this ).data( 'frame_title' ),
+		button: {
+			text: jQuery( this ).data( 'button_text' ),
+		},
+		multiple: false
+	});
+ 
+	team_data_image_frame.on( 'select', function() {
+		var attachment = team_data_image_frame.state().get('selection').first().toJSON();
+
+		if (attachment && team_data_image_frame.team_data_control) {
+			var target_id = team_data_image_frame.team_data_control.getAttribute('target-id');
+			if (target_id) {
+				var target_control = document.getElementById(target_id);
+				if (target_control) {
+					target_control.value = attachment.url;
+				}
+			}
+		}
+	});
+ 
+	team_data_image_frame.open();
+	team_data_image_frame.team_data_control = this;
+});
+<?php		
 		}
 		echo '} );' . $newline;
 		echo '</script>' . $newline;
