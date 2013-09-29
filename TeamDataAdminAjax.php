@@ -58,7 +58,7 @@ class TeamDataAdminAjax extends TeamDataAjax {
 		$response_data = array( 'set' => false );
 		if ($this->check_nonce() && isset($_POST['option_name']) && isset($_POST['option_value'])) {
 			$option = $_POST['option_name'];
-			$op_value = $_POST['option_value'];
+			$op_value = stripslashes($_POST['option_value']);
 			if ($op_value != null) {
 				if (($option == 'smtp_password') && ($op_value == '-1')) {
 					$op_value = '';
@@ -80,12 +80,20 @@ class TeamDataAdminAjax extends TeamDataAjax {
 				"subject" => '',
 				"replyto" => '',
 				"message" => '',
+				"list_id" => -1,
 			);
 			$this->get_post_values($fields,false);
-			$list_id = -1;
+			if ($fields['list_id'] == -1) {
+				$list_ids = -1;
+			}
+			else {
+				$list_ids = array( $fields['list_id'] );
+			}
 			if (($fields['message'] != '') && ($fields['subject'] != '')) {
+				$options = [];
+				if ( !empty($fields['replyto']) ) $options['ReplyTo'] = $fields['replyto'];
 				$mailer = new TeamDataMailer();
-				$response_data['sent'] = $mailer->send_mail($list_id,$fields['subject'],$fields['message']);
+				$response_data['sent'] = $mailer->send_mail($list_ids,$fields['subject'],$fields['message'],$options);
 			}
 		}
 		echo json_encode($response_data);
@@ -610,6 +618,8 @@ class TeamDataAdminAjax extends TeamDataAjax {
 			'auto_enroll' => 0,
 			'display_name' => '',
 			'admin_only' => 1,
+			'from_email' => '',
+			'from_name' => '',
 		);
 		$list_id = $this->get_post_values($fields);
 

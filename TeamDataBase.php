@@ -8,7 +8,7 @@ require_once 'TeamDataTables.php';
 */
 class TeamDataBase {
 
-	public $version = 0.35;
+	public $version = 0.36;
 
 	public $actions_added = false;
 
@@ -21,7 +21,7 @@ class TeamDataBase {
 	public function __construct() {
 		$this->tables = new TeamDataTables();
 		$this->permitted_options = array( 'version', 'max_matches', 'current_season', 'our_team', 'email_enabled', 'allow_all_member_mail', 'html_template',
-			'text_footer', 'email_from', 'email_summary_to', 'use_smtp', 'smtp_server', 'smtp_port', 'smtp_user', 'smtp_password' );
+			'text_footer', 'email_from', 'email_from_name', 'email_prefix', 'email_summary_to', 'use_smtp', 'smtp_server', 'smtp_port', 'smtp_conn_sec', 'smtp_user', 'smtp_password' );
 	}
 
 	public function add_actions() {

@@ -230,13 +230,13 @@ team_data.api.team.getFields = function team_getFields()
 team_data.api.list = new team_data.apiObject('list');
 team_data.api.list.getFields = function list_getFields()
 {
-	return [ 'id', 'name', 'comment', 'auto_enroll', 'display_name', 'admin_only' ];
+	return [ 'id', 'name', 'comment', 'auto_enroll', 'display_name', 'admin_only', 'from_email', 'from_name' ];
 }
 
 team_data.api.email = {};
 team_data.api.email.getFields = function email_getFields()
 {
-	return [ 'subject', 'message' ];
+	return [ 'subject', 'message', 'list_id', 'replyto' ];
 }
 team_data.api.email.sendEmail = function email_sendEmail()
 {
@@ -302,7 +302,7 @@ team_data.api.stat.getFields = function stat_getFields()
 
 
 team_data.api.options = {
-	"fields": [ "max_matches", "email_enabled", "allow_all_member_mail", "html_template", "text_footer", "email_from", "email_summary_to", "use_smtp", "smtp_server", "smtp_port", "smtp_user", "smtp_password" ]
+	"fields": [ "max_matches", "email_enabled", "allow_all_member_mail", "html_template", "text_footer", "email_from", "email_from_name", "email_prefix", "email_summary_to", "use_smtp", "smtp_server", "smtp_port", "smtp_conn_sec", "smtp_user", "smtp_password" ]
 };
 team_data.api.options.getControls = function options_getControls(fieldName) {
 	if (this.fields.indexOf(fieldName) == -1) return null;
@@ -351,6 +351,10 @@ team_data.api.options.saveHandler = function options_saveHandler(saveResult) {
 		var controls = this.getControls(saveResult.option);
 		if (controls && controls.current && controls.original) {
 			controls.original.value = controls.current.value;
+			if (saveResult.option == 'smtp_password') {
+				controls.original.value = '';
+				controls.current.value = '';
+			}
 		}
 		if (saveResult.option == 'email_enabled') document.location.reload();
 	}
