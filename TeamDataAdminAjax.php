@@ -31,6 +31,9 @@ class TeamDataAdminAjax extends TeamDataAjax {
 		// set_option
 		add_action($ajax_prefix . 'set_option', array($this, 'set_option_ajax'));
 
+		// send email
+		add_action($ajax_prefix . 'send_email', array($this, 'send_email_ajax'));
+
 		// match updates
 		add_action($ajax_prefix . 'update_score', array($this, 'update_score_ajax'));
 		add_action($ajax_prefix . 'update_match', array($this, 'update_match_ajax'));
@@ -55,10 +58,42 @@ class TeamDataAdminAjax extends TeamDataAjax {
 		$response_data = array( 'set' => false );
 		if ($this->check_nonce() && isset($_POST['option_name']) && isset($_POST['option_value'])) {
 			$option = $_POST['option_name'];
-			$op_value = $_POST['option_value'];
-			if (($op_value != 'null') && ($op_value !== '')) {
+			$op_value = stripslashes($_POST['option_value']);
+			if ($op_value != null) {
+				if (($option == 'smtp_password') && ($op_value == '-1')) {
+					$op_value = '';
+				}
 				$this->set_option($option, $op_value);
 				$response_data['set'] = true;
+				$response_data['option'] = $option;
+			}
+		}
+		echo json_encode($response_data);
+		exit;
+	}
+
+	public function send_email_ajax() {
+		header('Content-Type: application/json');
+		$response_data = array( 'sent' => false );
+		if ($this->check_nonce()) {
+			$fields = array(
+				"subject" => '',
+				"replyto" => '',
+				"message" => '',
+				"list_id" => -1,
+			);
+			$this->get_post_values($fields,false);
+			if ($fields['list_id'] == -1) {
+				$list_ids = -1;
+			}
+			else {
+				$list_ids = array( $fields['list_id'] );
+			}
+			if (($fields['message'] != '') && ($fields['subject'] != '')) {
+				$options = [];
+				if ( !empty($fields['replyto']) ) $options['ReplyTo'] = $fields['replyto'];
+				$mailer = new TeamDataMailer();
+				$response_data['sent'] = $mailer->send_mail($list_ids,$fields['subject'],$fields['message'],$options);
 			}
 		}
 		echo json_encode($response_data);
@@ -462,13 +497,14 @@ class TeamDataAdminAjax extends TeamDataAjax {
 		global $wpdb;
 
 		$is_valid = false;
+		$fields['email'] = sanitize_email($fields['email']);
 		if ($fields['first_name'] == '') { // first_name and last_name are required
 			$response_data['error_message'] = sprintf(__("Property '%s' is required", 'team_data'),'first_name');
 		}
 		elseif ($fields['last_name'] == '') {
 			$response_data['error_message'] = sprintf(__("Property '%s' is required", 'team_data'),'last_name');
 		}
-		elseif ($fields['email'] == '') {
+		elseif (($fields['email'] == '') || (is_email($fields['email']) === false)) {
 			$response_data['error_message'] = sprintf(__("Property '%s' is required", 'team_data'),'email');
 		}
 		else {
@@ -583,6 +619,8 @@ class TeamDataAdminAjax extends TeamDataAjax {
 			'auto_enroll' => 0,
 			'display_name' => '',
 			'admin_only' => 1,
+			'from_email' => '',
+			'from_name' => '',
 		);
 		$list_id = $this->get_post_values($fields);
 
@@ -779,16 +817,20 @@ class TeamDataAdminAjax extends TeamDataAjax {
 	 * with data from the incoming POST values and clean out "id" from POST data
 	 *
 	 * @param array $fields Array of key/value pairs where we will check for the presence of the keys in the POSTed data and update in-place
+	 * @param boolean $extract_id Flag to control whether we try to extract the ID field from the incoming data
 	 * @return string $id_value Value of posted 'id' field
 	 */
-	protected function get_post_values(&$fields) {
+	protected function get_post_values(&$fields, $extract_id = true) {
 		foreach (array_keys($fields) as $fieldName ) {
 			if (isset($_POST[$fieldName])) {
 				$fields[$fieldName] = stripslashes($_POST[$fieldName]);
 			}
 		}
-		$id_value = $fields['id'];
-		unset($fields['id']);
+		$id_value = '';
+		if ($extract_id) {
+			$id_value = $fields['id'];
+			unset($fields['id']);
+		}
 		return $id_value;
 	}
 
