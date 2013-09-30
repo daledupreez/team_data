@@ -90,7 +90,7 @@ class TeamDataAdminAjax extends TeamDataAjax {
 				$list_ids = array( $fields['list_id'] );
 			}
 			if (($fields['message'] != '') && ($fields['subject'] != '')) {
-				$options = [];
+				$options = array();
 				if ( !empty($fields['replyto']) ) $options['ReplyTo'] = $fields['replyto'];
 				$mailer = new TeamDataMailer();
 				$response_data['sent'] = $mailer->send_mail($list_ids,$fields['subject'],$fields['message'],$options);
