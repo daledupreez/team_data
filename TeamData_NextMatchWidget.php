@@ -21,6 +21,8 @@ class TeamData_NextMatchWidget extends WP_Widget {
 		$title = apply_filters( 'widget_title', ( empty($instance['title']) ) ? '' : $instance['title'], $instance, $this->id_base );
 		$team_name = apply_filters( 'widget_text', ( empty($instance['team_name']) ) ? '' : $instance['team_name'], $instance );
 		$more_info = apply_filters( 'widget_text', ( empty($instance['more_info']) ) ? '' : $instance['more_info'], $instance );
+		$get_logos = apply_filters( 'widget_text', ( empty($instance['get_logos']) ) ? '0' : $instance['get_logos'], $instance );
+		$get_logos = ($get_logos == '1');
 		$logo_style = apply_filters( 'widget_text', ( empty($instance['logo_style']) ) ? '' : $instance['logo_style'], $instance );
 
 		$level_id = -1;
@@ -32,59 +34,63 @@ class TeamData_NextMatchWidget extends WP_Widget {
 		if ( !empty( $title ) ) echo $before_title . $title . $after_title;
 		echo '<div class="match_widget">';
 
-		$match = $this->get_next_match($level_id);
+		$match = TeamData_WidgetUtils::get_next_match($level_id, $get_logos);
 		if ($match) {
 			?>
-			<div class="match_widget_date"><?php echo $match['_date']; ?></div>
-			<div class="match_widget_time"><?php echo $match['_time']; ?></div>
+			<div class="match_widget_date"><?php echo esc_html($match['_date']); ?></div>
+			<div class="match_widget_time"><?php echo esc_html($match['_time']); ?></div>
 <?php 
 			if ($match['tourney_name'] !== '') {
-				echo '<div class="match_widget_tournament">' . $match['tourney_name'] . '</div>';
+				echo '<div class="match_widget_tournament">' . esc_html($match['tourney_name']) . '</div>';
 			}
 			else {
-				$our_logo = $this->get_our_logo_link();
+				$our_logo = '';
+				if ( $get_logos ) $our_logo = TeamData_WidgetUtils::get_our_logo_link();
 				$have_logo = ( !empty($our_logo) ) || ( !empty($match['team_logo']) );
 ?>
-				<div class="match_widget_next_details match_widget_us">
-					<div class="match_widget_next match_widget_us"><?php echo $team_name; ?></div>
-					<?php if ($have_logo) {
-						echo '<div class="match_widget_logo match_widget_us">';
-						if ( !empty($our_logo) ) echo '<img src="' . esc_attr($our_logo) . '"' . (!empty($logo_style) ? ' style="' . esc_attr($logo_style) . '"' : '') . ' />';
-						echo '</div>';
-					} ?>
-				</div>
-				<div class="match_widget_vs"><?php echo ($match['is_home'] ? 'vs' : '@'); ?></div>
-				<div class="match_widget_next_details match_widget_them">
-					<div class="match_widget_next match_widget_them"><?php
-					if ($match['info_link'] != '') {
-						echo '<a class="match_widget_team_info" href="' . $match['info_link'] . '">';
-					}
-					echo $match['team'];
-					if ($match['info_link'] != '') {
-						echo '</a>';
-					}
-					echo '</div>';
-					if ($have_logo) {
-						echo '<div class="match_widget_logo match_widget_them">';
-						if ( !empty($match['team_logo']) ) echo '<img src="' . esc_attr($match['team_logo']) . '"' . (!empty($logo_style) ? ' style="' . esc_attr($logo_style) . '"' : '') . ' />';
-						echo '</div>';
-					}
+				<div class="match_widget_next_wrapper<?php echo ($have_logo ? ' match_widget_with_logos' : ''); ?>">
+					<div class="match_widget_next_details match_widget_us">
+						<div class="match_widget_next match_widget_us"><?php echo esc_html($team_name); ?></div>
+						<?php if ($have_logo) {
+							echo '<div class="match_widget_logo match_widget_us">';
+							if ( !empty($our_logo) ) echo '<img src="' . esc_attr($our_logo) . '"' . (!empty($logo_style) ? ' style="' . esc_attr($logo_style) . '"' : '') . ' />';
+							echo '</div>';
+						} ?>
+					</div>
+					<div class="match_widget_vs"><?php echo ($match['is_home'] ? 'vs' : '@'); ?></div>
+					<div class="match_widget_next_details match_widget_them">
+						<div class="match_widget_next match_widget_them"><?php
+						if ($match['info_link'] != '') {
+							echo '<a class="match_widget_team_info" href="' . esc_attr($match['info_link']) . '">';
+						}
+						echo $match['team'];
+						if ($match['info_link'] != '') {
+							echo '</a>';
+						}
+?>						</div>
+<?php
+						if ($have_logo) {
+							echo '<div class="match_widget_logo match_widget_them">';
+							if ( !empty($match['team_logo']) ) echo '<img src="' . esc_attr($match['team_logo']) . '"' . (!empty($logo_style) ? ' style="' . esc_attr($logo_style) . '"' : '') . ' />';
+							echo '</div>';
+						}
 ?>
+					</div>
 				</div>
 <?php
 			} 
 			echo '<div class="match_widget_venue">';
 			if ($match['directions_link'] != '') {
-				echo '<a class="match_widget_directions" href="' . $match['directions_link'] . '">';
+				echo '<a class="match_widget_directions" href="' . esc_attr($match['directions_link']) . '">';
 			}
-			echo $match['venue'];
+			echo esc_html($match['venue']);
 			if ($match['directions_link'] != '') {
 				echo '</a>';
 			}
 			echo '</div>'; // close .match_widget_venue
 		}
 		else { // if NOT $match
-			echo '<div class="match_widget_empty">' . __( 'No matches scheduled', 'team_data' ) . '</div>';
+			echo '<div class="match_widget_empty">' . esc_html(__( 'No matches scheduled', 'team_data' )) . '</div>';
 		}
 		echo '<div class="match_widget_more_info">' . $more_info . '</div>';
 		echo '</div>';
@@ -96,6 +102,7 @@ class TeamData_NextMatchWidget extends WP_Widget {
 		$instance['title'] = strip_tags( $new_instance['title'] );
 		$instance['team_name'] = strip_tags( $new_instance['team_name'] );
 		$instance['logo_style'] = strip_tags( $new_instance['logo_style'] );
+		$instance['get_logos'] = strip_tags( $new_instance['get_logos'] );
 		if ( current_user_can('unfiltered_html') ) {
 			$instance['more_info'] = $new_instance['more_info'];
 		}
@@ -114,10 +121,11 @@ class TeamData_NextMatchWidget extends WP_Widget {
 
 	public function form( $instance ) {
 		global $wpdb;
-		$instance = wp_parse_args( (array) $instance, array( 'title' => '', 'team_name' => '', 'more_info' => '', 'logo_style' => '' ) );
+		$instance = wp_parse_args( (array) $instance, array( 'title' => '', 'team_name' => '', 'more_info' => '', 'logo_style' => '', 'get_logos' => '1' ) );
 		$title = strip_tags( $instance['title'] );
 		$team_name = strip_tags( $instance['team_name'] );
 		$more_info = esc_textarea( $instance['more_info'] );
+		$get_logos = strip_tags( $instance['get_logos'] );
 		$logo_style = strip_tags( $instance['logo_style'] );
 		$level_id = strip_tags( $instance['level_id'] );
 		if ($level_id == '') $level_id = -1;
@@ -150,6 +158,9 @@ class TeamData_NextMatchWidget extends WP_Widget {
 		echo '<textarea class="widefat" rows="5" cols="20" id="' . $this->get_field_id('more_info') . '" name="' . $this->get_field_name('more_info') . '">';
 		echo $more_info;
 		echo '</textarea>';
+		echo '<label for="' . $this->get_field_id('get_logos_checkbox') . '">' . __('Display logos:', 'team_data') . '</label>' . "\n";
+		echo '<input type="checkbox" id="' . $this->get_field_id('get_logos_checkbox') . '" ' . ($get_logos ? ' checked="true"' : '') . ' onchange="document.getElementById(\'' . $this->get_field_id('get_logos') . '\').value = ( this.checked ? 1 : 0 );" />';
+		echo '<input type="hidden" id="' . $this->get_field_id('get_logos') . '" name="' . $this->get_field_name('get_logos') . '" /><br />';
 		echo '<label for="' . $this->get_field_id('logo_style') . '">' . __('Logo style:','team_data') . '</label>' . "\n";
 		echo '<textarea class="widefat" rows="3" cols="20" id="' . $this->get_field_id('logo_style') . '" name="' . $this->get_field_name('logo_style') . '">';
 		echo $logo_style;
@@ -200,26 +211,5 @@ class TeamData_NextMatchWidget extends WP_Widget {
 		return $match;
 	}
 
-	/**
-	 * Helper function to get the logo link for our team.
-	 * 
-	 * @return string The link for our team.
-	 */
-	private function get_our_logo_link() {
-		global $wpdb;
-		
-		$logo_link = '';
-		if ( class_exists('TeamDataTables') && class_exists('TeamDataBase') ) {
-			$tables = new TeamDataTables();
-			$team_data = new TeamDataBase();
-			
-			$our_team = $team_data->get_option('our_team');
-			if (!empty($our_team)) {
-				$sql = $wpdb->prepare("SELECT logo_link FROM $tables->team WHERE id = %d", $our_team);
-				$logo_link = $wpdb->get_var($sql);
-			}
-		}
-		return $logo_link;
-	}
 }
 ?>
