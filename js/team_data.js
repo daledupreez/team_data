@@ -1180,19 +1180,25 @@ team_data.fn.changePage = function(forward,gotoEnd)
 	if (query.charAt(0) == '?') query = query.substring(1);
 	query = query.split('&');
 	var newQuery = [];
+	var pageNum = 0;
 	for (var i = 0; i < query.length; i++) {
 		if (String(query[i]).indexOf('fixturePage=') != 0) {
 			newQuery.push(query[i]);
 		}
+		else {
+			pageNum = parseInt(query[i].substring(query[i].indexOf('=')+1),10);
+			if (isNaN(pageNum)) pageNum = 0;
+		}
 	}
-	var pageNum = team_data.paging.pageNum;
 	if (gotoEnd) {
 		pageNum = !forward ? 0 : Math.floor(team_data.paging.resultCount/team_data.paging.pageSize);
 	}
 	else {
 		pageNum = pageNum + (forward ? 1 : -1);
 	}
-	newQuery.push('fixturePage='+pageNum);
+	if (pageNum > 0) {
+		newQuery.push('fixturePage='+pageNum);
+	}
 	document.location = url + '?' + newQuery.join('&');
 }
 

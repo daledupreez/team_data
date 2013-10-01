@@ -13,8 +13,8 @@ input.team_data_edit_button[disabled="disabled"]:hover {
 }
 input.team_data_edit_button[type="button"],
 input.team_data_edit_button[type="submit"] {
-	background-color: #EEE;
-	padding: 1px;
+	padding: 2px;
+	font-size: 0.9em;
 }
 
 table.team_data_table {
