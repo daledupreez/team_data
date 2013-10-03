@@ -448,20 +448,20 @@ class TeamDataAdmin extends TeamDataBase {
 		</div>
 	</div>
 	<div>
-		<div class="section_title"><?php echo __('General Options', 'team_data'); ?></div>
+		<div class="section_title"><?php echo esc_html(__('General Options', 'team_data')); ?></div>
 		<div>
-			<div class="team_data_help"><?php echo __('General configuration options for the TeamData plugin.','team_data'); ?></div>
+			<div class="team_data_help"><?php echo esc_html(__('General configuration options for the TeamData plugin.','team_data')); ?></div>
 			<form id="team_data_options_edit" class="team_data_admin_section">
 				<table>
 					<tr>
-						<td><label for="team_data_options_edit__max_matches"><?php echo __('Max Edit Matches','team_data'); ?></label></td>
+						<td><label for="team_data_options_edit__max_matches"><?php echo esc_html(__('Max Edit Matches','team_data')); ?></label></td>
 						<td>
-							<input id="team_data_options_edit__max_matches" class="team_data_edit_input" name="options_max_matches" type="number" size="5" value="<?php $max_matches = $this->get_option('max_matches'); echo $max_matches; ?>" />
-							<input id="team_data_options_edit__max_matches_orig" type="hidden" value="<?php echo $max_matches; ?>" />
+							<input id="team_data_options_edit__max_matches" class="team_data_edit_input" name="options_max_matches" type="number" size="5" value="<?php $max_matches = $this->get_option('max_matches'); echo esc_attr($max_matches); ?>" />
+							<input id="team_data_options_edit__max_matches_orig" type="hidden" value="<?php echo esc_attr($max_matches); ?>" />
 						</td>
 					</tr>
 					<tr>
-						<td><label for="team_data_options_edit__email_enabled"><?php echo __('Enable Email','team_data'); ?></label></td>
+						<td><label for="team_data_options_edit__email_enabled"><?php echo esc_html(__('Enable Email','team_data')); ?></label></td>
 						<td>
 							<input id="team_data_options_edit__email_enabled" class="team_data_admin_checkbox" name="options_email_enabled" type="checkbox" <?php $email_enabled = ($this->get_option('email_enabled') == '1' ? true : false); if ($email_enabled) { echo 'checked="checked"'; } ?> />
 							<input id="team_data_options_edit__email_enabled_orig" type="checkbox" style="display: none;" <?php if ($email_enabled) { echo 'checked="checked"'; } ?> />
@@ -476,92 +476,92 @@ class TeamDataAdmin extends TeamDataBase {
 	</div>
 <?php if ($email_enabled) { ?>
 	<div>
-		<div class="section_title"><?php echo __('Email Options', 'team_data'); ?></div>
+		<div class="section_title"><?php echo esc_html(__('Email Options', 'team_data')); ?></div>
 		<div>
 			<div class="team_data_help"><?php
-				echo __('Email configuration options for the TeamData plugin.','team_data');
-				echo ' ' . __('NOTE: the SMTP Password is never returned in the UI. Save the password as -1 to clear the password.', 'team_data');
+				echo esc_html(__('Email configuration options for the TeamData plugin.','team_data'));
+				echo '<br />' . esc_html(__('NOTE: the SMTP Password is never returned in the UI. Save the password as -1 to clear the password.', 'team_data'));
 			?>
 			</div>
 			<form id="team_data_options_edit__email" class="team_data_admin_section">
 				<table>
 					<tr>
-						<td><label for="team_data_options_edit__email_from"><?php echo __('Default From address','team_data'); ?></label></td>
+						<td><label for="team_data_options_edit__email_from"><?php echo esc_html(__('Default From address','team_data')); ?></label></td>
 						<td>
 							<input id="team_data_options_edit__email_from" class="team_data_edit_input" name="options_email_from" type="email" size="50" value="<?php $email_from = $this->get_option('email_from'); $email_from = (empty($email_from) ? '' : $email_from); echo esc_attr($email_from); ?>" />
 							<input id="team_data_options_edit__email_from_orig" type="hidden" value="<?php echo esc_attr($email_from); ?>" />
 						</td>
 					</tr>
 					<tr>
-						<td><label for="team_data_options_edit__email_from_name"><?php echo __('Default From display name','team_data'); ?></label></td>
+						<td><label for="team_data_options_edit__email_from_name"><?php echo esc_html(__('Default From display name','team_data')); ?></label></td>
 						<td>
 							<input id="team_data_options_edit__email_from_name" class="team_data_edit_input" name="options_email_from_name" type="text" size="50" value="<?php $email_from_name = $this->get_option('email_from_name'); $email_from_name = (empty($email_from_name) ? '' : $email_from_name); echo esc_attr($email_from_name); ?>" />
 							<input id="team_data_options_edit__email_from_name_orig" type="hidden" value="<?php echo esc_attr($email_from_name); ?>" />
 						</td>
 					</tr>
 					<tr>
-						<td><label for="team_data_options_edit__email_prefix"><?php echo __('Default subject prefix','team_data'); ?></label></td>
+						<td><label for="team_data_options_edit__email_prefix"><?php echo esc_html(__('Default subject prefix','team_data')); ?></label></td>
 						<td>
 							<input id="team_data_options_edit__email_prefix" class="team_data_edit_input" name="options_email_prefix" type="text" size="50" value="<?php $email_prefix = $this->get_option('email_prefix'); $email_prefix = (empty($email_prefix) ? '' : $email_prefix); echo esc_attr($email_prefix); ?>" />
 							<input id="team_data_options_edit__email_prefix_orig" type="hidden" value="<?php echo esc_attr($email_prefix); ?>" />
 						</td>
 					</tr>
 					<tr>
-						<td><label for="team_data_options_edit__email_summary_to"><?php echo __('Summary recipient','team_data'); ?></label></td>
+						<td><label for="team_data_options_edit__email_summary_to"><?php echo esc_html(__('Summary recipient','team_data')); ?></label></td>
 						<td>
 							<input id="team_data_options_edit__email_summary_to" class="team_data_edit_input" name="options_email_summary_to" type="email" size="50" value="<?php $email_summary_to = $this->get_option('email_summary_to'); $email_summary_to = (empty($email_summary_to) ? '' : $email_summary_to); echo esc_attr($email_summary_to); ?>" />
 							<input id="team_data_options_edit__email_summary_to_orig" type="hidden" value="<?php echo esc_attr($email_summary_to); ?>" />
 						</td>
 					</tr>
 					<tr>
-						<td><label for="team_data_options_edit__allow_all_member_mail"><?php echo __('Allow All Member Emails','team_data'); ?></label></td>
+						<td><label for="team_data_options_edit__allow_all_member_mail"><?php echo esc_html(__('Allow All Member Emails','team_data')); ?></label></td>
 						<td>
 							<input id="team_data_options_edit__allow_all_member_mail" class="team_data_admin_checkbox" name="options_allow_all_member_mail" type="checkbox" <?php $allow_all_member_mail = ($this->get_option('allow_all_member_mail') == '1' ? true : false); if ($allow_all_member_mail) { echo 'checked="checked"'; } ?> />
 							<input id="team_data_options_edit__allow_all_member_mail_orig" type="checkbox" style="display: none;" <?php if ($allow_all_member_mail) { echo 'checked="checked"'; } ?> />
 						</td>
 					</tr>
 					<tr>
-						<td><label for="team_data_options_edit__use_smtp" ><?php echo __('Use SMTP','team_data'); ?></label></td>
+						<td><label for="team_data_options_edit__use_smtp" ><?php echo esc_html(__('Use SMTP','team_data')); ?></label></td>
 						<td>
 							<input id="team_data_options_edit__use_smtp" class="team_data_admin_checkbox" name="options_use_smtp" type="checkbox" <?php $use_smtp = ($this->get_option('use_smtp') == '1' ? true : false); if ($use_smtp) { echo 'checked="checked"'; } ?> />
 							<input id="team_data_options_edit__use_smtp_orig" type="checkbox" style="display: none;" <?php if ($use_smtp) { echo 'checked="checked"'; } ?> />
 						</td>
 					</tr>
 					<tr>
-						<td><label for="team_data_options_edit__smtp_server"><?php echo __('SMTP Server','team_data'); ?></label></td>
+						<td><label for="team_data_options_edit__smtp_server"><?php echo esc_html(__('SMTP Server','team_data')); ?></label></td>
 						<td>
 							<input id="team_data_options_edit__smtp_server" class="team_data_edit_input" name="options_smtp_server" type="text" size="50" value="<?php $smtp_server = $this->get_option('smtp_server'); $smtp_server = (empty($smtp_server) ? '' : $smtp_server); echo esc_attr($smtp_server); ?>" />
 							<input id="team_data_options_edit__smtp_server_orig" type="hidden" value="<?php echo esc_attr($smtp_server); ?>" />
 						</td>
 					</tr>
 					<tr>
-						<td><label for="team_data_options_edit__smtp_port"><?php echo __('SMTP Port','team_data'); ?></label></td>
+						<td><label for="team_data_options_edit__smtp_port"><?php echo esc_html(__('SMTP Port','team_data')); ?></label></td>
 						<td>
 							<input id="team_data_options_edit__smtp_port" class="team_data_edit_input" name="options_smtp_port" type="number" size="5" value="<?php $smtp_port = $this->get_option('smtp_port'); $smtp_port = (empty($smtp_port) ? '' : $smtp_port); echo esc_attr($smtp_port); ?>" />
 							<input id="team_data_options_edit__smtp_port_orig" type="hidden" value="<?php echo esc_attr($smtp_port); ?>" />
 						</td>
 					</tr>
 					<tr>
-						<td><label for="team_data_options_edit__smtp_conn_sec"><?php echo __('SMTP Connection Security','team_data'); ?></label></td>
+						<td><label for="team_data_options_edit__smtp_conn_sec"><?php echo esc_html(__('SMTP Connection Security','team_data')); ?></label></td>
 						<td>
 							<?php $smtp_conn_sec = $this->get_option('smtp_conn_sec'); $smtp_conn_sec = ( empty($smtp_conn_sec) ? '' : $smtp_conn_sec); ?>
 							<select id="team_data_options_edit__smtp_conn_sec" class="team_data_edit_input" name="options_smtp_conn_sec">
-								<option value="" <?php echo ($smtp_conn_sec == '' ? 'selected="true"' : ''); ?>><?php echo __('None', 'team_data'); ?></option>
-								<option value="tls" <?php echo ($smtp_conn_sec == 'tls' ? 'selected="true"' : ''); ?>><?php echo __('STARTTLS', 'team_data'); ?></option>
-								<option value="ssl" <?php echo ($smtp_conn_sec == 'ssl' ? 'selected="true"' : ''); ?>><?php echo __('SSL', 'team_data'); ?></option>
+								<option value="" <?php echo ($smtp_conn_sec == '' ? 'selected="true"' : ''); ?>><?php echo esc_html(__('None', 'team_data')); ?></option>
+								<option value="tls" <?php echo ($smtp_conn_sec == 'tls' ? 'selected="true"' : ''); ?>><?php echo esc_html(__('STARTTLS', 'team_data')); ?></option>
+								<option value="ssl" <?php echo ($smtp_conn_sec == 'ssl' ? 'selected="true"' : ''); ?>><?php echo esc_html(__('SSL', 'team_data')); ?></option>
 							</select>
 							<input id="team_data_options_edit__smtp_conn_sec_orig" type="hidden" value="<?php echo esc_attr($smtp_conn_sec); ?>" />
 						</td>
 					</tr>
 					<tr>
-						<td><label for="team_data_options_edit__smtp_user"><?php echo __('SMTP User','team_data'); ?></label></td>
+						<td><label for="team_data_options_edit__smtp_user"><?php echo esc_html(__('SMTP User','team_data')); ?></label></td>
 						<td>
 							<input id="team_data_options_edit__smtp_user" class="team_data_edit_input" name="options_smtp_user" type="text" size="50" value="<?php $smtp_user = $this->get_option('smtp_user'); $smtp_user = (empty($smtp_user) ? '' : $smtp_user); echo esc_attr($smtp_user); ?>" />
 							<input id="team_data_options_edit__smtp_user_orig" type="hidden" value="<?php echo esc_attr($smtp_user); ?>" />
 						</td>
 					</tr>
 					<tr>
-						<td><label for="team_data_options_edit__smtp_password"><?php echo __('SMTP Password','team_data'); ?></label></td>
+						<td><label for="team_data_options_edit__smtp_password"><?php echo esc_html(__('SMTP Password','team_data')); ?></label></td>
 						<td>
 							<input id="team_data_options_edit__smtp_password" class="team_data_edit_input" name="options_smtp_password" type="text" size="50" value="" />
 							<input id="team_data_options_edit__smtp_password_orig" type="hidden" value="" />
@@ -569,14 +569,14 @@ class TeamDataAdmin extends TeamDataBase {
 					</tr>
 					<tr>
 						<td colspan="2">
-							<label for="team_data_options_edit__text_footer" class="team_data_edit_label"><?php echo __('Footer text to include in plain text emails','team_data'); ?></label>
+							<label for="team_data_options_edit__text_footer" class="team_data_edit_label"><?php echo esc_html(__('Footer text to include in plain text emails','team_data')); ?></label>
 							<textarea id="team_data_options_edit__text_footer" class="team_data_edit_input widefat" name="options_text_footer" rows="4" cols="75"><?php $text_footer = $this->get_option('text_footer'); $text_footer = (empty($text_footer) ? '' : $text_footer); echo $text_footer; ?></textarea>
 							<textarea id="team_data_options_edit__text_footer_orig" style="display: none;"><?php echo $text_footer; ?></textarea>
 						</td>
 					</tr>
 					<tr>
 						<td colspan="2">
-							<label for="team_data_options_edit__html_template" class="team_data_edit_label"><?php echo __('HTML template to use for outbound emails. Use [[CONTENT]] to specify location of text.','team_data'); ?></label>
+							<label for="team_data_options_edit__html_template" class="team_data_edit_label"><?php echo esc_html(__('HTML template to use for outbound emails. Use [[CONTENT]] to specify location of text.','team_data')); ?></label>
 							<textarea id="team_data_options_edit__html_template" class="team_data_edit_input widefat" name="options_html_template" rows="20" cols="75"><?php $html_template = $this->get_option('html_template'); $html_template = (empty($html_template) ? '' : $html_template); echo $html_template; ?></textarea>
 							<textarea id="team_data_options_edit__html_template_orig" style="display: none;"><?php echo $html_template; ?></textarea>
 						</td>
@@ -584,7 +584,7 @@ class TeamDataAdmin extends TeamDataBase {
 				</table>
 			</form>
 			<div class="team_data_buttonDiv">
-				<input id="team_data_options_edit__email__save" class="team_data_button" type="button" value="<?php echo __('Save Changes', 'team_data'); ?>" onclick="team_data.api.options.save();" />
+				<input id="team_data_options_edit__email__save" class="team_data_button" type="button" value="<?php echo esc_attr(__('Save Changes', 'team_data')); ?>" onclick="team_data.api.options.save();" />
 			</div>
 		</div>
 	</div>
@@ -745,53 +745,52 @@ jQuery('.team_data_select_image_button').live('click', function( event ){
 			else {
 				$back_disabled = ($pageNum == 0 ? 'disabled="disabled" ' : '');
 				$next_disabled = ($pageNum == $maxPage ? 'disabled="disabled" ' : '');
-				echo '<input class="team_data_button" id="team_data_start" type="button" value="' .__('First Page', 'team_data') . '" ' . $back_disabled . 'onclick="team_data.fn.changePage(false,true);" />';
-				echo '<input class="team_data_button" id="team_data_prev" type="button" value="' .__('Previous', 'team_data') . '" ' . $back_disabled . 'onclick="team_data.fn.changePage(false,false);" />';
-				echo '<input class="team_data_button" id="team_data_next" type="button" value="' .__('Next', 'team_data') . '" ' . $next_disabled . 'onclick="team_data.fn.changePage(true,false);" />';
-				echo '<input class="team_data_button" id="team_data_end" type="button" value="' .__('Last Page', 'team_data') . '" ' . $next_disabled . 'onclick="team_data.fn.changePage(true,true);" />';
+				echo '<input class="team_data_button" id="team_data_start" type="button" value="' . esc_attr(__('First Page', 'team_data')) . '" ' . $back_disabled . 'onclick="team_data.fn.changePage(false,true);" />';
+				echo '<input class="team_data_button" id="team_data_prev" type="button" value="' . esc_attr(__('Previous', 'team_data')) . '" ' . $back_disabled . 'onclick="team_data.fn.changePage(false,false);" />';
+				echo '<input class="team_data_button" id="team_data_next" type="button" value="' . esc_attr(__('Next', 'team_data')) . '" ' . $next_disabled . 'onclick="team_data.fn.changePage(true,false);" />';
+				echo '<input class="team_data_button" id="team_data_end" type="button" value="' . esc_attr(__('Last Page', 'team_data')) . '" ' . $next_disabled . 'onclick="team_data.fn.changePage(true,true);" />';
 				echo '<div id="team_data_page_info">';
-				printf(__('Displaying page %1$s of %2$s'), $pageNum + 1, ceil($matchCount/$pageSize));
-				//echo 'Displaying page ' . ($pageNum + 1) . ' of ' . (ceil($matchCount/$pageSize));
+				printf(esc_html(__('Displaying page %1$s of %2$s')), $pageNum + 1, ceil($matchCount/$pageSize));
 				echo '</div>';
 				echo '<table class="team_data_table team_data_matches">';
 				echo '<tr>';
-				echo '<th>' . __('Season', 'team_data') . '</th>';
-				echo '<th>' . __('Date', 'team_data') . '</th>';
-				echo '<th>' . __('Time', 'team_data') . '</th>';
-				echo '<th>' . __('Opponent', 'team_data') . '</th>';
-				echo '<th>' . __('Level', 'team_data') . '</th>';
-				echo '<th>' . __('Venue', 'team_data') . '</th>';
-				echo '<th>' . __('League','team_data') . '/<br/>' . __('Playoffs', 'team_data') . '</th>';
-				echo '<th>' . __('Score', 'team_data') . '</th>';
+				echo '<th>' . esc_html(__('Season', 'team_data')) . '</th>';
+				echo '<th>' . esc_html(__('Date', 'team_data')) . '</th>';
+				echo '<th>' . esc_html(__('Time', 'team_data')) . '</th>';
+				echo '<th>' . esc_html(__('Opponent', 'team_data')) . '</th>';
+				echo '<th>' . esc_html(__('Level', 'team_data')) . '</th>';
+				echo '<th>' . esc_html(__('Venue', 'team_data')) . '</th>';
+				echo '<th>' . esc_html(__('League','team_data')) . '/<br/>' . __('Playoffs', 'team_data') . '</th>';
+				echo '<th>' . esc_html(__('Score/Result', 'team_data')) . '</th>';
 				echo '<th>&nbsp;</th>';
 				echo '</tr>';
 				foreach ($matches as $match) {
 					echo '<tr id="team_data_match_row_' . $match->id . '">';
-					echo '<td>' . $match->season . '</td>';
-					echo '<td>' . $match->pretty_date . '</td>';
-					echo '<td>' . $match->time . '</td>';
-					echo '<td>' . ($match->opposition_name != '' ? $match->opposition_name : $match->tourney_name ) . '</td>';
-					echo '<td>' . $match->level_name . '</td>';
-					echo '<td>' . $match->venue_name . '</td>';
+					echo '<td>' . esc_html($match->season) . '</td>';
+					echo '<td>' . esc_html($match->pretty_date) . '</td>';
+					echo '<td>' . esc_html($match->time) . '</td>';
+					echo '<td>' . esc_html(( $match->opposition_name != '' ? $match->opposition_name : $match->tourney_name )) . '</td>';
+					echo '<td>' . esc_html($match->level_name) . '</td>';
+					echo '<td>' . esc_html($match->venue_name) . '</td>';
 					echo '<td>' . ($match->is_league == '1' ? 'L' : ($match->is_postseason == '1' ? 'P' : '&nbsp;')) . '</td>';
 					
 					$match_result = $this->get_match_result_string($match->our_score,$match->opposition_score,$match->result);
 					echo '<td>';
 						echo '<div id="team_data_edit__score_display_' . $match->id . '">';
-							echo (($match_result == '') ? '&nbsp;-&nbsp;' : $match_result);
+							echo (($match_result == '') ? '&nbsp;-&nbsp;' : esc_html($match_result));
 						echo '</div>';
 						echo '<form id="team_data_edit__score_edit_' . $match->id . '" style="display: none;">';
-							echo '<input id="team_data_edit__score_edit_' . $match->id . '_our" class="team_data_input" placeholder="' . __('ours','team_data') . '" name="score_our_score" type="text" size="3" value="' . (($match->our_score == null) || ($match->our_score == '') ? '' : $match->our_score) . '"/>';
+							echo '<input id="team_data_edit__score_edit_' . $match->id . '_our" class="team_data_input" placeholder="' . esc_attr(__('ours','team_data')) . '" name="score_our_score" type="text" size="3" value="' . (($match->our_score == null) || ($match->our_score == '') ? '' : esc_attr($match->our_score)) . '"/>';
 							echo '&nbsp;';
-							echo '<input id="team_data_edit__score_edit_' . $match->id . '_opposition" class="team_data_input" placeholder="' . __('theirs','team_data') . '" name="score_opposition_score" type="text" size="3" value="' . (($match->opposition_score == null) || ($match->opposition_score == '') ? '' : $match->opposition_score) . '"/>';
-							echo '<input id="team_data_edit_score_edit_' . $match->id . '_result" class="team_data_input" placeholder="' . __('result','team_data') . '" name="score_result" type="text" size="1" value="' . (($match->result == null) || ($match->result == '') ? '' : $match->result) . '"/>';
+							echo '<input id="team_data_edit__score_edit_' . $match->id . '_opposition" class="team_data_input" placeholder="' . esc_attr(__('theirs','team_data')) . '" name="score_opposition_score" type="text" size="3" value="' . (($match->opposition_score == null) || ($match->opposition_score == '') ? '' : esc_attr($match->opposition_score)) . '"/>';
+							echo '<input id="team_data_edit_score_edit_' . $match->id . '_result" class="team_data_input" placeholder="' . esc_attr(__('result','team_data')) . '" name="score_result" type="text" size="1" value="' . (($match->result == null) || ($match->result == '') ? '' : esc_attr($match->result)) . '"/>';
 						echo '</form>';
 					echo '</td>';
 					echo '<td>';
-						echo '<input class="team_data_edit_button" type="button" id="team_data_edit_match_score_' . $match->id . '" onclick="team_data.api.match.toggleScoreControls(' . $match->id . ',true);" value="' . __('Edit Score', 'team_data') . '" />';
-						echo '<input class="team_data_edit_button" type="button" id="team_data_edit_match_score_save_' . $match->id . '" style="display: none;" onclick="team_data.api.match.editScore(' . $match->id . ');" value="' . __('Save Score', 'team_data') . '" />';
+						echo '<input class="team_data_edit_button" type="button" id="team_data_edit_match_score_' . $match->id . '" onclick="team_data.api.match.toggleScoreControls(' . $match->id . ',true);" value="' . esc_attr(__('Edit Score', 'team_data')) . '" />';
+						echo '<input class="team_data_edit_button" type="button" id="team_data_edit_match_score_save_' . $match->id . '" style="display: none;" onclick="team_data.api.match.editScore(' . $match->id . ');" value="' . esc_attr(__('Save Score', 'team_data')) . '" />';
 						echo '&nbsp;&nbsp;';
-						echo '<input class="team_data_edit_button" type="button" id="team_data_edit_match_' . $match->id . '" onclick="team_data.api.match.editMatch(' . $match->id . ');" value="' . __('Edit', 'team_data') . '" />';
+						echo '<input class="team_data_edit_button" type="button" id="team_data_edit_match_' . $match->id . '" onclick="team_data.api.match.editMatch(' . $match->id . ');" value="' . esc_attr(__('Edit', 'team_data')) . '" />';
 					echo '</td>';
 					echo '</tr>';
 				}
@@ -842,58 +841,58 @@ jQuery('.team_data_select_image_button').live('click', function( event ){
 		$tables = $this->tables;
 		$levels = $this->get_levels();
 		echo '<div id="team_data_match_edit_div" class="team_data_admin_section"' . (!$display ? ' style="display: none;"' : '') . '>';
-			echo '<div style="font-weight: bold; font-size: 1.2em; padding: 5px;">' . __('Update an existing match or result:','team_data') . '</div>';
+			echo '<div style="font-weight: bold; font-size: 1.2em; padding: 5px;">' . esc_attr(__('Update an existing match or result:','team_data')) . '</div>';
 			echo '<form id="team_data_match_edit">';
 				echo '<div class="team_data_inline">';
-					echo '<label for="team_data_match_edit__id" class="team_data_edit_label">' . __('ID','team_data') . '</label>';
+					echo '<label for="team_data_match_edit__id" class="team_data_edit_label">' . esc_attr(__('ID','team_data')) . '</label>';
 					echo '<input id="team_data_match_edit__id" class="team_data_edit_input" name="match_id" type="text" size="5" readonly="readonly" disabled="disabled" />';
 				echo '</div>';
 				echo '<div class="team_data_inline">';
-					echo '<label for="team_data_match_edit__season" class="team_data_edit_label">' . __('Season','team_data') . '</label>';
+					echo '<label for="team_data_match_edit__season" class="team_data_edit_label">' . esc_attr(__('Season','team_data')) . '</label>';
 					echo '<input id="team_data_match_edit__season" class="team_data_edit_input team_data_season" name="match_season" type="text" size="10" />';
 				echo '</div>';
 				echo '<div class="team_data_inline">';
-					echo '<label for="team_data_match_edit__date" class="team_data_edit_label">' . __('Date','team_data') . '</label>';
+					echo '<label for="team_data_match_edit__date" class="team_data_edit_label">' . esc_attr(__('Date','team_data')) . '</label>';
 					echo '<input id="team_data_match_edit__date" class="team_data_edit_input team_data_date" name="match_date" type="text" size="10" />';
 				echo '</div>';
 				echo '<div class="team_data_inline">';
-					echo '<label for="team_data_match_edit__time" class="team_data_edit_label">' . __('Time','team_data') . '</label>';
+					echo '<label for="team_data_match_edit__time" class="team_data_edit_label">' . esc_attr(__('Time','team_data')) . '</label>';
 					echo '<input id="team_data_match_edit__time" class="team_data_edit_input team_data_time" name="match_time" type="text" size="10" />';
 				echo '</div>';
 				echo '<div class="team_data_inline">';
-					echo '<label for="team_data_match_edit__opposition" class="team_data_edit_label">' . __('Opponent','team_data') . '</label>';
+					echo '<label for="team_data_match_edit__opposition" class="team_data_edit_label">' . esc_attr(__('Opponent','team_data')) . '</label>';
 					echo '<input id="team_data_match_edit__opposition" class="team_data_edit_input team_data_team" name="match_opposition" type="text" size="50" />';
 				echo '</div>';
 				echo '<div class="team_data_inline">';
-					echo '<label for="team_data_match_edit__level" class="team_data_edit_label">' . __('Level','team_data') . '</label>';
+					echo '<label for="team_data_match_edit__level" class="team_data_edit_label">' . esc_attr(__('Level','team_data')) . '</label>';
 					echo '<select id="team_data_match_edit__level" name="match_level">';
 					foreach(array_keys($levels) as $level_id) {
-						echo '<option value="' . $level_id . '">' . $levels[$level_id] . '</option>';
+						echo '<option value="' . esc_attr($level_id) . '">' . esc_html($levels[$level_id]) . '</option>';
 					}
 					echo '</select>';
 				echo '</div>';
 				echo '<div class="team_data_inline">';
-					echo '<label for="team_data_match_edit__venue" class="team_data_edit_label">' . __('Venue','team_data') . '</label>';
+					echo '<label for="team_data_match_edit__venue" class="team_data_edit_label">' . esc_html(__('Venue','team_data')) . '</label>';
 					echo '<input id="team_data_match_edit__venue" class="team_data_edit_input team_data_venue" name="match_venue" type="text" size="50" />';
 				echo '</div>';
 				echo '<div class="team_data_inline">';
-					echo '<label for="team_data_match_edit__our_score" class="team_data_edit_label">' . __('Us','team_data') . '</label>';
+					echo '<label for="team_data_match_edit__our_score" class="team_data_edit_label">' . esc_html(__('Us','team_data')) . '</label>';
 					echo '<input id="team_data_match_edit__our_score" class="team_data_edit_input" name="match_our_score" type="text" size="3" />';
 				echo '</div>';
 				echo '<div class="team_data_inline">';
-					echo '<label for="team_data_match_edit__opposition_score" class="team_data_edit_label">' . __('Them','team_data') . '</label>';
+					echo '<label for="team_data_match_edit__opposition_score" class="team_data_edit_label">' . esc_html(__('Them','team_data')) . '</label>';
 					echo '<input id="team_data_match_edit__opposition_score" class="team_data_edit_input" name="match_opposition_score" type="text" size="3" />';
 				echo '</div>';
 				echo '<div class="team_data_inline">';
-					echo '<label for="team_data_match_edit__is_league" class="team_data_edit_label">' . __('League?','team_data') . '</label>';
+					echo '<label for="team_data_match_edit__is_league" class="team_data_edit_label">' . esc_html(__('League?','team_data')) . '</label>';
 					echo '<input id="team_data_match_edit__is_league" class="team_data_admin_checkbox" name="match_is_league" type="checkbox" />';
 				echo '</div>';
 				echo '<div class="team_data_inline">';
-					echo '<label for="team_data_match_edit__is_postseason" class="team_data_edit_label">' . __('Playoffs?','team_data') . '</label>';
+					echo '<label for="team_data_match_edit__is_postseason" class="team_data_edit_label">' . esc_html(__('Playoffs?','team_data')) . '</label>';
 					echo '<input id="team_data_match_edit__is_postseason" class="team_data_admin_checkbox" name="match_is_postseason" type="checkbox" />';
 				echo '</div>';
 			echo '</form>';
-			echo '<input class="team_data_edit_button" type="button" id="team_data_edit_match_save" onclick="team_data.api.match.saveMatch();" value="' . __('Save', 'team_data') . '" />';
+			echo '<input class="team_data_edit_button" type="button" id="team_data_edit_match_save" onclick="team_data.api.match.saveMatch();" value="' . esc_attr(__('Save', 'team_data')) . '" />';
 		echo '</div>';
 	}
 }
