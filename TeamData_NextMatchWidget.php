@@ -21,6 +21,15 @@ class TeamData_NextMatchWidget extends WP_Widget {
 		$title = apply_filters( 'widget_title', ( empty($instance['title']) ) ? '' : $instance['title'], $instance, $this->id_base );
 		$team_name = apply_filters( 'widget_text', ( empty($instance['team_name']) ) ? '' : $instance['team_name'], $instance );
 		$more_info = apply_filters( 'widget_text', ( empty($instance['more_info']) ) ? '' : $instance['more_info'], $instance );
+		$pos_values = array( 'before', 'after', 'none' );
+		$date_pos = apply_filters( 'widget_text', ( empty($instance['date_pos']) ) ? 'before' : $instance['date_pos'], $instance );
+		if ( !in_array($date_pos, $pos_values) ) {
+			$date_pos = 'before';
+		}
+		$time_pos = apply_filters( 'widget_text', ( empty($instance['time_pos']) ) ? 'before' : $instance['time_pos'], $instance );
+		if ( !in_array($time_pos, $pos_values) ) {
+			$time_pos = 'before';
+		}
 		$get_logos = apply_filters( 'widget_text', ( empty($instance['get_logos']) ) ? '0' : $instance['get_logos'], $instance );
 		$get_logos = ($get_logos == '1');
 		$logo_style = apply_filters( 'widget_text', ( empty($instance['logo_style']) ) ? '' : $instance['logo_style'], $instance );
@@ -36,10 +45,12 @@ class TeamData_NextMatchWidget extends WP_Widget {
 
 		$match = TeamData_WidgetUtils::get_next_match($level_id, $get_logos);
 		if ($match) {
-			?>
-			<div class="match_widget_date"><?php echo esc_html($match['_date']); ?></div>
-			<div class="match_widget_time"><?php echo esc_html($match['_time']); ?></div>
-<?php 
+			if ( $date_pos == 'before' ) {
+				echo '<div class="match_widget_date">' . esc_html($match['_date']) . '</div>';
+			}
+			if ( $time_pos == 'before' ) {
+				echo '<div class="match_widget_time">' . esc_html($match['_time']) . '</div>';
+			}
 			if ($match['tourney_name'] !== '') {
 				echo '<div class="match_widget_tournament">' . esc_html($match['tourney_name']) . '</div>';
 			}
@@ -60,11 +71,11 @@ class TeamData_NextMatchWidget extends WP_Widget {
 					<div class="match_widget_vs"><?php echo ($match['is_home'] ? 'vs' : '@'); ?></div>
 					<div class="match_widget_next_details match_widget_them">
 						<div class="match_widget_next match_widget_them"><?php
-						if ($match['info_link'] != '') {
+						if ( !empty($match['info_link']) ) {
 							echo '<a class="match_widget_team_info" href="' . esc_attr($match['info_link']) . '">';
 						}
 						echo $match['team'];
-						if ($match['info_link'] != '') {
+						if ( !empty($match['info_link']) ) {
 							echo '</a>';
 						}
 ?>						</div>
@@ -79,12 +90,18 @@ class TeamData_NextMatchWidget extends WP_Widget {
 				</div>
 <?php
 			} 
+			if ( $date_pos == 'after' ) {
+				echo '<div class="match_widget_date">' . esc_html($match['_date']) . '</div>';
+			}
+			if ( $time_pos == 'after' ) {
+				echo '<div class="match_widget_time">' . esc_html($match['_time']) . '</div>';
+			}
 			echo '<div class="match_widget_venue">';
-			if ($match['directions_link'] != '') {
+			if ( !empty($match['directions_link']) ) {
 				echo '<a class="match_widget_directions" href="' . esc_attr($match['directions_link']) . '">';
 			}
 			echo esc_html($match['venue']);
-			if ($match['directions_link'] != '') {
+			if ( !empty($match['directions_link']) ) {
 				echo '</a>';
 			}
 			echo '</div>'; // close .match_widget_venue
@@ -92,7 +109,9 @@ class TeamData_NextMatchWidget extends WP_Widget {
 		else { // if NOT $match
 			echo '<div class="match_widget_empty">' . esc_html(__( 'No matches scheduled', 'team_data' )) . '</div>';
 		}
-		echo '<div class="match_widget_more_info">' . $more_info . '</div>';
+		if ( !empty($more_info) ) {
+			echo '<div class="match_widget_more_info">' . $more_info . '</div>';
+		}
 		echo '</div>';
 		echo $after_widget;
 	}
@@ -101,6 +120,8 @@ class TeamData_NextMatchWidget extends WP_Widget {
 		$instance = array();
 		$instance['title'] = strip_tags( $new_instance['title'] );
 		$instance['team_name'] = strip_tags( $new_instance['team_name'] );
+		$instance['date_pos'] = strip_tags( $new_instance['date_pos'] );
+		$instance['time_pos'] = strip_tags( $new_instance['time_pos'] );
 		$instance['logo_style'] = strip_tags( $new_instance['logo_style'] );
 		$instance['get_logos'] = strip_tags( $new_instance['get_logos'] );
 		if ( current_user_can('unfiltered_html') ) {
@@ -121,28 +142,48 @@ class TeamData_NextMatchWidget extends WP_Widget {
 
 	public function form( $instance ) {
 		global $wpdb;
-		$instance = wp_parse_args( (array) $instance, array( 'title' => '', 'team_name' => '', 'more_info' => '', 'logo_style' => '', 'get_logos' => '1' ) );
+
+		$valid_fields = array(
+			'title' => '',
+			'team_name' => '',
+			'level_id' => '',
+			'more_info' => '',
+			'logo_style' => '',
+			'get_logos' => '1',
+			'date_pos' => 'before',
+			'time_pos' => 'before',
+		);
+		$instance = wp_parse_args( (array) $instance, $valid_fields );
 		$title = strip_tags( $instance['title'] );
 		$team_name = strip_tags( $instance['team_name'] );
 		$more_info = esc_textarea( $instance['more_info'] );
+		$date_pos = strip_tags( $instance['date_pos'] );
+		$time_pos = strip_tags( $instance['time_pos'] );
 		$get_logos = strip_tags( $instance['get_logos'] );
 		$logo_style = strip_tags( $instance['logo_style'] );
 		$level_id = strip_tags( $instance['level_id'] );
 		if ($level_id == '') $level_id = -1;
-
-		echo '<p>';
-		echo '<label for="' . $this->get_field_id('title') . '">' . __('Title:', 'team_data') . '</label>' . "\n";
-		echo '<input class="widefat" id="' . $this->get_field_id('title') . '" name="' . $this->get_field_name('title') . '" type="text" value="' . esc_attr($title) . '" />' . "\n";
-		echo '</p>';
-		echo '<p>';
-		echo '<label for="' . $this->get_field_id('team_name') . '">' . __('Your team name:', 'team_data') . '</label>' . "\n";
-		echo '<input class="widefat" id="' . $this->get_field_id('team_name') . '" name="' . $this->get_field_name('team_name') . '" type="text" value="' . esc_attr($team_name) . '" />' . "\n";
-		echo '</p>';
+		$position_options = array(
+			'before' => esc_html(__('Before Teams','team_data')),
+			'after' => esc_html(__('After Teams','team_data')),
+			'none' => esc_html(__("Don't Display",'team_data')),
+		);
+?>
+		<p>
+			<label for="<?php echo $this->get_field_id('title'); ?>"><?php echo esc_html(__('Title:', 'team_data')); ?></label>
+			<input class="widefat" id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" type="text" value="<?php echo esc_attr($title); ?>" />
+		</p>
+		<p>
+			<label for="<?php echo $this->get_field_id('team_name'); ?>"><?php echo esc_html(__('Your team name:', 'team_data')); ?></label>
+			<input class="widefat" id="<?php echo $this->get_field_id('team_name'); ?>" name="<?php echo $this->get_field_name('team_name'); ?>" type="text" value="<?php echo esc_attr($team_name); ?>" />
+		</p>
+<?php
 		if ( class_exists('TeamDataTables') ) {
 			$tables = new TeamDataTables();
 			$sql = "SELECT id, name FROM $tables->level";
 			$levels = $wpdb->get_results($sql, ARRAY_A);
 			
+			echo '<p>';
 			echo '<label for="' . $this->get_field_id('level_id') . '">' . __('Level:', 'team_data') . '</label>' . "\n";
 			echo '<select class="widefat" id="' . $this->get_field_id('level_id') . '" name="' . $this->get_field_name('level_id') . '" type="text" value="' . esc_attr($level_id) . '">' . "\n";
 			$selected = (-1 == $level_id ? ' selected="1"' : '');
@@ -154,61 +195,41 @@ class TeamData_NextMatchWidget extends WP_Widget {
 			echo '</select>';
 			echo '</p>';
 		}
-		echo '<label for="' . $this->get_field_id('more_info') . '">' . __('Post-result content:', 'team_data') . '</label>' . "\n";
-		echo '<textarea class="widefat" rows="5" cols="20" id="' . $this->get_field_id('more_info') . '" name="' . $this->get_field_name('more_info') . '">';
-		echo $more_info;
-		echo '</textarea>';
-		echo '<label for="' . $this->get_field_id('get_logos_checkbox') . '">' . __('Display logos:', 'team_data') . '</label>' . "\n";
-		echo '<input type="checkbox" id="' . $this->get_field_id('get_logos_checkbox') . '" ' . ($get_logos ? ' checked="true"' : '') . ' onchange="document.getElementById(\'' . $this->get_field_id('get_logos') . '\').value = ( this.checked ? 1 : 0 );" />';
-		echo '<input type="hidden" id="' . $this->get_field_id('get_logos') . '" name="' . $this->get_field_name('get_logos') . '" /><br />';
-		echo '<label for="' . $this->get_field_id('logo_style') . '">' . __('Logo style:','team_data') . '</label>' . "\n";
-		echo '<textarea class="widefat" rows="3" cols="20" id="' . $this->get_field_id('logo_style') . '" name="' . $this->get_field_name('logo_style') . '">';
-		echo $logo_style;
-		echo '</textarea>';
-	}
-
-	/**
-	 * Helper function to get the data for the next match scheduled for the level specified in $level_id.
-	 * 
-	 * @param integer $level_id ID of level we want to get the match for.
-	 */
-	private function get_next_match($level_id = -1) {
-		global $wpdb;
-		
-		$match = null;
-		if ( class_exists('TeamDataTables') ) {
-			$tables = new TeamDataTables();
-
-			$select = array(
-				"DATE_FORMAT(match.date,'%M %D %Y') AS `_date`",
-				"DATE_FORMAT(match.time,'%l:%i %p') AS `_time`",
-				"IF(level.abbreviation = '', level.name, level.abbreviation) As level",
-				"match.team_name As team",
-				"match.team_logo",
-				'match.tourney_name',
-				'(venue.is_home = 1) As is_home',
-				"IF(venue.abbreviation = '', venue.name, venue.abbreviation) As venue",
-				'venue.info_link',
-				'venue.directions_link'
-			);
-			$from = array(
-				"( SELECT m.date, m.time, m.tourney_name, m.venue_id, m.level_id, m.result, m.our_score, m.opposition_score, IF(m.opposition_id IS NULL, '', IF(t.abbreviation = '', t.name, t.abbreviation)) AS team_name, IF(m.opposition_id IS NULL, '', t.logo_link) AS team_logo FROM $tables->match m LEFT OUTER JOIN $tables->team t ON m.opposition_id = t.id ) `match`",
-				"$tables->level As level",
-				"$tables->venue As venue",
-			);
-			$where = array(
-				'match.venue_id = venue.id',
-				'match.level_id = level.id',
-				"( match.result = '' AND ( match.our_score IS NULL AND match.opposition_score IS NULL ) )",
-				'match.date >= CURDATE()'
-			);
-			if ($level_id > 0) $where[] = 'level.id = ' . intval($level_id);
-
-			$sql = 'SELECT ' . implode(', ', $select) . ' FROM ' . implode(', ', $from) . ' WHERE ' . implode(' AND ', $where) . ' ORDER BY match.date ASC, match.time ASC LIMIT 1';
-			$matches = $wpdb->get_results($sql, ARRAY_A);
-			if (isset($matches[0])) $match = $matches[0];
-		}
-		return $match;
+?>
+		<p>
+			<label for="<?php echo $this->get_field_id('date_pos'); ?>"><?php echo esc_html(__('Date position:','team_data')); ?></label>
+			<select id="<?php echo $this->get_field_id('date_pos'); ?>" name="<?php echo $this->get_field_name('date_pos'); ?>">
+<?php
+			foreach ($position_options as $pos_option => $pos_display) {
+				echo '<option value="' . esc_attr($pos_option) . '" ' . ($date_pos == $pos_option ? 'selected="true"' : '') . '>' . $pos_display . '</option>'; 
+			}
+?>
+			</select>
+		</p>
+		<p>
+			<label for="<?php echo $this->get_field_id('time_pos'); ?>"><?php echo esc_html(__('Time position:','team_data')); ?></label>
+			<select id="<?php echo $this->get_field_id('time_pos'); ?>" name="<?php echo $this->get_field_name('time_pos'); ?>">
+<?php
+			foreach ($position_options as $pos_option => $pos_display) {
+				echo '<option value="' . esc_attr($pos_option) . '" ' . ($time_pos == $pos_option ? 'selected="true"' : '') . '>' . $pos_display . '</option>'; 
+			}
+?>
+			</select>
+		</p>
+		<p>
+			<label for="<?php echo $this->get_field_id('more_info'); ?>"><?php echo esc_html(__('Post-result content:', 'team_data')); ?></label>
+			<textarea class="widefat" rows="5" cols="20" id="<?php echo $this->get_field_id('more_info'); ?>" name="<?php echo $this->get_field_name('more_info'); ?>"><?php echo $more_info; ?></textarea>
+		</p>
+		<p>
+			<label for="<?php echo $this->get_field_id('get_logos_checkbox'); ?>"><?php echo esc_html(__('Display logos:', 'team_data')); ?></label>
+			<input type="checkbox" id="<?php echo $this->get_field_id('get_logos_checkbox'); ?>" <?php echo ($get_logos ? ' checked="true"' : ''); ?> onchange="document.getElementById('<?php echo $this->get_field_id('get_logos'); ?>').value = ( this.checked ? 1 : 0 );" />
+			<input type="hidden" id="<?php echo $this->get_field_id('get_logos'); ?>" name="<?php echo $this->get_field_name('get_logos'); ?>" value="<?php echo ( $get_logos ? '1' : '0' ); ?>"/><br />
+		</p>
+		<p>
+			<label for="<?php echo $this->get_field_id('logo_style'); ?>"><?php echo esc_html(__('Logo style:','team_data')); ?></label>
+			<textarea class="widefat" rows="3" cols="20" id="<?php echo $this->get_field_id('logo_style'); ?>" name="<?php echo $this->get_field_name('logo_style'); ?>"><?php echo $logo_style; ?></textarea>
+		</p>
+<?php
 	}
 
 }

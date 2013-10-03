@@ -60,43 +60,50 @@ class TeamData_LastMatchWidget extends WP_Widget {
 				$our_logo = '';
 				if ($get_logos) $our_logo = TeamData_WidgetUtils::get_our_logo_link();
 				$have_logo = ( !empty($our_logo) ) || ( !empty($match['team_logo']) );
-
-				echo '<div class="match_widget_result_details' . ($have_logo ? ' match_widget_with_logos' : '') . '">'; // open details wrapper
-				echo '<div class="match_widget_pair match_widget_us">'; // open our pair
-				echo '<div class="match_widget_team match_widget_us">' . esc_html($team_name) . '</div>';
-				if ( $have_logo ) {
-					echo '<div class="match_widget_logo match_widget_us">';
-					if ( !empty($our_logo) ) echo '<img src="' . esc_attr($our_logo) . '"' . (!empty($logo_style) ? ' style="' . esc_attr($logo_style) . '"' : '') . ' />';
-					echo '</div>';
-				}
-				echo '<div class="match_widget_score match_widget_us">' . esc_html($match['our_score']) . '</div>';
-				echo '</div>'; // close our pair
-				echo '<div class="match_widget_vs">' . ($match['is_home'] ? 'vs' : '@') . '</div>';
-				echo '<div class="match_widget_pair match_widget_them">'; // open their pair
-				echo '<div class="match_widget_team match_widget_them">';
-				if ($match['info_link'] != '') {
-					echo '<a class="match_widget_team_info" href="' . esc_attr($match['info_link']) . '">';
-				}
-				echo $match['team'];
-				if ($match['info_link'] != '') {
-					echo '</a>';
-				}
-				echo '</div>';
-				if ( $have_logo ) {
-					echo '<div class="match_widget_logo match_widget_them">';
-					if ( !empty($match['team_logo']) ) echo '<img src="' . esc_attr($match['team_logo']) . '"' . (!empty($logo_style) ? ' style="' . esc_attr($logo_style) . '"' : '') . ' />';
-					echo '</div>';
-				}
-				echo '<div class="match_widget_score match_widget_them">' . esc_html($match['opposition_score']) . '</div>';
-				echo '</div>'; // close their pair
-				echo '</div>'; // close details wrapper
+?>
+				<div class="match_widget_result_details <?php echo ($have_logo ? 'match_widget_with_logos' : ''); ?>">
+					<div class="match_widget_pair match_widget_us">
+						<div class="match_widget_team match_widget_us"><?php echo esc_html($team_name); ?></div>
+<?php
+					if ( $have_logo ) {
+						echo '<div class="match_widget_logo match_widget_us">';
+						if ( !empty($our_logo) ) echo '<img src="' . esc_attr($our_logo) . '"' . (!empty($logo_style) ? ' style="' . esc_attr($logo_style) . '"' : '') . ' />';
+						echo '</div>';
+					}
+?>
+						<div class="match_widget_score match_widget_us"><?php echo esc_html($match['our_score']); ?></div>
+					</div>
+					<div class="match_widget_vs"><?php echo ( $match['is_home'] ? 'vs' : '@' ); ?></div>
+					<div class="match_widget_pair match_widget_them">
+						<div class="match_widget_team match_widget_them">
+<?php
+							if ($match['info_link'] != '') {
+								echo '<a class="match_widget_team_info" href="' . esc_attr($match['info_link']) . '">';
+							}
+							echo esc_html($match['team']);
+							if ($match['info_link'] != '') {
+								echo '</a>';
+							}
+?>
+						</div>
+<?php
+						if ( $have_logo ) {
+							echo '<div class="match_widget_logo match_widget_them">';
+							if ( !empty($match['team_logo']) ) echo '<img src="' . esc_attr($match['team_logo']) . '"' . (!empty($logo_style) ? ' style="' . esc_attr($logo_style) . '"' : '') . ' />';
+							echo '</div>';
+						}
+?>
+						<div class="match_widget_score match_widget_them"><?php echo esc_html($match['opposition_score']); ?></div>
+					</div>
+				</div>
+<?php
 			}
 			echo '<div class="match_widget_venue">';
-			if ($match['directions_link'] != '') {
+			if ( !empty($match['directions_link']) ) {
 				echo '<a class="match_widget_directions" href="' . esc_attr($match['directions_link']) . '">';
 			}
-			echo $match['venue'];
-			if ($match['directions_link'] != '') {
+			echo esc_html($match['venue']);
+			if ( !empty($match['directions_link']) ) {
 				echo '</a>';
 			}
 			echo '</div>';
@@ -104,7 +111,9 @@ class TeamData_LastMatchWidget extends WP_Widget {
 		else {
 			echo '<div class="match_widget_empty">' . esc_html(__( 'No match history', 'team_data' )) . '</div>';
 		}
-		echo '<div class="match_widget_more_info">' . $more_info . '</div>';
+		if ( !empty($more_info) ) {
+			echo '<div class="match_widget_more_info">' . $more_info . '</div>';
+		}
 		echo '</div>';
 		echo $after_widget;
 	}
