@@ -877,16 +877,16 @@ class TeamDataAdminAjax extends TeamDataAjax {
 	 * @param string $table Name of table
 	 * @param string $id_field Name of the POSTed variable that should contain the ID
 	 */
-	protected function run_select($table,$id_field) {
+	protected function run_select( $table, $id_field ) {
 		global $wpdb;
 
 		header('Content-Type: application/json');
-		if ($this->check_nonce() && isset($_POST[$id_field])) {
-			$id_value = $wpdb->escape(intval($_POST[$id_field]));
-			$query = "SELECT * FROM $table WHERE id = $id_value";
-			$row_data = $wpdb->get_row($query);
+		if ($this->check_nonce() && isset( $_POST[ $id_field ] )) {
+			$id_value = intval( stripslashes( $_POST[ $id_field ] ) );
+			$query = $wpdb->prepare( "SELECT * FROM $table WHERE id = %d", $id_value );
+			$row_data = $wpdb->get_row( $query );
 
-			echo json_encode($row_data);
+			echo json_encode( $row_data );
 		}
 		else {
 			echo 'null';
@@ -904,20 +904,20 @@ class TeamDataAdminAjax extends TeamDataAjax {
 	 * @param string $option_name Name of the TeamData option to compare against
 	 * @param string $option_field Name of the field in the returned JSON
 	 */
-	protected function run_select_with_option($table,$id_field,$option_name,$option_field) {
+	protected function run_select_with_option( $table, $id_field, $option_name, $option_field ) {
 		global $wpdb;
 
 		header('Content-Type: application/json');
-		if ($this->check_nonce() && isset($_POST[$id_field])) {
-			$id_value = $wpdb->escape(intval($_POST[$id_field]));
-			$query = "SELECT *, 0 As $option_field FROM $table WHERE id = $id_value";
-			$row_data = $wpdb->get_row($query);
+		if ($this->check_nonce() && isset( $_POST[ $id_field ] ) ) {
+			$id_value = intval( stripslashes( $_POST[ $id_field ] ) );
+			$query = $wpdb->prepare( "SELECT *, 0 AS $option_field FROM $table WHERE id = %d", $id_value );
+			$row_data = $wpdb->get_row( $query );
 
-			$option_value = $this->get_option($option_name);
-			if (($option_value <> '') && ($option_value == $id_value)) {
+			$option_value = $this->get_option( $option_name );
+			if ( ( $option_value <> '' ) && ( $option_value == $id_value ) ) {
 				$row_data->$option_field = 1;
 			}
-			echo json_encode($row_data);
+			echo json_encode( $row_data );
 		}
 		else {
 			echo 'null';
