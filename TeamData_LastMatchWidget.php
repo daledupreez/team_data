@@ -66,7 +66,7 @@ class TeamData_LastMatchWidget extends WP_Widget {
 						<div class="match_widget_team match_widget_us"><?php echo esc_html($team_name); ?></div>
 <?php
 					if ( $have_logo ) {
-						echo '<div class="match_widget_logo match_widget_us">';
+						echo '<div class="match_widget_logo match_widget_us' . ( empty($our_logo) ? ' match_widget_logo_empty' : '' ) . '">';
 						if ( !empty($our_logo) ) echo '<img src="' . esc_attr($our_logo) . '"' . (!empty($logo_style) ? ' style="' . esc_attr($logo_style) . '"' : '') . ' />';
 						echo '</div>';
 					}
@@ -88,7 +88,7 @@ class TeamData_LastMatchWidget extends WP_Widget {
 						</div>
 <?php
 						if ( $have_logo ) {
-							echo '<div class="match_widget_logo match_widget_them">';
+							echo '<div class="match_widget_logo match_widget_them' . ( empty($match['team_logo']) ? ' match_widget_logo_empty' : '' ) . '">';
 							if ( !empty($match['team_logo']) ) echo '<img src="' . esc_attr($match['team_logo']) . '"' . (!empty($logo_style) ? ' style="' . esc_attr($logo_style) . '"' : '') . ' />';
 							echo '</div>';
 						}
