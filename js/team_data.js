@@ -1052,7 +1052,7 @@ team_data.fn.getControlValue = function(control) {
 
 team_data.fn.setControlValue = function(control,value) {
 	if (control) {
-		if ((control.length > 0) && (typeof control.item == 'function')) {
+		if ((control.length > 0) && (typeof control.item == 'function') && (control.nodeName != 'SELECT')) {
 			var controls = control;
 			for (var i = 0; i < controls.length; i++) {
 				var currControl = controls.item(i);
