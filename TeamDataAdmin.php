@@ -893,6 +893,7 @@ jQuery('.team_data_select_image_button').live('click', function( event ){
 				echo '</div>';
 			echo '</form>';
 			echo '<input class="team_data_edit_button" type="button" id="team_data_edit_match_save" onclick="team_data.api.match.saveMatch();" value="' . esc_attr(__('Save', 'team_data')) . '" />';
+			echo '<input class="team_data_edit_button" type="button" id="team_data_edit_match_delete" onclick="team_data.api.match.deleteMatch();" value="' . esc_attr(__('Delete', 'team_data')) . '" />';
 		echo '</div>';
 	}
 }

@@ -688,6 +688,41 @@ team_data.api.match.toggleScoreControls = function match_toggleScoreControls(mat
 
 }
 
+team_data.api.match.deleteMatch = function match_deleteMatch()
+{
+	var matchForm = document.getElementById('team_data_match_edit');
+	if (matchForm) {
+		var doDelete = confirm(team_data.fn.getLocText('Are you sure you want to delete this match?'));
+		if (!doDelete) return;
+		var focusList = [];
+		var errors = [];
+		var matchData = {};
+		team_data.api.match.getFieldsFromForm(matchForm,[ 'id' ],matchData,errors,focusList,'match');
+		if (errors.length > 0) {
+			errors.splice(0,0,team_data.fn.getLocText('Errors deleting match:'));
+			team_data.ui.reportErrors(errors,focusList);
+		}
+		else {
+			matchData.action = 'team_data_delete_match';
+			matchData.nonce = team_data_ajax.nonce;
+			jQuery.post(ajaxurl,matchData,team_data.api.match.deleteMatchHandler);
+		}
+	}
+}
+
+team_data.api.match.deleteMatchHandler = function match_deleteMatchHandler(deleteResult)
+{
+	if (!deleteResult) return;
+	if (deleteResult.result == 'error') {
+		var msg = team_data.fn.getLocText('Error in delete');
+		if (deleteResult.error_message) msg += '\n' + deleteResult.error_message;
+		alert(msg);
+	}
+	else {
+		document.location.reload();
+	}
+}
+
 team_data.api.match.editScore = function match_editScore(match_id)
 {
 	var editForm = team_data.api.match.getScoreEditForm(match_id);

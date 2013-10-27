@@ -37,6 +37,7 @@ class TeamDataAdminAjax extends TeamDataAjax {
 		// match updates
 		add_action($ajax_prefix . 'update_score', array($this, 'update_score_ajax'));
 		add_action($ajax_prefix . 'update_match', array($this, 'update_match_ajax'));
+		add_action($ajax_prefix . 'delete_match', array($this, 'delete_match_ajax'));
 
 		add_action('wp_enqueue_scripts', array( $this, 'add_ajax_url' ) );
 
@@ -157,6 +158,40 @@ class TeamDataAdminAjax extends TeamDataAjax {
 	*/
 	public function get_basic_match_ajax() {
 		$this->run_select($this->tables->match,'match_id');
+		exit;
+	}
+
+	/**
+	 * Delete a match.
+	*/
+	public function delete_match_ajax() {
+		global $wpdb;
+
+		header('Content-Type: application/json');
+		$fields = array(
+			'id' => '',
+		);
+		$match_id = $this->get_post_values($fields);
+		$response_data = array( 'result' => 'error' );
+		if (!$this->check_nonce()) {
+			$response_data['error_message'] = __("Invalid nonce", 'team_data');
+		}
+		else if ( empty($match_id) ) { // id is required for delete
+			$response_data['error_message'] = sprintf(__("Property '%s' is required", 'team_data'),'id');
+		}
+		else {
+			$sql = $wpdb->prepare('DELETE FROM ' . $this->tables->match . ' WHERE id = %d', $match_id);
+			$showErrors = $wpdb->hide_errors();
+			$deleteOK = $wpdb->query($sql);
+			if ($deleteOK) {
+				$response_data['result'] = true;
+			}
+			else {
+				$response_data['error_message'] = $wpdb->last_error;
+			}
+		}
+
+		echo json_encode($response_data);
 		exit;
 	}
 
