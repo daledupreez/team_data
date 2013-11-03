@@ -192,7 +192,7 @@ class TeamDataMailer extends TeamDataBase {
 		$list_names = array();
 		if ($list_ids == null) return array();
 		// use $done to track emails that have already been added
-		$done = [];
+		$done = array();
 
 		$show_errors = $wpdb->hide_errors();
 		if ($list_ids == -1) {
