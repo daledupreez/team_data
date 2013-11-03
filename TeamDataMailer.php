@@ -29,7 +29,7 @@ class TeamDataMailer extends TeamDataBase {
 			return false;
 		}
 
-		$list_names = [];
+		$list_names = array();
 		$to = $this->build_to($list_ids, $list_names);
 		if ($this->debug_flag) $this->debug('To List: ' . json_encode($to));
 
@@ -40,7 +40,7 @@ class TeamDataMailer extends TeamDataBase {
 		if (empty($text_footer)) $text_footer = '';
 		$text_content = $message_content . $text_footer;
 
-		$errors = [];
+		$errors = array();
 		$ok_count = 0;
 		$mailer = null;
 
@@ -130,7 +130,7 @@ class TeamDataMailer extends TeamDataBase {
 		$template = $this->get_option('html_template');
 		if (($template != false) && ($template != '')) {
 			// strip all HTML tags
-			$msg_stripped = wp_kses($message, []);
+			$msg_stripped = wp_kses($message, array());
 			// remove all carriage returns
 			$msg_stripped = str_replace("\r", "", $msg_stripped);
 			// remove multiple newlines
@@ -188,9 +188,9 @@ class TeamDataMailer extends TeamDataBase {
 	protected function build_to($list_ids = null, &$list_names) {
 		global $wpdb;
 
-		$to = [];
-		$list_names = [];
-		if ($list_ids == null) return [];
+		$to = array();
+		$list_names = array();
+		if ($list_ids == null) return array();
 		// use $done to track emails that have already been added
 		$done = [];
 
