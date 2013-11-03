@@ -118,7 +118,13 @@ class TeamDataMailer extends TeamDataBase {
 	}
 
 	protected function build_mailer($options,$mailer = null) {
-		if (!$mailer) $mailer = new PHPMailer();
+		if (!$mailer) {
+			$mailer = new PHPMailer();
+		}
+		else { // make sure we clean up the existing $mailer
+			$mailer->ClearAllRecipients();
+			$mailer->ClearReplyTos();
+		}
 		foreach ($options as $prop_name => $prop_value) {
 			$mailer->{$prop_name} = $prop_value;
 		}
