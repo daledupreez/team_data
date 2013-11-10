@@ -637,7 +637,13 @@ team_data.api.member_search.updateMemberHandler = function member_search_updateM
 
 team_data.api.match = {
 	"fields": [ 'time', 'level', 'is_league', 'is_postseason', 'our_score', 'opposition_score', 'result', 'comment' ],
-	"sharedFields": [ 'date', 'opposition', 'venue', 'season', 'tourney_name' ]
+	"sharedFields": [ 'date', 'opposition', 'venue', 'season', 'tourney_name' ],
+	"optionalFields": {
+		"our_score": true,
+		"opposition_score": true,
+		"result": true,
+		"comment": true
+	}
 };
 team_data.api.match.allFields = team_data.api.match.sharedFields.concat(team_data.api.match.fields, [ 'id' ]);
 
@@ -778,7 +784,7 @@ team_data.api.match.editScoreHandler = function match_editScoreHandler(saveResul
 team_data.api.match.fieldIsRequired = function match_fieldIsRequired(fieldName)
 {
 	var required = true;
-	if ((fieldName == 'our_score') || (fieldName == 'opposition_score')) required = false;
+	if (team_data.api.match.optionsFields[fieldName]) required = false;
 	return required;
 }
 
