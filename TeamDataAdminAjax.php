@@ -990,6 +990,7 @@ class TeamDataAdminAjax extends TeamDataAjax {
 				$clean_match[$field_name] = $match[$field_name];
 			}
 		}
+		$this->debug('$match = ' . json_encode($match) . "\n" . '$clean_match = ' . json_encode($clean_match));
 		return $clean_match;
 	}
 
