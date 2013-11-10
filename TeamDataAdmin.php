@@ -467,6 +467,13 @@ class TeamDataAdmin extends TeamDataBase {
 							<input id="team_data_options_edit__email_enabled_orig" type="checkbox" style="display: none;" <?php if ($email_enabled) { echo 'checked="checked"'; } ?> />
 						</td>
 					</tr>
+					<tr>
+						<td><label for="team_data_options_edit__debug_mode"><?php echo esc_html(__('Enable Debugging','team_data')); ?></label></td>
+						<td>
+							<input id="team_data_options_edit__debug_mode" class="team_data_admin_checkbox" name="options_debug_mode" type="checkbox" <?php $debug_mode = ($this->get_option('debug_mode') == '1' ? true : false); if ($debug_mode) { echo 'checked="checked"'; } ?> />
+							<input id="team_data_options_edit__debug_mode_orig" type="checkbox" style="display: none;" <?php if ($debug_mode) { echo 'checked="checked"'; } ?> />
+						</td>
+					</tr>
 				</table>
 			</form>
 			<div class="team_data_buttonDiv">

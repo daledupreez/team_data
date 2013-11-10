@@ -16,12 +16,13 @@ class TeamDataBase {
 
 	public $permitted_options;
 
-	public $debug_flag = true;
+	public $debug_flag = false;
 
 	public function __construct() {
 		$this->tables = new TeamDataTables();
-		$this->permitted_options = array( 'version', 'max_matches', 'current_season', 'our_team', 'email_enabled', 'allow_all_member_mail', 'html_template',
+		$this->permitted_options = array( 'version', 'max_matches', 'current_season', 'our_team', 'email_enabled', 'allow_all_member_mail', 'html_template', 'debug_mode',
 			'text_footer', 'email_from', 'email_from_name', 'email_prefix', 'email_summary_to', 'use_smtp', 'smtp_server', 'smtp_port', 'smtp_conn_sec', 'smtp_user', 'smtp_password' );
+		$this->debug_flag = ($this->get_option('debug_mode') == '1');
 	}
 
 	public function add_actions() {
