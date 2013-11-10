@@ -784,7 +784,7 @@ team_data.api.match.editScoreHandler = function match_editScoreHandler(saveResul
 team_data.api.match.fieldIsRequired = function match_fieldIsRequired(fieldName)
 {
 	var required = true;
-	if (team_data.api.match.optionsFields[fieldName]) required = false;
+	if (team_data.api.match.optionalFields[fieldName]) required = false;
 	return required;
 }
 
