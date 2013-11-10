@@ -985,7 +985,7 @@ class TeamDataAdminAjax extends TeamDataAjax {
 			'season_id' => '',
 			'comment' => '',
 		);
-		foreach ($match as $field_name) {
+		foreach ($clean_match as $field_name) {
 			if ( isset($match[$field_name]) ) {
 				$clean_match[$field_name] = $match[$field_name];
 			}
