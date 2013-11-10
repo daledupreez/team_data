@@ -985,12 +985,14 @@ class TeamDataAdminAjax extends TeamDataAjax {
 			'season_id' => '',
 			'comment' => '',
 		);
+		$debug = array();
 		foreach ($clean_match as $field_name) {
+			$debug[] = $field_name . ' = ' . isset($match[$field_name]);
 			if ( isset($match[$field_name]) ) {
 				$clean_match[$field_name] = $match[$field_name];
 			}
 		}
-		$this->debug('$match = ' . json_encode($match) . "\n" . '$clean_match = ' . json_encode($clean_match));
+		$this->debug('$match = ' . json_encode($match) . "\n" . '$clean_match = ' . json_encode($clean_match) . "\n" . '$debug = ' . json_encode($debug));
 		return $clean_match;
 	}
 
