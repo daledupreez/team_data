@@ -979,16 +979,22 @@ class TeamDataAdminAjax extends TeamDataAjax {
 			'is_postseason' => '0',
 			'opposition_id' => '',
 			'tourney_name' => '',
+			'season_id' => '',
+			'result' => '',
+			'comment' => '',
 			'our_score' => null,
 			'opposition_score' => null,
-			'result' => '',
-			'season_id' => '',
-			'comment' => '',
 		);
 		foreach ($clean_match as $field_name => $field_value) {
 			if ( isset($match[$field_name]) ) {
 				$clean_match[$field_name] = $match[$field_name];
 			}
+		}
+		if ( empty($clean_match['our_score'] ) ) {
+			$clean_match['our_score'] = null;
+		}
+		if ( empty($clean_match['opposition_score'] ) ) {
+			$clean_match['opposition_score'] = null;
 		}
 		return $clean_match;
 	}

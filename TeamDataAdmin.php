@@ -729,9 +729,9 @@ jQuery('.team_data_select_image_button').live('click', function( event ){
 		}
 		$matchCount = $wpdb->get_var($count_sql);
 
-		if ($matchCount > 1) {
-			$pageNum = 0;
-			$pageSize = 20;
+		$pageNum = 0;
+		$pageSize = 20;
+		if ($matchCount > 0) {
 			$maxPage = ceil($matchCount/$pageSize) - 1;
 			if (isset($_GET['fixturePage'])) {
 				$pageNum = intval( $_GET['fixturePage'] );
