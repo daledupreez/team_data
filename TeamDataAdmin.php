@@ -116,7 +116,7 @@ class TeamDataAdmin extends TeamDataBase {
 		}
 		return $level_data;
 	}
-	
+
 	public function render_email() {
 		global $wpdb;
 
@@ -708,20 +708,33 @@ jQuery('.team_data_select_image_button').live('click', function( event ){
 	private function render_match_list() {
 		global $wpdb;
 		$tables = $this->tables;
-		
-		echo '<h2>' . __('Available Fixtures', 'team_data') . '</h2>';
 
-		$matchCount = $wpdb->get_var("SELECT COUNT(*) As matchCount FROM $tables->match");
-		
-		if ($matchCount < 1) {
-			echo __('No results found', 'team_data');
+		echo '<h2>' . esc_html(__('Available Fixtures', 'team_data')) . '</h2>';
+
+		$season_id = '';
+		if ( isset($_GET['seasonID']) ) {
+			$season_id = intval( $_GET['seasonID'] );
 		}
 		else {
+			$season_id = $this->get_option('current_season');
+		}
+
+		$helper = new TeamDataAjax();
+		$seasons = $helper->get_all_seasons();
+		$seasons = array_reverse($seasons,true);
+
+		$count_sql = $wpdb->prepare("SELECT COUNT(*) AS matchCount FROM $tables->match");
+		if ($season_id > 0) {
+			$count_sql = $wpdb->prepare($count_sql . ' WHERE season_id = %d', $season_id);
+		}
+		$matchCount = $wpdb->get_var($count_sql);
+
+		if ($matchCount > 1) {
 			$pageNum = 0;
 			$pageSize = 20;
 			$maxPage = ceil($matchCount/$pageSize) - 1;
 			if (isset($_GET['fixturePage'])) {
-				$pageNum = $_GET['fixturePage'];
+				$pageNum = intval( $_GET['fixturePage'] );
 			}
 			$limit = ' LIMIT ' . ($pageNum * $pageSize) . ', ' . $pageSize;
 			echo '<script type="text/javascript">';
@@ -729,97 +742,114 @@ jQuery('.team_data_select_image_button').live('click', function( event ){
 			echo "team_data.paging.resultCount = $matchCount;";
 			echo '</script>';
 
+			$season_where = ($season_id <= 0 ? '' : "AND m.season_id = $season_id");
 			$match_query = "SELECT m.id, m.season_id, CONCAT(s.year,' ',s.season) AS season, m.date, DATE_FORMAT(m.date,'%M %d, %Y') AS pretty_date, TIME_FORMAT(m.time,'%h:%i %p') AS time, m.venue_id, v.name AS venue_name, m.opposition_id, m.opposition_name, m.tourney_name, m.level_id, l.name AS level_name, m.our_score, m.opposition_score, m.result, m.is_league, m.is_postseason
 				FROM 
 					( SELECT match.id, match.season_id, match.date, match.time, match.venue_id, match.opposition_id, match.tourney_name, match.level_id, match.our_score, match.opposition_score, match.result, match.is_league, match.is_postseason, IF(match.opposition_id IS NULL, '', team.name) AS opposition_name
 						FROM $tables->match AS `match` LEFT OUTER JOIN $tables->team AS team ON match.opposition_id = team.id) m,
 						$tables->venue v, $tables->level l, $tables->season s
-				WHERE m.venue_id = v.id AND m.level_id = l.id AND m.season_id = s.id
+				WHERE m.venue_id = v.id AND m.level_id = l.id AND m.season_id = s.id $season_where
 				ORDER BY m.date DESC, m.time ASC" . $limit;
 			$this->debug('$match_query = ' . $match_query);
 
 			$matches = $wpdb->get_results($match_query);
-			if (count($matches) < 1) {
-				echo __('No results found', 'team_data');
-			}
-			else {
+			$matchCount = count($matches);
+			if (count($matches) > 0) {
 				$back_disabled = ($pageNum == 0 ? 'disabled="disabled" ' : '');
 				$next_disabled = ($pageNum == $maxPage ? 'disabled="disabled" ' : '');
 				echo '<input class="team_data_button" id="team_data_start" type="button" value="' . esc_attr(__('First Page', 'team_data')) . '" ' . $back_disabled . 'onclick="team_data.fn.changePage(false,true);" />';
 				echo '<input class="team_data_button" id="team_data_prev" type="button" value="' . esc_attr(__('Previous', 'team_data')) . '" ' . $back_disabled . 'onclick="team_data.fn.changePage(false,false);" />';
 				echo '<input class="team_data_button" id="team_data_next" type="button" value="' . esc_attr(__('Next', 'team_data')) . '" ' . $next_disabled . 'onclick="team_data.fn.changePage(true,false);" />';
 				echo '<input class="team_data_button" id="team_data_end" type="button" value="' . esc_attr(__('Last Page', 'team_data')) . '" ' . $next_disabled . 'onclick="team_data.fn.changePage(true,true);" />';
-				echo '<div id="team_data_page_info">';
-				printf(esc_html(__('Displaying page %1$s of %2$s')), $pageNum + 1, ceil($matchCount/$pageSize));
-				echo '</div>';
-				echo '<table class="team_data_table team_data_matches">';
-				echo '<tr>';
-				echo '<th>' . esc_html(__('Season', 'team_data')) . '</th>';
-				echo '<th>' . esc_html(__('Date', 'team_data')) . '</th>';
-				echo '<th>' . esc_html(__('Time', 'team_data')) . '</th>';
-				echo '<th>' . esc_html(__('Opponent', 'team_data')) . '</th>';
-				echo '<th>' . esc_html(__('Level', 'team_data')) . '</th>';
-				echo '<th>' . esc_html(__('Venue', 'team_data')) . '</th>';
-				echo '<th>' . esc_html(__('League','team_data')) . '/<br/>' . __('Playoffs', 'team_data') . '</th>';
-				echo '<th>' . esc_html(__('Score/Result', 'team_data')) . '</th>';
-				echo '<th>&nbsp;</th>';
-				echo '</tr>';
-				foreach ($matches as $match) {
-					echo '<tr id="team_data_match_row_' . $match->id . '">';
-					echo '<td>' . esc_html($match->season) . '</td>';
-					echo '<td>' . esc_html($match->pretty_date) . '</td>';
-					echo '<td>' . esc_html($match->time) . '</td>';
-					echo '<td>' . esc_html(( $match->opposition_name != '' ? $match->opposition_name : $match->tourney_name )) . '</td>';
-					echo '<td>' . esc_html($match->level_name) . '</td>';
-					echo '<td>' . esc_html($match->venue_name) . '</td>';
-					echo '<td>' . ($match->is_league == '1' ? 'L' : ($match->is_postseason == '1' ? 'P' : '&nbsp;')) . '</td>';
-					
-					$match_result = $this->get_match_result_string($match->our_score,$match->opposition_score,$match->result);
-					echo '<td>';
-						echo '<div id="team_data_edit__score_display_' . $match->id . '">';
-							echo (($match_result == '') ? '&nbsp;-&nbsp;' : esc_html($match_result));
-						echo '</div>';
-						echo '<form id="team_data_edit__score_edit_' . $match->id . '" style="display: none;">';
-							echo '<input id="team_data_edit__score_edit_' . $match->id . '_our" class="team_data_input" placeholder="' . esc_attr(__('ours','team_data')) . '" name="score_our_score" type="text" size="3" value="' . (($match->our_score == null) || ($match->our_score == '') ? '' : esc_attr($match->our_score)) . '"/>';
-							echo '&nbsp;';
-							echo '<input id="team_data_edit__score_edit_' . $match->id . '_opposition" class="team_data_input" placeholder="' . esc_attr(__('theirs','team_data')) . '" name="score_opposition_score" type="text" size="3" value="' . (($match->opposition_score == null) || ($match->opposition_score == '') ? '' : esc_attr($match->opposition_score)) . '"/>';
-							echo '<input id="team_data_edit_score_edit_' . $match->id . '_result" class="team_data_input" placeholder="' . esc_attr(__('result','team_data')) . '" name="score_result" type="text" size="1" value="' . (($match->result == null) || ($match->result == '') ? '' : esc_attr($match->result)) . '"/>';
-						echo '</form>';
-					echo '</td>';
-					echo '<td>';
-						echo '<input class="team_data_edit_button" type="button" id="team_data_edit_match_score_' . $match->id . '" onclick="team_data.api.match.toggleScoreControls(' . $match->id . ',true);" value="' . esc_attr(__('Edit Score', 'team_data')) . '" />';
-						echo '<input class="team_data_edit_button" type="button" id="team_data_edit_match_score_save_' . $match->id . '" style="display: none;" onclick="team_data.api.match.editScore(' . $match->id . ');" value="' . esc_attr(__('Save Score', 'team_data')) . '" />';
-						echo '&nbsp;&nbsp;';
-						echo '<input class="team_data_edit_button" type="button" id="team_data_edit_match_' . $match->id . '" onclick="team_data.api.match.editMatch(' . $match->id . ');" value="' . esc_attr(__('Edit', 'team_data')) . '" />';
-					echo '</td>';
-					echo '</tr>';
-				}
-				echo '</table>';
-				echo '';
-				echo '<script type="text/javascript">' . "\n";
-				foreach ($matches as $match) {
-					$our_score = ($match->our_score == null ? 'null' : $match->our_score);
-					$opposition_score = ($match->opposition_score == null ? 'null' : $match->opposition_score);
-					echo "team_data.matchData[$match->id] = { \"date\": \"$match->date\", \"time\": \"$match->time\", \"venue\": \"$match->venue_name\", \"team\": \"$match->opposition_id\", \"tourney_name\": \"$match->tourney_name\", \"level\": \"$match->level_id\", \"our_score\": $our_score, \"opposition_score\": $opposition_score, \"stat\": { ";
-					
-					$stats = $wpdb->get_results("SELECT ms.id, ms.member_id, ms.stat_id, s.name as stat_name, CASE s.value_type WHEN '0' THEN ms.stat_intvalue WHEN '1' THEN ms.stat_stringvalue ELSE NULL END AS stat_value FROM $tables->stat s, $tables->match_stat ms WHERE ms.match_id = $match->id AND ms.stat_id = s.id");
-					$first_stat = true;
-					foreach ($stats as $stat) {
-						if ($first_stat) {
-							$first_stat = false;
-						}
-						else {
-							echo ",\n";
-						}
-						
-						/* TODO
-						echo "\"$stat->id\": { \"member\": $stat->member_id, \"tries\": $scorer->tries, \"conversions\": $scorer->conversions, \"penalties\": $scorer->penalties, \"drop_goals\": $scorer->drop_goals }";
-						*/
-					}
-					echo " } };\n";
-				}
-				echo '</script>';
 			}
+		}
+		// render season selection irrespective of whether we have any matches
+		$all_selected = ($season_id == 0 ? 'selected="selected"' : '');
+		?><div class="team_data_select">
+			<label for="team_data_season_select"><?php echo esc_html(__('Season', 'team_data')); ?></label>
+			<select id="team_data_season_select" class="team_data_select" onchange="team_data.fn.selectSeason(this.value);">
+				<option value="0" <?php echo $all_selected; ?>><?php echo esc_html(__('All','team_data')); ?></option>
+		<?php
+		foreach ($seasons as $season) {
+			$selected = ($season_id == $season['id'] ? ' selected="selected"' : '');
+			echo '<option value="' . $season['id'] . '"' . $selected . '>' . esc_html($season['name']) . '</option>' . "\n";
+		}
+		?></select>
+		</div>
+		<?php
+		if ($matchCount < 1) {
+			echo esc_html(__('No results found', 'team_data'));
+		}
+		else {
+			echo '<div id="team_data_page_info">';
+			printf(esc_html(__('Displaying page %1$s of %2$s')), $pageNum + 1, ceil($matchCount/$pageSize));
+			echo '</div>';
+			echo '<table class="team_data_table team_data_matches">';
+			echo '<tr>';
+			echo '<th>' . esc_html(__('Season', 'team_data')) . '</th>';
+			echo '<th>' . esc_html(__('Date', 'team_data')) . '</th>';
+			echo '<th>' . esc_html(__('Time', 'team_data')) . '</th>';
+			echo '<th>' . esc_html(__('Opponent', 'team_data')) . '</th>';
+			echo '<th>' . esc_html(__('Level', 'team_data')) . '</th>';
+			echo '<th>' . esc_html(__('Venue', 'team_data')) . '</th>';
+			echo '<th>' . esc_html(__('League','team_data')) . '/<br/>' . __('Playoffs', 'team_data') . '</th>';
+			echo '<th>' . esc_html(__('Score/Result', 'team_data')) . '</th>';
+			echo '<th>&nbsp;</th>';
+			echo '</tr>';
+			foreach ($matches as $match) {
+				echo '<tr id="team_data_match_row_' . $match->id . '">';
+				echo '<td>' . esc_html($match->season) . '</td>';
+				echo '<td>' . esc_html($match->pretty_date) . '</td>';
+				echo '<td>' . esc_html($match->time) . '</td>';
+				echo '<td>' . esc_html(( $match->opposition_name != '' ? $match->opposition_name : $match->tourney_name )) . ($match->comment != '' ? ' (' . esc_html($match->comment) . ')' : '') . '</td>';
+				echo '<td>' . esc_html($match->level_name) . '</td>';
+				echo '<td>' . esc_html($match->venue_name) . '</td>';
+				echo '<td>' . ($match->is_league == '1' ? 'L' : ($match->is_postseason == '1' ? 'P' : '&nbsp;')) . '</td>';
+				
+				$match_result = $this->get_match_result_string($match->our_score,$match->opposition_score,$match->result);
+				echo '<td>';
+					echo '<div id="team_data_edit__score_display_' . $match->id . '">';
+						echo (($match_result == '') ? '&nbsp;-&nbsp;' : esc_html($match_result));
+					echo '</div>';
+					echo '<form id="team_data_edit__score_edit_' . $match->id . '" style="display: none;">';
+						echo '<input id="team_data_edit__score_edit_' . $match->id . '_our" class="team_data_input" placeholder="' . esc_attr(__('ours','team_data')) . '" name="score_our_score" type="text" size="3" value="' . (($match->our_score == null) || ($match->our_score == '') ? '' : esc_attr($match->our_score)) . '"/>';
+						echo '&nbsp;';
+						echo '<input id="team_data_edit__score_edit_' . $match->id . '_opposition" class="team_data_input" placeholder="' . esc_attr(__('theirs','team_data')) . '" name="score_opposition_score" type="text" size="3" value="' . (($match->opposition_score == null) || ($match->opposition_score == '') ? '' : esc_attr($match->opposition_score)) . '"/>';
+						echo '<input id="team_data_edit_score_edit_' . $match->id . '_result" class="team_data_input" placeholder="' . esc_attr(__('result','team_data')) . '" name="score_result" type="text" size="1" value="' . (($match->result == null) || ($match->result == '') ? '' : esc_attr($match->result)) . '"/>';
+					echo '</form>';
+				echo '</td>';
+				echo '<td>';
+					echo '<input class="team_data_edit_button" type="button" id="team_data_edit_match_score_' . $match->id . '" onclick="team_data.api.match.toggleScoreControls(' . $match->id . ',true);" value="' . esc_attr(__('Edit Score', 'team_data')) . '" />';
+					echo '<input class="team_data_edit_button" type="button" id="team_data_edit_match_score_save_' . $match->id . '" style="display: none;" onclick="team_data.api.match.editScore(' . $match->id . ');" value="' . esc_attr(__('Save Score', 'team_data')) . '" />';
+					echo '&nbsp;&nbsp;';
+					echo '<input class="team_data_edit_button" type="button" id="team_data_edit_match_' . $match->id . '" onclick="team_data.api.match.editMatch(' . $match->id . ');" value="' . esc_attr(__('Edit', 'team_data')) . '" />';
+				echo '</td>';
+				echo '</tr>';
+			}
+			echo '</table>';
+			echo '<script type="text/javascript">' . "\n";
+			foreach ($matches as $match) {
+				$our_score = ($match->our_score == null ? 'null' : $match->our_score);
+				$opposition_score = ($match->opposition_score == null ? 'null' : $match->opposition_score);
+				echo "team_data.matchData[$match->id] = { \"date\": \"$match->date\", \"time\": \"$match->time\", \"venue\": \"$match->venue_name\", \"team\": \"$match->opposition_id\", \"tourney_name\": \"$match->tourney_name\", \"level\": \"$match->level_id\", \"our_score\": $our_score, \"opposition_score\": $opposition_score, \"stat\": { ";
+				
+				$stats = $wpdb->get_results("SELECT ms.id, ms.member_id, ms.stat_id, s.name as stat_name, CASE s.value_type WHEN '0' THEN ms.stat_intvalue WHEN '1' THEN ms.stat_stringvalue ELSE NULL END AS stat_value FROM $tables->stat s, $tables->match_stat ms WHERE ms.match_id = $match->id AND ms.stat_id = s.id");
+				$first_stat = true;
+				foreach ($stats as $stat) {
+					if ($first_stat) {
+						$first_stat = false;
+					}
+					else {
+						echo ",\n";
+					}
+					
+					/* TODO
+					echo "\"$stat->id\": { \"member\": $stat->member_id, \"tries\": $scorer->tries, \"conversions\": $scorer->conversions, \"penalties\": $scorer->penalties, \"drop_goals\": $scorer->drop_goals }";
+					*/
+				}
+				echo " } };\n";
+			}
+			echo '</script>';
 		}
 		$this->render_match_edit_div($wpdb,false);
 	}
@@ -884,12 +914,20 @@ jQuery('.team_data_select_image_button').live('click', function( event ){
 					echo '<input id="team_data_match_edit__opposition_score" class="team_data_edit_input" name="match_opposition_score" type="text" size="3" />';
 				echo '</div>';
 				echo '<div class="team_data_inline">';
+					echo '<label for="team_data_match_edit__result" class="team_data_edit_label">' . esc_html(__('Result','team_data')) . '</label>';
+					echo '<input id="team_data_match_edit__result" class="team_data_edit_input" name="match_result" type="text" size="10" />';
+				echo '</div>';
+				echo '<div class="team_data_inline">';
 					echo '<label for="team_data_match_edit__is_league" class="team_data_edit_label">' . esc_html(__('League?','team_data')) . '</label>';
 					echo '<input id="team_data_match_edit__is_league" class="team_data_admin_checkbox" name="match_is_league" type="checkbox" />';
 				echo '</div>';
 				echo '<div class="team_data_inline">';
 					echo '<label for="team_data_match_edit__is_postseason" class="team_data_edit_label">' . esc_html(__('Playoffs?','team_data')) . '</label>';
 					echo '<input id="team_data_match_edit__is_postseason" class="team_data_admin_checkbox" name="match_is_postseason" type="checkbox" />';
+				echo '</div>';
+				echo '<div class="team_data_inline">';
+					echo '<label for="team_data_match_edit__comment" class="team_data_edit_label">' . esc_html(__('Comment/Tournament/Competition','team_data')) . '</label>';
+					echo '<input id="team_data_match_edit__comment" class="team_data_edit_input" name="match_comment" type="text" size="20" />';
 				echo '</div>';
 			echo '</form>';
 			echo '<input class="team_data_edit_button" type="button" id="team_data_edit_match_save" onclick="team_data.api.match.saveMatch();" value="' . esc_attr(__('Save', 'team_data')) . '" />';

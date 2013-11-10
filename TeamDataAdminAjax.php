@@ -120,7 +120,8 @@ class TeamDataAdminAjax extends TeamDataAjax {
 				foreach($matches as $match) {
 					$match_count = $match_count + 1;
 					if ($this->is_valid_match($match,false)) {
-						$insertOK = $wpdb->insert($this->tables->match,$match);
+						$clean_match = $this->clean_match($match);
+						$insertOK = $wpdb->insert($this->tables->match,$clean_match);
 						if ($insertOK) {
 							$any_good = true;
 							$response_data['results'][] = $wpdb->insert_id;
@@ -212,7 +213,9 @@ class TeamDataAdminAjax extends TeamDataAjax {
 			'tourney_name' => '',
 			'our_score' => '',
 			'opposition_score' => '',
+			'result' => '',
 			'season_id' => '',
+			'comment' => '',
 		);
 		$match_id = $this->get_post_values($fields);
 		// remove our_score and opposition_score if not set
@@ -957,6 +960,37 @@ class TeamDataAdminAjax extends TeamDataAjax {
 		else {
 			echo 'null';
 		}
+	}
+
+	/**
+	 * Protected helper function to ensure that the match JSON passed in doesn't contain any extra fields
+	 *
+	 * @param array $match Array of key/value pairs passed in to represent a match
+	 * @return array $clean_match Array containing scrubbed key/value pairs
+	 */
+	protected function clean_match($match) {
+		$clean_match = array(
+			'id' => '',
+			'date' => '',
+			'time' => '',
+			'venue_id' => '',
+			'level_id' => '',
+			'is_league' => '0',
+			'is_postseason' => '0',
+			'opposition_id' => '',
+			'tourney_name' => '',
+			'our_score' => null,
+			'opposition_score' => null,
+			'result' => '',
+			'season_id' => '',
+			'comment' => '',
+		);
+		foreach ($match as $field_name) {
+			if ( isset($match[$field_name]) ) {
+				$clean_match[$field_name] = $match[$field_name];
+			}
+		}
+		return $clean_match;
 	}
 
 }

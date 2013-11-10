@@ -135,6 +135,7 @@ class TeamDataInstaller extends TeamDataBase {
 				season_id INT NOT NULL,
 				result VARCHAR(20) NOT NULL DEFAULT '',
 				tourney_name VARCHAR(150) DEFAULT '',
+				comment VARCHAR(150) DEFAULT '',
 				PRIMARY KEY  (id)
 			) $charset_collate";
 			$all_sql = $all_sql . $sql_sep . $sql_part;

@@ -636,7 +636,7 @@ team_data.api.member_search.updateMemberHandler = function member_search_updateM
 }
 
 team_data.api.match = {
-	"fields": [ 'time', 'level', 'is_league', 'is_postseason', 'our_score', 'opposition_score' ],
+	"fields": [ 'time', 'level', 'is_league', 'is_postseason', 'our_score', 'opposition_score', 'result', 'comment' ],
 	"sharedFields": [ 'date', 'opposition', 'venue', 'season', 'tourney_name' ]
 };
 team_data.api.match.allFields = team_data.api.match.sharedFields.concat(team_data.api.match.fields, [ 'id' ]);
@@ -1226,7 +1226,7 @@ team_data.fn.changePage = function(forward,gotoEnd)
 		}
 	}
 	if (gotoEnd) {
-		pageNum = !forward ? 0 : Math.floor(team_data.paging.resultCount/team_data.paging.pageSize);
+		pageNum = !forward ? 0 : Math.floor(team_data.paging.resultCount/team_data.paging.pageSize)-1;
 	}
 	else {
 		pageNum = pageNum + (forward ? 1 : -1);
@@ -1234,7 +1234,27 @@ team_data.fn.changePage = function(forward,gotoEnd)
 	if (pageNum > 0) {
 		newQuery.push('fixturePage='+pageNum);
 	}
-	document.location = url + '?' + newQuery.join('&');
+	document.location.assign(url + '?' + newQuery.join('&'));
+}
+
+team_data.fn.selectSeason = function(newSeason)
+{
+	if ((typeof newSeason == 'undefined') || (newSeason === null)) {
+		newSeason = '';
+	}
+	var url = document.location.pathname.toString().split('/').pop();
+	var query = document.location.search;
+	if (query.charAt(0) == '?') query = query.substring(1);
+	query = query.split('&');
+	var newQuery = [];
+	for (var i = 0; i < query.length; i++) {
+		var currPair = String(query[i]);
+		if ((currPair.indexOf('seasonID=') != 0) && (currPair.indexOf('fixturePage=') != 0)) {
+			newQuery.push(query[i]);
+		}
+	}
+	newQuery.push('seasonID=' + newSeason);
+	document.location.assign(url + '?' + newQuery.join('&'));
 }
 
 team_data.fn.escapeHTML = function(str)

@@ -135,11 +135,12 @@ class TeamDataAjax extends TeamDataBase {
 			"match.result AS result",
 			"IF(venue.abbreviation = '', venue.name, venue.abbreviation) AS venue",
 			"(venue.is_home = 1) AS is_home",
+			"match.comment AS comment",
 		);
 
 		$sql_from = array(
 			$this->tables->season . ' AS season',
-			"( SELECT m.season_id, m.level_id, m.venue_id, m.date, m.time, m.tourney_name, m.our_score, m.opposition_score, m.result, IF(m.opposition_id IS NULL, '', t.name) AS team FROM " . $this->tables->match . ' m LEFT OUTER JOIN ' . $this->tables->team . ' t ON m.opposition_id = t.id ) AS `match`',
+			"( SELECT m.season_id, m.level_id, m.venue_id, m.date, m.time, m.tourney_name, m.our_score, m.opposition_score, m.result, m.comment, IF(m.opposition_id IS NULL, '', t.name) AS team FROM " . $this->tables->match . ' m LEFT OUTER JOIN ' . $this->tables->team . ' t ON m.opposition_id = t.id ) AS `match`',
 			$this->tables->level . ' AS level',
 			$this->tables->venue . ' AS venue',
 		);
@@ -153,7 +154,7 @@ class TeamDataAjax extends TeamDataBase {
 		$sql = 'SELECT ' . implode(', ',$sql_select) . ' FROM ' . implode(', ',$sql_from) . ' WHERE ' . implode(' AND ',$sql_where);
 		$where_data = $this->build_where($conditions);
 		$sql_sub_where = implode(' AND ',$where_data['statement']);
-		if ($sql_sub_where <> '') {
+		if ($sql_sub_where != '') {
 			$sql = $wpdb->prepare($sql . ' AND ' . $sql_sub_where, $where_data['args']);
 		}
 		$sql .= ' ORDER BY match.date ASC, match.time ASC';
