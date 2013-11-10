@@ -712,7 +712,7 @@ jQuery('.team_data_select_image_button').live('click', function( event ){
 		echo '<h2>' . esc_html(__('Available Fixtures', 'team_data')) . '</h2>';
 
 		$season_id = '';
-		if ( isset($_GET['seasonID']) ) {
+		if ( isset($_GET['seasonID'] ) ) {
 			$season_id = intval( $_GET['seasonID'] );
 		}
 		else {
@@ -723,7 +723,7 @@ jQuery('.team_data_select_image_button').live('click', function( event ){
 		$seasons = $helper->get_all_seasons();
 		$seasons = array_reverse($seasons,true);
 
-		$count_sql = $wpdb->prepare("SELECT COUNT(*) AS matchCount FROM $tables->match");
+		$count_sql = "SELECT COUNT(*) AS matchCount FROM $tables->match";
 		if ($season_id > 0) {
 			$count_sql = $wpdb->prepare($count_sql . ' WHERE season_id = %d', $season_id);
 		}
@@ -764,7 +764,7 @@ jQuery('.team_data_select_image_button').live('click', function( event ){
 			}
 		}
 		// render season selection irrespective of whether we have any matches
-		$all_selected = ($season_id == 0 ? 'selected="selected"' : '');
+		$all_selected = ($season_id === 0 ? 'selected="selected"' : '');
 		?><div class="team_data_select">
 			<label for="team_data_season_select"><?php echo esc_html(__('Season', 'team_data')); ?></label>
 			<select id="team_data_season_select" class="team_data_select" onchange="team_data.fn.selectSeason(this.value);">
