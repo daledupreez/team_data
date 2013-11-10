@@ -753,13 +753,17 @@ jQuery('.team_data_select_image_button').live('click', function( event ){
 			$this->debug('$match_query = ' . $match_query);
 
 			$matches = $wpdb->get_results($match_query);
-			if (count($matches) > 0) {
+			$pageCount = count($matches);
+			if ($pageCount > 0) {
 				$back_disabled = ($pageNum == 0 ? 'disabled="disabled" ' : '');
 				$next_disabled = ($pageNum == $maxPage ? 'disabled="disabled" ' : '');
 				echo '<input class="team_data_button" id="team_data_start" type="button" value="' . esc_attr(__('First Page', 'team_data')) . '" ' . $back_disabled . 'onclick="team_data.fn.changePage(false,true);" />';
 				echo '<input class="team_data_button" id="team_data_prev" type="button" value="' . esc_attr(__('Previous', 'team_data')) . '" ' . $back_disabled . 'onclick="team_data.fn.changePage(false,false);" />';
 				echo '<input class="team_data_button" id="team_data_next" type="button" value="' . esc_attr(__('Next', 'team_data')) . '" ' . $next_disabled . 'onclick="team_data.fn.changePage(true,false);" />';
 				echo '<input class="team_data_button" id="team_data_end" type="button" value="' . esc_attr(__('Last Page', 'team_data')) . '" ' . $next_disabled . 'onclick="team_data.fn.changePage(true,true);" />';
+			}
+			else {
+				$matchCount = 0;
 			}
 		}
 		// render season selection irrespective of whether we have any matches
