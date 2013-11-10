@@ -982,8 +982,8 @@ class TeamDataAdminAjax extends TeamDataAjax {
 			'season_id' => '',
 			'result' => '',
 			'comment' => '',
-			'our_score' => null,
-			'opposition_score' => null,
+			'our_score' => '',
+			'opposition_score' => '',
 		);
 		foreach ($clean_match as $field_name => $field_value) {
 			if ( isset($match[$field_name]) ) {
@@ -991,10 +991,10 @@ class TeamDataAdminAjax extends TeamDataAjax {
 			}
 		}
 		if ( empty($clean_match['our_score'] ) ) {
-			$clean_match['our_score'] = null;
+			unset($clean_match['our_score']);
 		}
 		if ( empty($clean_match['opposition_score'] ) ) {
-			$clean_match['opposition_score'] = null;
+			unset($clean_match['opposition_score']);
 		}
 		return $clean_match;
 	}
