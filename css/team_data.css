@@ -1,3 +1,6 @@
+.team_data_content {
+	background-color: #F0F0F0;
+}
 input.team_data_button[type="button"],
 input.team_data_edit_button[type="button"],
 input.team_data_button[type="submit"],
@@ -159,4 +162,7 @@ input.team_data_checkbox {
 .ui-widget textarea,
 .ui-widget button {
 	font-family: sans-serif;
+}
+.no-close .ui-dialog-titlebar-close {
+	display: none;
 }

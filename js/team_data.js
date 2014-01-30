@@ -241,6 +241,24 @@ team_data.api.email.getFields = function email_getFields()
 {
 	return [ 'subject', 'message', 'list_id', 'replyto' ];
 }
+team_data.api.email.closeDialog = function email_closeDialog()
+{
+	jQuery("#team_data_send_email_dialog").close();
+}
+team_data.api.email.launchDialog = function email_launchDialog()
+{
+	var progressBar = document.getElementById('team_data_send_email_progress');
+	progressbar.style.display = '';
+	jQuery("#team_data_send_email_progress").progressbar( { value: false } );
+	var hideList = [ 'done', 'error', 'success' ];
+	for (var i = 0; i < hideList.length; i++) {
+		var el = document.getElementById('team_data_send_email_' + hideList[i]);
+		if (el) el.style.display = 'none';
+	}
+	var errEl = document.getElementById('team_data_send_email_error_message');
+	if (errEl) errEl.innerHTML = '';
+	jQuery("#team_data_send_email_dialog").open();
+}
 team_data.api.email.sendEmail = function email_sendEmail()
 {
 	var formPrefix = 'team_data_send_email_';
@@ -253,7 +271,28 @@ team_data.api.email.sendEmail = function email_sendEmail()
 			submitData[field] = team_data.fn.getControlValue(control);
 		}
 	}
-	jQuery.post(ajaxurl, submitData, function(sendResult) { alert(JSON.stringify(sendResult)); });
+	jQuery.post(ajaxurl, submitData, team_data.api.email.sendEmailHandler);
+}
+
+team_data.api.email.sendEmailHandler = function email_sendEmailHandler(sendResult)
+{
+	var toShow = 'error';
+	var error = '';
+	if (!sendResult){
+		error = team_data.fn.getLocText('An error occurred communication with the server. Your email may not have been sent successfully.');
+	}
+	else if (!sendResult.sent) {
+		error = team_data.fn.getLocText('The email could not be sent successfully. You may need to check your settings to be sure they are correct.');
+	}
+	else {
+		toShow = 'success';
+	}
+	var progressBar = document.getElementById('team_data_send_email_progress');
+	progressbar.style.display = 'none';
+	var showEl = document.getElementById('team_data_send_email_' + toShow);
+	if (showEl) showEl.style.display = '';
+	var doneDiv = document.getElementById('team_data_send_email_done');
+	if (doneDiv) doneDiv.style.display = '';
 }
 
 
@@ -387,6 +426,39 @@ team_data.api.member_search.clear = function member_search_clear()
 	this.render(team_data.member_data.members);
 }
 
+team_data.api.member_search.deleteMember = function member_search_deleteMember(memberID)
+{
+	memberID = parseInt(memberID,10);
+	if (isNaN(memberID) || !memberID) return;
+	var names = [];
+	var nameProps = [ 'first_name', 'last_name' ];
+	for (var i = 0; i < nameProps.length; i++) {
+		var ctrl = document.getElementById('member_search_edit_' + memberID + '__' + propNames[i]);
+		var val = (ctrl ? team_data.fn.getControlValue(ctrl) : '');
+		if (val) names.push(val);
+	}
+	var fullname = (names.length ? names.join(' ') : memberID);
+	var doDelete = confirm(team_data.fn.getLocText('Are you sure you want to delete the data for %1?').replace(/\%1/g,fullname));
+	if (!doDelete) return;
+	var postData = { "action": "team_data_delete_member", "id": memberID, "nonce": team_data_ajax.nonce };
+	jQuery.post(ajaxurl,postData,team_data.api.member_search.deleteMemberHandler);
+}
+
+team_data.api.member_search.deleteMemberHandler = function member_search_deleteMemberHandler(memberData)
+{
+	if (!memberData) return;
+	if (memberData.result == 'error') {
+		var msg = team_data.fn.getLocText('Error in delete');
+		if (memberData.error_message) msg += '\n' + memberData.error_message;
+		alert(msg);
+	}
+	else {
+		// update all members
+		team_data.api.member_search.getAllMembers();
+	}
+}
+
+
 team_data.api.member_search.editMember = function member_search_editMember(memberPos)
 {
 	memberPos = parseInt(memberPos,10);
@@ -416,7 +488,8 @@ team_data.api.member_search.getRowContents = function member_search_getRowConten
 	if (editable) {
 		html.push('<td>');
 		html.push('<input id="member_search_result_' + pos + '__update" type="button" class="team_data_button" onclick="team_data.api.member_search.updateMember(\'' + member.id + '\');" value="' + team_data.fn.getLocText('Save') + '"/>');
-		html.push('<input id="member_search_result_' + pos + '__cancel" type="button" class="team_data_button" onclick="team_data.api.member_search.render();" value="' + team_data.fn.getLocText('Discard') + '"/>')
+		html.push('<input id="member_search_result_' + pos + '__cancel" type="button" class="team_data_button" onclick="team_data.api.member_search.render();" value="' + team_data.fn.getLocText('Cancel') + '"/>');
+		html.push('<input id="member_search_result_' + pos + '__delete" type="button" class="team_data_button" onclick="team_data.api.member_search.deleteMember(\'' + member.id + '\');" value="' + team_data.fn.getLocText('Delete') + '"/>');
 		html.push('</td>');
 	}
 	else {
@@ -511,8 +584,8 @@ team_data.api.member_search.render = function member_search_render(members)
 		count++;
 		if (count == 50) {
 			html.push('<tr class="team_data_more_data">');
-			html.push('<td colspan="' + props.length + '">');
-			html.push(team_data.fn.getLocText('More members exist.') + 'nbsp;' + team_data.fn.getLocText('Use search criteria to narrow down results.'));
+			html.push('<td colspan="' + (props.length + 2) + '">');
+			html.push(team_data.fn.getLocText('More members exist.') + '&nbsp;' + team_data.fn.getLocText('Use search criteria to narrow down results.'));
 			html.push('</td></tr>');
 			break;
 		}

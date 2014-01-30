@@ -38,6 +38,7 @@ class TeamDataAdmin extends TeamDataBase {
 	}
 
 	public function render_matches() {	
+		echo '<div class="team_data_content">';
 		$this->render_match_list();
 
 ?>
@@ -101,6 +102,7 @@ class TeamDataAdmin extends TeamDataBase {
 			echo '<input id="team_data_new_tourney__save" class="team_data_button" type="button" value="' . __('Save Tournament', 'team_data') . '" onclick="team_data.api.match.saveNewMatches(true);" />';
 			echo '<input id="team_data_new_match__save" class="team_data_button" type="button" value="' . __('Save Matches', 'team_data') . '" onclick="team_data.api.match.saveNewMatches(false);" />';
 		echo '</div>';
+		echo '</div>'; // End team_data_content div
 	}
 	
 	private function get_levels() {
@@ -120,12 +122,14 @@ class TeamDataAdmin extends TeamDataBase {
 	public function render_email() {
 		global $wpdb;
 
+		echo '<div class="team_data_content">';
 		echo '<h2>' . __('Send Email', 'team_data') . '</h2>';
 		echo '<h4>' . __('Send email to configured TeamData lists', 'team_data') . '</h4>';
 
 		$email_enabled = $this->get_option('email_enabled');
 		if (empty($email_enabled)) {
 			echo '<span>' . __('Email is not currently enabled.', 'team_data') . '</span>';
+			echo '</div>';
 			return;
 		}
 		$email_prefix = $this->get_option('email_prefix');
@@ -163,11 +167,25 @@ class TeamDataAdmin extends TeamDataBase {
 				</div>
 			</form>
 			<input id="team_data_send_email__send" class="team_data_button" type="button" value="<?php echo __('Send email', 'team_data'); ?>" onclick="team_data.api.email.sendEmail();" />
+			<div id="team_data_send_email_dialog" title="<?php echo esc_attr(__('Sending Email...', 'team_data')); ?>">
+				<div><?php echo esc_html( __('Your email is being sent...', 'team_data') ); ?></div>
+				<div id="team_data_send_email_progress"></div>
+				<div id="team_data_send_email_done" style="display: none;">
+					<div id="team_data_send_email_success" style="display: none;"><?php echo esc_html( __('Email sent successfully!', 'team_data' ) ); ?></div>
+					<div id="team_data_send_email_error" style="display: none;">
+						<div><?php echo esc_html( __('Error sending email!', 'team_data' ) ); ?></div>
+						<div id="team_data_send_email_error_message"></div>
+					</div>
+					<div><button id="team_data_send_email_dialog_button" onclick="team_data.api.email.closeDialog();"><?php echo esc_html( __('OK', 'team_data') ); ?></button></div>
+				</div>
+			</div>
 		</div>
+	</div> <!-- end TeamData -->
 	<?php
 	}
 
 	public function render_members() {
+		echo '<div class="team_data_content">';
 		echo '<h2>' . __('Member Administration Page', 'team_data') . '</h2>';
 		echo '<h4>' . __('Manage the team membership.', 'team_data') . '</h4>'; ?>
 <div>
@@ -209,11 +227,13 @@ class TeamDataAdmin extends TeamDataBase {
 	</form>
 	<div id="team_data_members"></div>
 </div>
+</div> <!-- End team_data_content -->
 <?php // end render_members()
 	}
 
 	public function render_admin_main() {
 		global $wpdb;
+		echo '<div class="team_data_content">';
 		echo '<h2>' . __('Main TeamData Administration Page', 'team_data') . '</h2>';
 		echo '<div>' . __('Manage the main infrastructure for the TeamData plugin.','team_data') . '<br/>' . __('Each of the boxes below represents a list of available options to show when entering matches, stats, results or members.', 'team_data') . '</div>';
 ?>
@@ -598,6 +618,7 @@ class TeamDataAdmin extends TeamDataBase {
 <?php } // end if $email_enabled ?>
 
 </div>
+</div> <!-- end team_data_content -->
 <?php // end render_admin_main()
 	}
 
@@ -611,6 +632,9 @@ class TeamDataAdmin extends TeamDataBase {
 		wp_enqueue_script('jquery-ui-datepicker', $jquery_ui_dir . 'jquery.ui.datepicker.min.js', array('jquery', 'jquery-ui-core') );
 		wp_enqueue_script('jquery-ui-autocomplete', $jquery_ui_dir . 'jquery.ui.autocomplete.min.js', array('jquery', 'jquery-ui-core') );
 		wp_enqueue_script('jquery-ui-accordion', $jquery_ui_dir . 'jquery.ui.accordion.min.js', array('jquery', 'jquery-ui-core') );
+		wp_enqueue_script('jquery-ui-button', $jquery_ui_dir . 'jquery.ui.button.min.js', array('jquery', 'jquery-ui-core') );
+		wp_enqueue_script('jquery-ui-dialog', $jquery_ui_dir . 'jquery.ui.dialog.min.js', array('jquery', 'jquery-ui-core') );
+		wp_enqueue_script('jquery-ui-progressbar', $jquery_ui_dir . 'jquery.ui.progressbar.min.js', array('jquery', 'jquery-ui-core') );
 		wp_enqueue_script('team-data', plugins_url('js/team_data.js', __FILE__ ));
 		wp_enqueue_style('jquery.ui.theme', plugins_url('css/redmond/jquery-ui-1.8.23.custom.css', __FILE__ ));
 		wp_enqueue_style('team-data-css', plugins_url('css/team_data.css',__FILE__));
@@ -707,6 +731,13 @@ jQuery('.team_data_select_image_button').live('click', function( event ){
 	team_data_image_frame.team_data_control = this;
 });
 <?php		
+		}
+		else if ($page == 'email') {
+?>
+jQuery('#team_data_send_email_dialog').dialog( { dialogClass: "no-close", autoOpen: false, closeOnEscape: false, draggable: false, modal: true, resizable: false } );
+
+jQuery('#team_data_send_email_dialog_button').button();
+<?php
 		}
 		echo '} );' . $newline;
 		echo '</script>' . $newline;

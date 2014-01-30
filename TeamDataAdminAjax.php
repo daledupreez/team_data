@@ -28,6 +28,11 @@ class TeamDataAdminAjax extends TeamDataAjax {
 			add_action($ajax_prefix . 'put_' . $put_action, array( $this, 'put_' . $put_action . '_ajax'));
 		}
 
+		$delete_list = array( 'match', 'member' );
+		foreach ($delete_list as $delete_action) {
+			add_action($ajax_prefix . 'delete_' . $delete_action, array( $this, 'delete_' . $delete_action . '_ajax'));
+		}
+
 		// set_option
 		add_action($ajax_prefix . 'set_option', array($this, 'set_option_ajax'));
 
@@ -37,7 +42,6 @@ class TeamDataAdminAjax extends TeamDataAjax {
 		// match updates
 		add_action($ajax_prefix . 'update_score', array($this, 'update_score_ajax'));
 		add_action($ajax_prefix . 'update_match', array($this, 'update_match_ajax'));
-		add_action($ajax_prefix . 'delete_match', array($this, 'delete_match_ajax'));
 
 		add_action('wp_enqueue_scripts', array( $this, 'add_ajax_url' ) );
 
@@ -181,15 +185,7 @@ class TeamDataAdminAjax extends TeamDataAjax {
 			$response_data['error_message'] = sprintf(__("Property '%s' is required", 'team_data'),'id');
 		}
 		else {
-			$sql = $wpdb->prepare('DELETE FROM ' . $this->tables->match . ' WHERE id = %d', $match_id);
-			$showErrors = $wpdb->hide_errors();
-			$deleteOK = $wpdb->query($sql);
-			if ($deleteOK) {
-				$response_data['result'] = true;
-			}
-			else {
-				$response_data['error_message'] = $wpdb->last_error;
-			}
+			$this->run_delete($this->tables->match, $match_id, $response_data);
 		}
 
 		echo json_encode($response_data);
@@ -382,6 +378,27 @@ class TeamDataAdminAjax extends TeamDataAjax {
 
 		echo json_encode($response_data);
 		exit;
+	}
+
+	public function delete_member_ajax() {
+		header('Content-Type: application/json');
+		$fields = array(
+			'id' => '',
+		);
+		$member_id = $this->get_post_values($fields);
+
+		$response_data = array( "result" => "error" );
+		if (!$this->check_nonce()) {
+			$response_data['error_message'] = __("Invalid nonce", 'team_data');
+		}
+		elseif (!$member_id) { // id is required
+			$response_data['error_message'] = sprintf(__("Property '%s' is required", 'team_data'),'id');
+		}
+		else {
+			$this->run_delete($this->tables->member, $member_id, $response_data);
+		}
+
+		echo json_encode($response_data);
 	}
 
 	public function get_member_ajax() {
@@ -960,6 +977,21 @@ class TeamDataAdminAjax extends TeamDataAjax {
 		else {
 			echo 'null';
 		}
+	}
+
+	protected function run_delete( $table, $id_value, &$response_data ) {
+		global $wpdb;
+
+			$sql = $wpdb->prepare('DELETE FROM ' . $table . ' WHERE id = %d', $id_value);
+			$showErrors = $wpdb->hide_errors();
+			$deleteOK = $wpdb->query($sql);
+			if ($deleteOK) {
+				$response_data['result'] = true;
+			}
+			else {
+				$response_data['error_message'] = $wpdb->last_error;
+			}
+			if ($show_errors) $wpdb->show_errors();
 	}
 
 	/**
