@@ -1,5 +1,8 @@
 .team_data_content {
-	background-color: #F0F0F0;
+	background-color: #FAFAFA;
+	padding: 1em 2em;
+	margin: 1em;
+	border-radius: 10px;
 }
 input.team_data_button[type="button"],
 input.team_data_edit_button[type="button"],

@@ -433,7 +433,7 @@ team_data.api.member_search.deleteMember = function member_search_deleteMember(m
 	var names = [];
 	var nameProps = [ 'first_name', 'last_name' ];
 	for (var i = 0; i < nameProps.length; i++) {
-		var ctrl = document.getElementById('member_search_edit_' + memberID + '__' + propNames[i]);
+		var ctrl = document.getElementById('member_search_edit_' + memberID + '__' + nameProps[i]);
 		var val = (ctrl ? team_data.fn.getControlValue(ctrl) : '');
 		if (val) names.push(val);
 	}

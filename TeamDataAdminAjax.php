@@ -399,6 +399,7 @@ class TeamDataAdminAjax extends TeamDataAjax {
 		}
 
 		echo json_encode($response_data);
+		exit;
 	}
 
 	public function get_member_ajax() {
@@ -983,7 +984,7 @@ class TeamDataAdminAjax extends TeamDataAjax {
 		global $wpdb;
 
 			$sql = $wpdb->prepare('DELETE FROM ' . $table . ' WHERE id = %d', $id_value);
-			$showErrors = $wpdb->hide_errors();
+			$show_errors = $wpdb->hide_errors();
 			$deleteOK = $wpdb->query($sql);
 			if ($deleteOK) {
 				$response_data['result'] = true;
