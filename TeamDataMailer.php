@@ -88,7 +88,7 @@ class TeamDataMailer extends TeamDataBase {
 		$summary_to = $this->get_option('email_summary_to');
 		if ( !empty($summary_to) ) {
 			$mailer = $this->build_mailer($mail_config,$mailer);
-			$mailer->Subject = $subject;
+			$mailer->Subject = sprintf( __( 'Summary: %1$s' , 'team_data' ), $subject );
 			if ( !empty($options['From']) ) {
 				$mailer->From = $options['From'];
 				$mailer->FromName = ( !empty($options['FromName']) ? $options['FromName'] : $options['From'] );
@@ -101,7 +101,7 @@ class TeamDataMailer extends TeamDataBase {
 			$current_user = wp_get_current_user();
 			if (!empty($current_user)) $username = $current_user->user_login;
 			$summary_footer = "\r\n\r\n__________________________________\r\n" . __('Summary', 'team_data') . "\r\n";
-			$summary_footer .= sprintf(__('User %1$s sent email to %2$d out of %3$d recipients in the following lists: %4$s'),$username,$ok_count,count($to),implode($list_names,", "));
+			$summary_footer .= sprintf(__('User %1$s sent email to %2$d out of %3$d recipients in the following lists: %4$s', 'team_data'),$username,$ok_count,count($to),implode($list_names,", "));
 			$summary_text = $text_content . $summary_footer;
 
 			if ($html_content == '') {
