@@ -24,6 +24,8 @@ class TeamData_LastMatchWidget extends WP_Widget {
 		$get_logos = apply_filters( 'widget_text', ( empty($instance['get_logos']) ) ? '' : $instance['get_logos'], $instance );
 		$get_logos = ($get_logos == '1');
 		$logo_style = apply_filters( 'widget_text', ( empty($instance['logo_style']) ) ? '' : $instance['logo_style'], $instance );
+		$full_result = apply_filters( 'widget_text', ( empty($instance['full_result']) ) ? '' : $instance['full_result'], $instance );
+		$full_result = ($full_result == '1');
 
 		$level_id = -1;
 		if (isset($instance['level_id']) && (intval($instance['level_id']) > 0)) {
@@ -51,6 +53,12 @@ class TeamData_LastMatchWidget extends WP_Widget {
 					$result = 'D';
 				}
 				// otherwise we can leave as W
+			}
+			if ($full_result) {
+				$long_result = array( 'W' => __('Win', 'team_data'), 'L' => __('Loss', 'team_data'), 'D' => __('Draw', 'team_data') );
+				if ( isset($long_result[$result]) ) {
+					$result = $long_result[$result];
+				}
 			}
 			if ($match['tourney_name'] !== '') {
 				echo '<div class="match_widget_tournament">' . esc_html($match['tourney_name']) . '</div>';
@@ -125,6 +133,7 @@ class TeamData_LastMatchWidget extends WP_Widget {
 		$instance['level_id'] = strip_tags( $new_instance['level_id'] );
 		$instance['logo_style'] = strip_tags( $new_instance['logo_style'] );
 		$instance['get_logos'] = strip_tags( $new_instance['get_logos'] );
+		$instance['full_result'] = strip_tags( $new_instance['full_result'] );
 		if ( current_user_can('unfiltered_html') ) {
 			$instance['more_info'] = $new_instance['more_info'];
 		}
@@ -145,6 +154,7 @@ class TeamData_LastMatchWidget extends WP_Widget {
 		$more_info = esc_textarea( $instance['more_info'] );
 		$logo_style = strip_tags( $instance['logo_style'] );
 		$get_logos = strip_tags( $instance['get_logos'] );
+		$full_result = strip_tags( $instance['full_result'] );
 
 		echo '<p>';
 		echo '<label for="' . $this->get_field_id('title') . '">' . __('Title:', 'team_data') . '</label>' . "\n";
@@ -178,6 +188,9 @@ class TeamData_LastMatchWidget extends WP_Widget {
 		echo '<label for="' . $this->get_field_id('get_logos_checkbox') . '">' . __('Display logos:', 'team_data') . '</label>' . "\n";
 		echo '<input type="checkbox" id="' . $this->get_field_id('get_logos_checkbox') . '" ' . ($get_logos ? ' checked="true"' : '') . ' onchange="document.getElementById(\'' . $this->get_field_id('get_logos') . '\').value = ( this.checked ? 1 : 0 );" />';
 		echo '<input type="hidden" id="' . $this->get_field_id('get_logos') . '" name="' . $this->get_field_name('get_logos') . '" /><br />';
+		echo '<label for="' . $this->get_field_id('full_result_checkbox') . '">' . __('Show full result text:', 'team_data') . '</label>' . "\n";
+		echo '<input type="checkbox" id="' . $this->get_field_id('full_result_checkbox') . '" ' . ($full_result ? ' checked="true"' : '') . ' onchange="document.getElementById(\'' . $this->get_field_id('full_result') . '\').value = ( this.checked ? 1 : 0 );" />';
+		echo '<input type="hidden" id="' . $this->get_field_id('full_result') . '" name="' . $this->get_field_name('full_result') . '" /><br />';
 		echo '<label for="' . $this->get_field_id('logo_style') . '">' . __('Logo style:','team_data') . '</label>' . "\n";
 		echo '<textarea class="widefat" rows="3" cols="20" id="' . $this->get_field_id('logo_style') . '" name="' . $this->get_field_name('logo_style') . '">';
 		echo $logo_style;
