@@ -131,7 +131,12 @@ class TeamDataMailer extends TeamDataBase {
 			$mailer->ClearReplyTos();
 		}
 		foreach ($options as $prop_name => $prop_value) {
-			$mailer->{$prop_name} = $prop_value;
+			if ($prop_name == 'Unsubscribe') {
+				$mailer->AddCustomHeader('List-Unsubscribe', '<' . $prop_value . '>');
+			}
+			else {
+				$mailer->{$prop_name} = $prop_value;
+			}
 		}
 		return $mailer;
 	}
@@ -182,9 +187,17 @@ class TeamDataMailer extends TeamDataBase {
 		$use_smtp = ('1' == $this->get_option('use_smtp'));
 
 		$default_from = $this->get_option('email_from');
-		if ( !empty($default_from) ) $options['From'] = $default_from;
+		if ( !empty($default_from) ) {
+			$options['From'] = $default_from;
+		}
 		$default_from_name = $this->get_option('email_from_name');
-		if ( !empty($default_from_name) ) $options['FromName'] = $default_from_name;
+		if ( !empty($default_from_name) ) {
+			$options['FromName'] = $default_from_name;
+		}
+		$unsubscribe_address = $this->get_option('email_unsubscribe_address');
+		if ( !empty($unsubscribe_address) ) {
+			$options['Unsubscribe'] = $unsubscribe_address;
+		}
 		if ($use_smtp) {
 			$options['Mailer'] = 'smtp';
 			$options['Timeout'] = 5;

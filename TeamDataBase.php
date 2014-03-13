@@ -21,7 +21,8 @@ class TeamDataBase {
 	public function __construct() {
 		$this->tables = new TeamDataTables();
 		$this->permitted_options = array( 'version', 'max_matches', 'current_season', 'our_team', 'email_enabled', 'allow_all_member_mail', 'html_template', 'debug_mode',
-			'text_footer', 'email_from', 'email_from_name', 'email_prefix', 'email_summary_to', 'use_smtp', 'smtp_server', 'smtp_port', 'smtp_conn_sec', 'smtp_user', 'smtp_password' );
+			'text_footer', 'email_from', 'email_from_name', 'email_prefix', 'email_summary_to', 'use_smtp', 'smtp_server', 'smtp_port', 'smtp_conn_sec', 'smtp_user',
+			'smtp_password', 'email_timezone', 'email_unsubscribe_address');
 		$this->debug_flag = ($this->get_option('debug_mode') == '1');
 	}
 

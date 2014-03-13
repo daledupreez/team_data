@@ -344,7 +344,9 @@ team_data.api.stat.getFields = function stat_getFields()
 
 
 team_data.api.options = {
-	"fields": [ "max_matches", "email_enabled", "allow_all_member_mail", "html_template", "text_footer", "email_from", "email_from_name", "email_prefix", "email_summary_to", "use_smtp", "smtp_server", "smtp_port", "smtp_conn_sec", "smtp_user", "smtp_password", "debug_mode" ]
+	"fields": [ "max_matches", "email_enabled", "allow_all_member_mail", "html_template", "text_footer",
+		"email_from", "email_from_name", "email_prefix", "email_summary_to", "use_smtp", "smtp_server", "smtp_port",
+		"smtp_conn_sec", "smtp_user", "smtp_password", "debug_mode", "email_timezone", "email_unsubscribe_address" ]
 };
 team_data.api.options.getControls = function options_getControls(fieldName) {
 	if (this.fields.indexOf(fieldName) == -1) return null;

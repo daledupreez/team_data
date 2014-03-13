@@ -529,6 +529,13 @@ class TeamDataAdmin extends TeamDataBase {
 						</td>
 					</tr>
 					<tr>
+						<td><label for="team_data_options_edit__email_unsubscribe_address"><?php echo esc_html( __('Unsubscribe email address', 'team_data') ); ?></label></td>
+						<td>
+							<input id="team_data_options_edit__email_unsubscribe_address" class="team_data_edit_input" name="options_email_unsubscribe_address" type="email" size="50" value="<?php $email_unsubscribe_address = $this->get_option('email_unsubscribe_address'); $email_unsubscribe_address = (empty($email_unsubscribe_address) ? '' : $email_unsubscribe_address); echo esc_attr($email_unsubscribe_address); ?>" />
+							<input id="team_data_options_edit__email_unsubscribe_address_orig" type="hidden" value="<?php echo esc_attr($email_unsubscribe_address); ?>" />
+						</td>
+					</tr>
+					<tr>
 						<td><label for="team_data_options_edit__email_prefix"><?php echo esc_html(__('Default subject prefix','team_data')); ?></label></td>
 						<td>
 							<input id="team_data_options_edit__email_prefix" class="team_data_edit_input" name="options_email_prefix" type="text" size="50" value="<?php $email_prefix = $this->get_option('email_prefix'); $email_prefix = (empty($email_prefix) ? '' : $email_prefix); echo esc_attr($email_prefix); ?>" />
@@ -540,6 +547,13 @@ class TeamDataAdmin extends TeamDataBase {
 						<td>
 							<input id="team_data_options_edit__email_summary_to" class="team_data_edit_input" name="options_email_summary_to" type="email" size="50" value="<?php $email_summary_to = $this->get_option('email_summary_to'); $email_summary_to = (empty($email_summary_to) ? '' : $email_summary_to); echo esc_attr($email_summary_to); ?>" />
 							<input id="team_data_options_edit__email_summary_to_orig" type="hidden" value="<?php echo esc_attr($email_summary_to); ?>" />
+						</td>
+					</tr>
+					<tr>
+						<td><label for="team_data_options_edit__email_timezone"><?php echo esc_html(__('Time zone to use for email [[SENDTIME]] shortcut','team_data')); ?></label></td>
+						<td>
+							<input id="team_data_options_edit__email_timezone" class="team_data_edit_input" name="options_email_timezone" type="text" size="50" value="<?php $email_timezone = $this->get_option('email_timezone'); $email_timezone = (empty($email_timezone) ? '' : $email_timezone); echo esc_attr($email_timezone); ?>" />
+							<input id="team_data_options_edit__email_timezone_orig" type="hidden" value="<?php echo esc_attr($email_timezone); ?>" />
 						</td>
 					</tr>
 					<tr>
