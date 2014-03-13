@@ -164,6 +164,8 @@ class TeamDataAdmin extends TeamDataBase {
 				<div>
 					<label for="team_data_send_email_message" class="team_data_edit_label"><?php echo __('Message', 'team_data'); ?></label>
 					<textarea id="team_data_send_email_message" class="widefat" cols="60" rows="10"></textarea>
+					<br />
+					<span><?php echo esc_html( __('Note that the following HTML formatting sequences are supported: &lt;b&gt;<b>bold</b>&lt;/b&gt;, &lt;em&gt;<em>emphasis</em>&lt;/em&gt;, &lt;i&gt;<i>italic</i>&lt;/i&gt;, &lt;strong&gt;<strong>strong</strong>&lt;/strong&gt;, &lt;u&gt;<u>underline</u>&lt;/u&gt;', 'team_data') ); ?></span>
 				</div>
 			</form>
 			<input id="team_data_send_email__send" class="team_data_button" type="button" value="<?php echo __('Send email', 'team_data'); ?>" onclick="team_data.api.email.sendEmail();" />

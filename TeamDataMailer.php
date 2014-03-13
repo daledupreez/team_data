@@ -38,7 +38,7 @@ class TeamDataMailer extends TeamDataBase {
 		$html_content = $this->build_html_content($message_content);
 		$text_footer = $this->get_option('text_footer');
 		if (empty($text_footer)) $text_footer = '';
-		$text_content = $message_content . $text_footer;
+		$text_content = wp_kses( $message_content, array() ) . $text_footer;
 
 		$errors = array();
 		$ok_count = 0;
@@ -135,19 +135,39 @@ class TeamDataMailer extends TeamDataBase {
 		$html = '';
 		$template = $this->get_option('html_template');
 		if (($template != false) && ($template != '')) {
-			// strip all HTML tags
-			$msg_stripped = wp_kses($message, array());
+			// strip most HTML tags except for this whitelist
+			$permitted_tags = array(
+				'b' => array(),
+				'em' => array(),
+				'i' => array(),
+				'strong' => array(),
+				'u' => array(),
+			);
+			$msg_stripped = wp_kses($message, $permitted_tags);
 			// remove all carriage returns
 			$msg_stripped = str_replace("\r", "", $msg_stripped);
-			// remove multiple newlines
-			$msg_stripped = preg_replace("/\n\n+/", "\n", $msg_stripped);
+			// convert multiple newlines to <p>
+			$msg_stripped = preg_replace("/\n\n+/", "</p><p>", $msg_stripped);
 			// remove any trailing whitespace
 			$msg_stripped = trim($msg_stripped);
-			$msg_stripped = '<p>' . str_replace("\n", '</p><p>', $msg_stripped) . '</p>';
+			// convert any remaining newlines to <br/> and wrap in <p>
+			$msg_stripped = '<p>' . str_replace("\n", '<br/>', $msg_stripped) . '</p>';
+			// if we have multiple <br/> tags, switch to <p>
+			$msg_stripped = str_replace('<br/><br/>', '</p><p>', $msg_stripped);
 			// remove any empty <p> tags
 			$msg_stripped = str_replace('<p></p>', '', $msg_stripped);
 			// put stripped content in template
 			$html = str_replace('[[CONTENT]]', $msg_stripped, $template);
+
+			if ( strpos($html,'[[SENDTIME]]') !== false) {
+				$timezone = $this->get_option('email_timezone');
+				if ( empty( $timezone ) ) {
+					$timezone = 'America/New_York';
+				}
+				$curr_time = new DateTime(null, new DateTimezone($timezone));
+				$send_time = sprintf( __('Email sent on %1$s at %2$s.', 'team_data' ), $curr_time->format( __('n/j/Y', 'team_data') ), $curr_time->format( __('g:i:s A', 'team_data' ) ) );
+				$html = str_replace('[[TIMESTAMP]]', $send_time ,$html);
+			}
 		}
 		return $html;
 	}
@@ -163,11 +183,6 @@ class TeamDataMailer extends TeamDataBase {
 		if ($use_smtp) {
 			$options['Mailer'] = 'smtp';
 			$options['Timeout'] = 5;
-			/*
-			if (isset($_SERVER['SERVER_NAME']) && ( $_SERVER['SERVER_NAME'] == '127.0.0.1' ) ) {
-				$options['Hostname'] = '[10.0.0.6]';
-			}
-			*/
 			$server = $this->get_option('smtp_server');
 			if (!empty($server)) {
 				$options['Host'] = $server;
