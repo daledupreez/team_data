@@ -54,6 +54,7 @@ class TeamDataMailer extends TeamDataBase {
 				$mailer->AddReplyTo($options['ReplyTo']);
 			}
 			if ( !empty($email_data['from_email']) ) {
+				$mailer->AddReplyTo($email_data['from_email']);
 				$mailer->From = $email_data['from_email'];
 				$mailer->FromName = ( !empty($email_data['from_name']) ? $email_data['from_name'] : $email_data['from_email'] );
 			}
@@ -90,10 +91,14 @@ class TeamDataMailer extends TeamDataBase {
 			$mailer = $this->build_mailer($mail_config,$mailer);
 			$mailer->Subject = sprintf( __( 'Summary: %1$s' , 'team_data' ), $subject );
 			if ( !empty($options['From']) ) {
+				$mailer->AddReplyTo($options['From']);
 				$mailer->From = $options['From'];
 				$mailer->FromName = ( !empty($options['FromName']) ? $options['FromName'] : $options['From'] );
 			}
-			$mailer->AddAddress($summary_to);
+			$summary_addresses = explode( ';', $summary_to );
+			foreach ($summary_addresses as $summary_address) {
+				$mailer->AddAddress($summary_address);
+			}
 			if (!empty($options['ReplyTo'])) {
 				$mailer->AddReplyTo($options['ReplyTo']);
 			}
