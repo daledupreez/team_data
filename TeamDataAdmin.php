@@ -652,7 +652,7 @@ class TeamDataAdmin extends TeamDataBase {
 		wp_enqueue_script('jquery-ui-dialog', $jquery_ui_dir . 'jquery.ui.dialog.min.js', array('jquery', 'jquery-ui-core') );
 		wp_enqueue_script('jquery-ui-progressbar', $jquery_ui_dir . 'jquery.ui.progressbar.min.js', array('jquery', 'jquery-ui-core') );
 		wp_enqueue_script('team-data', plugins_url('js/team_data.js', __FILE__ ));
-		wp_enqueue_style('jquery.ui.theme', plugins_url('css/redmond/jquery-ui-1.8.23.custom.css', __FILE__ ));
+		wp_enqueue_style('jquery.ui.theme', plugins_url('css/redmond/jquery-ui-1.10.4.custom.css', __FILE__ ));
 		wp_enqueue_style('team-data-css', plugins_url('css/team_data.css',__FILE__));
 		wp_localize_script('team-data', 'team_data_ajax', array( 'nonce' => wp_create_nonce('team_data_nonce') ) );
 
