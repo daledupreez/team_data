@@ -244,6 +244,15 @@ team_data.api.email.getFields = function email_getFields()
 team_data.api.email.closeDialog = function email_closeDialog()
 {
 	jQuery("#team_data_send_email_dialog").close();
+	if (this._sendOK) {
+		var form = document.getElementById('team_data_send_email');
+		if (form && (typeof form.reset == 'function')) {
+			form.reset();
+		}
+		else {
+			window.location.reload();
+		}
+	}
 }
 team_data.api.email.launchDialog = function email_launchDialog()
 {
@@ -271,6 +280,7 @@ team_data.api.email.sendEmail = function email_sendEmail()
 			submitData[field] = team_data.fn.getControlValue(control);
 		}
 	}
+	this.launchDialog();
 	jQuery.post(ajaxurl, submitData, team_data.api.email.sendEmailHandler);
 }
 
@@ -287,6 +297,7 @@ team_data.api.email.sendEmailHandler = function email_sendEmailHandler(sendResul
 	else {
 		toShow = 'success';
 	}
+	this._sendOK = (tShow == 'success');
 	var progressBar = document.getElementById('team_data_send_email_progress');
 	progressbar.style.display = 'none';
 	var showEl = document.getElementById('team_data_send_email_' + toShow);
