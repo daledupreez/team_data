@@ -243,7 +243,7 @@ team_data.api.email.getFields = function email_getFields()
 }
 team_data.api.email.closeDialog = function email_closeDialog()
 {
-	jQuery("#team_data_send_email_dialog").close();
+	jQuery("#team_data_send_email_dialog").dialog( 'close' );
 	if (this._sendOK) {
 		var form = document.getElementById('team_data_send_email');
 		if (form && (typeof form.reset == 'function')) {
@@ -256,9 +256,8 @@ team_data.api.email.closeDialog = function email_closeDialog()
 }
 team_data.api.email.launchDialog = function email_launchDialog()
 {
-	var progressBar = document.getElementById('team_data_send_email_progress');
+	var progressbar = document.getElementById('team_data_send_email_progress');
 	progressbar.style.display = '';
-	jQuery("#team_data_send_email_progress").progressbar( { value: false } );
 	var hideList = [ 'done', 'error', 'success' ];
 	for (var i = 0; i < hideList.length; i++) {
 		var el = document.getElementById('team_data_send_email_' + hideList[i]);
@@ -266,7 +265,8 @@ team_data.api.email.launchDialog = function email_launchDialog()
 	}
 	var errEl = document.getElementById('team_data_send_email_error_message');
 	if (errEl) errEl.innerHTML = '';
-	jQuery("#team_data_send_email_dialog").open();
+	jQuery("#team_data_send_email_dialog").dialog( 'open' );
+	jQuery("#team_data_send_email_progress").progressbar( { value: false } );
 }
 team_data.api.email.sendEmail = function email_sendEmail()
 {
@@ -297,8 +297,8 @@ team_data.api.email.sendEmailHandler = function email_sendEmailHandler(sendResul
 	else {
 		toShow = 'success';
 	}
-	this._sendOK = (tShow == 'success');
-	var progressBar = document.getElementById('team_data_send_email_progress');
+	this._sendOK = (toShow == 'success');
+	var progressbar = document.getElementById('team_data_send_email_progress');
 	progressbar.style.display = 'none';
 	var showEl = document.getElementById('team_data_send_email_' + toShow);
 	if (showEl) showEl.style.display = '';
