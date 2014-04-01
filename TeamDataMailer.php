@@ -176,7 +176,7 @@ class TeamDataMailer extends TeamDataBase {
 				}
 				$curr_time = new DateTime(null, new DateTimezone($timezone));
 				$send_time = sprintf( __('Email sent on %1$s at %2$s.', 'team_data' ), $curr_time->format( __('n/j/Y', 'team_data') ), $curr_time->format( __('g:i:s A', 'team_data' ) ) );
-				$html = str_replace('[[TIMESTAMP]]', $send_time ,$html);
+				$html = str_replace('[[SENDTIME]]', $send_time ,$html);
 			}
 		}
 		return $html;

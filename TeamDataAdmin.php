@@ -619,7 +619,7 @@ class TeamDataAdmin extends TeamDataBase {
 					</tr>
 					<tr>
 						<td colspan="2">
-							<label for="team_data_options_edit__html_template" class="team_data_edit_label"><?php echo esc_html(__('HTML template to use for outbound emails. Use [[CONTENT]] to specify location of text.','team_data')); ?></label>
+							<label for="team_data_options_edit__html_template" class="team_data_edit_label"><?php echo esc_html(__('HTML template to use for outbound emails. Use [[CONTENT]] to specify location of text. Use [[SENDTIME]] to specify the send time.','team_data')); ?></label>
 							<textarea id="team_data_options_edit__html_template" class="team_data_edit_input widefat" name="options_html_template" rows="20" cols="75"><?php $html_template = $this->get_option('html_template'); $html_template = (empty($html_template) ? '' : $html_template); echo $html_template; ?></textarea>
 							<textarea id="team_data_options_edit__html_template_orig" style="display: none;"><?php echo $html_template; ?></textarea>
 						</td>
