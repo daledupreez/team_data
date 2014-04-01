@@ -297,7 +297,7 @@ team_data.api.email.sendEmailHandler = function email_sendEmailHandler(sendResul
 	else {
 		toShow = 'success';
 	}
-	this._sendOK = (toShow == 'success');
+	team_data.api.email._sendOK = (toShow == 'success');
 	var progressbar = document.getElementById('team_data_send_email_progress');
 	progressbar.style.display = 'none';
 	var showEl = document.getElementById('team_data_send_email_' + toShow);

@@ -172,13 +172,13 @@ class TeamDataAdmin extends TeamDataBase {
 			<div id="team_data_send_email_dialog" title="<?php echo esc_attr(__('Sending Email...', 'team_data')); ?>">
 				<div><?php echo esc_html( __('Your email is being sent...', 'team_data') ); ?></div>
 				<div id="team_data_send_email_progress"></div>
-				<div id="team_data_send_email_done" style="display: none;">
+				<div id="team_data_send_email_done" style="display: none; margin-top: 10px; text-align: center;">
 					<div id="team_data_send_email_success" style="display: none;"><?php echo esc_html( __('Email sent successfully!', 'team_data' ) ); ?></div>
 					<div id="team_data_send_email_error" style="display: none;">
 						<div><?php echo esc_html( __('Error sending email!', 'team_data' ) ); ?></div>
 						<div id="team_data_send_email_error_message"></div>
 					</div>
-					<div><button id="team_data_send_email_dialog_button" onclick="team_data.api.email.closeDialog();"><?php echo esc_html( __('OK', 'team_data') ); ?></button></div>
+					<div style="margin-top: 10px;"><button id="team_data_send_email_dialog_button" onclick="team_data.api.email.closeDialog();"><?php echo esc_html( __('OK', 'team_data') ); ?></button></div>
 				</div>
 			</div>
 		</div>
