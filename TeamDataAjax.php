@@ -366,8 +366,8 @@ class TeamDataAjax extends TeamDataBase {
 		$fields = $this->get_member_fields();
 		$this->get_post_values($fields);
 		// scrub fields we don't want to email out
-		delete $fields['id'];
-		delete $fields['active'];		
+		unset($fields['id']);
+		unset($fields['active']);		
 
 		$mailer_API = new TeamDataMailer();
 		$mailer = $mailer_API->get_mailer();
