@@ -382,7 +382,7 @@ class TeamDataAjax extends TeamDataBase {
 			$subject_prefix .= ' ';
 		}
 
-		$mailer->Subject = $subject_prefix . sprintf( __('New member registration: %1', 'team_data'), $fields['first_name'] . ' ' . $fields['last_name']);
+		$mailer->Subject = $subject_prefix . sprintf( __('New member registration: %s', 'team_data'), $fields['first_name'] . ' ' . $fields['last_name']);
 
 		$text = array();
 		foreach ($fields as $field_name => $field_value) {
