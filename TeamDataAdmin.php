@@ -543,14 +543,14 @@ class TeamDataAdmin extends TeamDataBase {
 						</td>
 					</tr>
 					<tr>
-						<td><label for="team_data_options_edit__email_summary_to"><?php echo esc_html(__('Summary recipient','team_data')); ?></label></td>
+						<td><label for="team_data_options_edit__email_summary_to"><?php echo esc_html(__('Summary recipient(s)','team_data')); ?></label></td>
 						<td>
 							<input id="team_data_options_edit__email_summary_to" class="team_data_edit_input" name="options_email_summary_to" type="email" size="50" value="<?php $email_summary_to = $this->get_option('email_summary_to'); $email_summary_to = (empty($email_summary_to) ? '' : $email_summary_to); echo esc_attr($email_summary_to); ?>" />
 							<input id="team_data_options_edit__email_summary_to_orig" type="hidden" value="<?php echo esc_attr($email_summary_to); ?>" />
 						</td>
 					</tr>
 					<tr>
-						<td><label for="team_data_options_edit__email_new_member_to"><?php echo esc_html(__('Summary recipient','team_data')); ?></label></td>
+						<td><label for="team_data_options_edit__email_new_member_to"><?php echo esc_html(__('New registration recipient(s)','team_data')); ?></label></td>
 						<td>
 							<input id="team_data_options_edit__email_new_member_to" class="team_data_edit_input" name="options_email_new_member_to" type="email" size="50" value="<?php $email_new_member_to = $this->get_option('email_new_member_to'); $email_new_member_to = (empty($email_new_member_to) ? '' : $email_new_member_to); echo esc_attr($email_new_member_to); ?>" />
 							<input id="team_data_options_edit__email_new_member_to_orig" type="hidden" value="<?php echo esc_attr($email_new_member_to); ?>" />

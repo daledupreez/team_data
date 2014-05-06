@@ -364,6 +364,7 @@ class TeamDataAjax extends TeamDataBase {
 		$to_list = explode(';', $to_list);
 
 		$fields = $this->get_member_fields();
+		$fields['comments'] = '';
 		$this->get_post_values($fields);
 		// scrub fields we don't want to email out
 		unset($fields['id']);
@@ -396,7 +397,7 @@ class TeamDataAjax extends TeamDataBase {
 				}
 			}
 		}
-		$text[] = __('Lists:', 'team_data') . ' ' . implode(',', $lists);
+		$text[] = __('Lists:', 'team_data') . ' ' . implode(', ', $lists);
 
 		$mailer->Body = implode("\r\n",$text);
 
