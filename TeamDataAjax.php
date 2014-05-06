@@ -42,6 +42,10 @@ class TeamDataAjax extends TeamDataBase {
 			// ensure we never send the member ID back via this channel
 			if (($response_data['result'] != 'error') && ($response_data['result'])) {
 				$response_data['result'] = 1;
+				$new_member_to = $this->get_option('email_new_member_to');
+				if ( !empty( $new_member_to ) ) {
+					$this->send_new_member_email( $new_member_to );
+				}
 			}
 		}
 
@@ -298,5 +302,105 @@ class TeamDataAjax extends TeamDataBase {
 		return (isset($_POST['nonce']) && wp_verify_nonce($_POST['nonce'], 'team_data_nonce'));
 	}
 
+	/**
+	 * Protected helper function to populate $fields
+	 * with data from the incoming POST values and clean out "id" from POST data
+	 *
+	 * @param array $fields Array of key/value pairs where we will check for the presence of the keys in the POSTed data and update in-place
+	 * @param boolean $extract_id Flag to control whether we try to extract the ID field from the incoming data
+	 * @return string $id_value Value of posted 'id' field
+	 */
+	protected function get_post_values(&$fields, $extract_id = true) {
+		foreach (array_keys($fields) as $fieldName ) {
+			if (isset($_POST[$fieldName])) {
+				$fields[$fieldName] = stripslashes($_POST[$fieldName]);
+			}
+		}
+		$id_value = '';
+		if ($extract_id) {
+			$id_value = $fields['id'];
+			unset($fields['id']);
+		}
+		return $id_value;
+	}
+
+	/**
+	 * Protected helper function to get the list of member $fields.
+	 * @return array Expected fields
+	 */
+	protected function get_member_fields() {
+		return array(
+			'id' => '',
+			'first_name' => '',
+			'last_name' => '',
+			'nick_name' => '',
+			'email' => '',
+			'backup_email' => '',
+			'cell' => '',
+			'tel_home' => '',
+			'tel_work' => '',
+			'address1' => '',
+			'address2' => '',
+			'city' => '',
+			'state' => '',
+			'postal_code' => '',
+			'country' => '',
+			'date_of_birth' => '',
+			'height' => '',
+			'weight' => '',
+			'college_or_school' => '',
+			'position' => '',
+			'past_clubs' => '',
+			'active' => true,
+		);
+	}
+
+	/**
+	 * Helper function to send an email when a new member registers
+	 * @param  string $to_list The list of email recipients for new member registrations
+	 * @return boolean         The return value from the Send() function
+	 */
+	protected function send_new_member_email( $to_list ) {
+		$to_list = explode(';', $to_list);
+
+		$fields = $this->get_member_fields();
+		$this->get_post_values($fields);
+		// scrub fields we don't want to email out
+		delete $fields['id'];
+		delete $fields['active'];		
+
+		$mailer_API = new TeamDataMailer();
+		$mailer = $mailer_API->get_mailer();
+
+		foreach ($to_list as $to_email) {
+			$mailer->AddAddress($to_email);
+		}
+
+		$subject_prefix = $this->get_option('email_prefix');
+		if ($subject_prefix != '') {
+			$subject_prefix .= ' ';
+		}
+
+		$mailer->Subject = $subject_prefix . sprintf( __('New member registration: %1', 'team_data'), $fields['first_name'] . ' ' . $fields['last_name']);
+
+		$text = array();
+		foreach ($fields as $field_name => $field_value) {
+			$text[] = ucwords( str_replace('_', ' ', $field_name) ) . ':  ' . $field_value;
+		}
+
+		$lists = array();
+		if (isset( $_POST[ 'list_names' ] )) {
+			foreach ($_POST[ 'list_names' ] as $list_name => $chosen) {
+				if ($chosen) {
+					$lists[] = $list_name;
+				}
+			}
+		}
+		$text[] = __('Lists:', 'team_data') . ' ' . implode(',', $lists);
+
+		$mailer->Body = implode("\r\n",$text);
+
+		return $mailer->Send();
+	}
 }
 ?>

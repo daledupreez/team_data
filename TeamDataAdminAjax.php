@@ -467,30 +467,7 @@ class TeamDataAdminAjax extends TeamDataAjax {
 	public function put_member() {
 		global $wpdb;
 
-		$fields = array(
-			'id' => '',
-			'first_name' => '',
-			'last_name' => '',
-			'nick_name' => '',
-			'email' => '',
-			'backup_email' => '',
-			'cell' => '',
-			'tel_home' => '',
-			'tel_work' => '',
-			'address1' => '',
-			'address2' => '',
-			'city' => '',
-			'state' => '',
-			'postal_code' => '',
-			'country' => '',
-			'date_of_birth' => '',
-			'height' => '',
-			'weight' => '',
-			'college_or_school' => '',
-			'position' => '',
-			'past_clubs' => '',
-			'active' => true,
-		);
+		$fields = $this->get_member_fields();
 
 		$member_id = $this->get_post_values($fields);
 
@@ -524,7 +501,11 @@ class TeamDataAdminAjax extends TeamDataAjax {
 			}
 			if ($show_errors) $wpdb->show_errors();
 
-			if ($member_id == '') $fields['joined'] = date("Y-m-d");
+			$current_time = time();
+			if ($member_id == '') {
+				$fields['joined'] = date('Y-m-d',$current_time);
+			}
+			$fields['last_update'] = date('Y-m-d H:i:s',$current_time);
 
 			$response_data = $this->run_update($this->tables->member,$fields,$member_id);
 			// run list operations *AFTER* main UPDATE as we might be dealing with a new registration
@@ -866,28 +847,6 @@ class TeamDataAdminAjax extends TeamDataAjax {
 			echo json_encode($results);
 		}
 		exit;
-	}
-
-	/**
-	 * Protected helper function to populate $fields
-	 * with data from the incoming POST values and clean out "id" from POST data
-	 *
-	 * @param array $fields Array of key/value pairs where we will check for the presence of the keys in the POSTed data and update in-place
-	 * @param boolean $extract_id Flag to control whether we try to extract the ID field from the incoming data
-	 * @return string $id_value Value of posted 'id' field
-	 */
-	protected function get_post_values(&$fields, $extract_id = true) {
-		foreach (array_keys($fields) as $fieldName ) {
-			if (isset($_POST[$fieldName])) {
-				$fields[$fieldName] = stripslashes($_POST[$fieldName]);
-			}
-		}
-		$id_value = '';
-		if ($extract_id) {
-			$id_value = $fields['id'];
-			unset($fields['id']);
-		}
-		return $id_value;
 	}
 
 	/**

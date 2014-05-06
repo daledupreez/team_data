@@ -122,6 +122,17 @@ class TeamDataMailer extends TeamDataBase {
 		return true;
 	}
 
+	/**
+	* Function to get an initialized PHPMailer object.
+	* @return PHPMailer
+	*/
+	public function get_mailer() {
+		$mail_config = $this->get_mail_config();
+		if ($this->debug_flag) $this->debug('Mail Config: ' . json_encode($mail_config));
+
+		return $this->build_mailer($mail_config);
+	}
+
 	protected function build_mailer($options,$mailer = null) {
 		if (!$mailer) {
 			$mailer = new PHPMailer();
