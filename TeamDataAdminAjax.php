@@ -627,7 +627,7 @@ class TeamDataAdminAjax extends TeamDataAjax {
 	public function get_all_member_data() {
 		global $wpdb;
 
-		$member_query = 'SELECT * FROM ' . $this->tables->member . ' ORDER BY id DESC';
+		$member_query = 'SELECT * FROM ' . $this->tables->member . ' ORDER BY id ASC';
 		$list_query = 'SELECT list_id FROM ' . $this->tables->member_list . ' WHERE member_id = ';
 		$results = $wpdb->get_results($member_query, ARRAY_A);
 		foreach ($results as &$result) {
