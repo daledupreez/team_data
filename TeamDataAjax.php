@@ -368,7 +368,7 @@ class TeamDataAjax extends TeamDataBase {
 		$this->get_post_values($fields);
 		// scrub fields we don't want to email out
 		unset($fields['id']);
-		unset($fields['active']);		
+		unset($fields['active']);
 
 		$mailer_API = new TeamDataMailer();
 		$mailer = $mailer_API->get_mailer();
@@ -385,8 +385,11 @@ class TeamDataAjax extends TeamDataBase {
 		$mailer->Subject = $subject_prefix . sprintf( __('New member registration: %s', 'team_data'), $fields['first_name'] . ' ' . $fields['last_name']);
 
 		$text = array();
+		$include_empty_fields = ( $this->get_option('email_new_member_include_empty_fields') == '1' );
 		foreach ($fields as $field_name => $field_value) {
-			$text[] = ucwords( str_replace('_', ' ', $field_name) ) . ':  ' . $field_value;
+			if ( $include_empty_fields || !empty($field_value) ) {
+				$text[] = ucwords( str_replace('_', ' ', $field_name) ) . ':  ' . $field_value;
+			}
 		}
 
 		$lists = array();

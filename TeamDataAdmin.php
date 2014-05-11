@@ -557,6 +557,13 @@ class TeamDataAdmin extends TeamDataBase {
 						</td>
 					</tr>
 					<tr>
+						<td><label for="team_data_options_edit__email_new_member_include_empty_fields"><?php echo esc_html(__('Include empty fields in new registration email','team_data')); ?></label></td>
+						<td>
+							<input id="team_data_options_edit__email_new_member_include_empty_fields" class="team_data_admin_checkbox" name="options_email_new_member_include_empty_fields" type="checkbox" <?php $email_new_member_include_empty_fields = ($this->get_option('email_new_member_include_empty_fields') == '1' ? true : false); if ($email_new_member_include_empty_fields) { echo 'checked="checked"'; } ?> />
+							<input id="team_data_options_edit__email_new_member_include_empty_fields_orig" type="checkbox" style="display: none;" <?php if ($email_new_member_include_empty_fields) { echo 'checked="checked"'} ?> />
+						</td>
+					</tr>
+					<tr>
 						<td><label for="team_data_options_edit__email_timezone"><?php echo esc_html(__('Time zone to use for email [[SENDTIME]] shortcut','team_data')); ?></label></td>
 						<td>
 							<input id="team_data_options_edit__email_timezone" class="team_data_edit_input" name="options_email_timezone" type="text" size="50" value="<?php $email_timezone = $this->get_option('email_timezone'); $email_timezone = (empty($email_timezone) ? '' : $email_timezone); echo esc_attr($email_timezone); ?>" />
