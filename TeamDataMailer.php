@@ -196,10 +196,12 @@ class TeamDataMailer extends TeamDataBase {
 	protected function get_mail_config() {
 		$options = array();
 		$use_smtp = ('1' == $this->get_option('use_smtp'));
+		$options['CharSet'] = 'UTF-8';
 
 		$default_from = $this->get_option('email_from');
 		if ( !empty($default_from) ) {
 			$options['From'] = $default_from;
+			$options['Sender'] = $default_from;
 		}
 		$default_from_name = $this->get_option('email_from_name');
 		if ( !empty($default_from_name) ) {
