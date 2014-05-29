@@ -177,6 +177,8 @@ class TeamDataMailer extends TeamDataBase {
 			$msg_stripped = str_replace('<br/><br/>', '</p><p>', $msg_stripped);
 			// remove any empty <p> tags
 			$msg_stripped = str_replace('<p></p>', '', $msg_stripped);
+			// add manual styles for <p> elements
+			$msg_stripped = str_replace('<p>', '<p style="margin: 1em 0em;">', $msg_stripped);
 			// put stripped content in template
 			$html = str_replace('[[CONTENT]]', $msg_stripped, $template);
 
