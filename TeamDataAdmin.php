@@ -165,7 +165,7 @@ class TeamDataAdmin extends TeamDataBase {
 					<label for="team_data_send_email_message" class="team_data_edit_label"><?php echo __('Message', 'team_data'); ?></label>
 					<textarea id="team_data_send_email_message" class="widefat" cols="60" rows="10"></textarea>
 					<br />
-					<span><?php echo esc_html( __('Note that the following HTML formatting sequences are supported: &lt;b&gt;<b>bold</b>&lt;/b&gt;, &lt;em&gt;<em>emphasis</em>&lt;/em&gt;, &lt;i&gt;<i>italic</i>&lt;/i&gt;, &lt;strong&gt;<strong>strong</strong>&lt;/strong&gt;, &lt;u&gt;<u>underline</u>&lt;/u&gt;', 'team_data') ); ?></span>
+					<span><?php printf( esc_html( __('Note that the following HTML formatting sequences are supported: %1$s, %2$s, %3$s, %4$s, %5s', 'team_data') ), sprintf( '&lt;b&gt;<b>%s</b>&lt;/b&gt;', __('bold', 'team_data') ), sprintf( '&lt;em&gt;<em>%s</em>&lt;/em&gt;', __('emphasis', 'team_data') ), sprintf( '&lt;i&gt;<i>%s</i>&lt;/i&gt;', __('italic', 'team_data') ), sprintf('&lt;strong&gt;<strong>%s</strong>&lt;/strong&gt;', __('strong', 'team_data') ), sprintf('&lt;u&gt;<u>%s</u>&lt;/u&gt;', __('underline', 'team_data') ) ); ?></span>
 				</div>
 			</form>
 			<input id="team_data_send_email__send" class="team_data_button" type="button" value="<?php echo __('Send email', 'team_data'); ?>" onclick="team_data.api.email.sendEmail();" />
