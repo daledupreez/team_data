@@ -273,7 +273,7 @@ class TeamDataAdmin extends TeamDataBase {
 					<label for="team_data_venue_edit__directions_link" class="team_data_edit_label"><?php echo __('Directions/Map Link','team_data'); ?></label>
 					<input id="team_data_venue_edit__directions_link" class="team_data_edit_input" name="venue_directions_link" type="text" size="60" />
 				</div>
-			</form>';
+			</form>
 			<div class="team_data_buttonDiv">
 				<input id="team_data_venue_edit__save" class="team_data_button" type="button" value="<?php echo __('Save Changes', 'team_data'); ?>" onclick="team_data.api.venue.save();" />
 				<input class="team_data_button" type="button" value="<?php echo __('Create New Venue','team_data'); ?>" onclick="team_data.api.venue.clearForm();" />
