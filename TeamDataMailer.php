@@ -203,7 +203,7 @@ class TeamDataMailer extends TeamDataBase {
 		$default_from = $this->get_option('email_from');
 		if ( !empty($default_from) ) {
 			$options['From'] = $default_from;
-			//$options['Sender'] = $default_from;
+			$options['Sender'] = $default_from;
 		}
 		$default_from_name = $this->get_option('email_from_name');
 		if ( !empty($default_from_name) ) {
