@@ -3,7 +3,7 @@
 Plugin Name: Team Data
 Plugin URI: http://github.com/daledupreez/team_data/
 Description: An initial attempt to modularize the custom data needs of the Mystic River site in a plugin.
-Version: 0.34
+Version: 0.38
 Author: Dale du Preez
 License: GPL2
 */
@@ -24,6 +24,8 @@ License: GPL2
 */
 
 require_once 'TeamDataBase.php';
+
+register_activation_hook( __FILE__, array( 'TeamDataInstaller', 'on_activate' ) );
 
 $team_data = new TeamDataBase();
 $team_data->add_actions();

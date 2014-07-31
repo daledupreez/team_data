@@ -11,8 +11,44 @@ class TeamDataInstaller extends TeamDataBase {
 	public function add_actions() {
 		if ( $this->actions_added ) return;
 
+		add_filter( 'user_has_cap', array( $this, 'user_has_cap' ), 10, 4 );
+
 		$this->check_for_update();
 		$this->actions_added = true;
+	}
+
+	public function on_activate() {
+		$this->add_plugin_roles();
+	}
+
+	/**
+	 * Callback to ensure that users with the Administrator role are always granted
+	 * the TeamData capabilities needed to access the TeamData UI and APIs.
+	 * @param  array   $all_capabilities All capabilities currently assigned to the user
+	 * @param  array   $req_capabilities The requested capability is in position 0
+	 * @param  array   $args             The arguments supplied to the calling function
+	 * @param  WP_User $user             The user object [as of WordPress 3.7]
+	 * @return array                     The updated array of capabilities for the user.
+	 */
+	public function user_has_cap( $all_capabilities, $req_capabilities, $args, $user) {
+		if ( is_array($req_capabilities ) && isset( $req_capabilities[0] ) ) {
+			$req_capability = $req_capabilities[0];
+			if ( substr($req_capability,0,10) == 'team_data_' ) {
+				if ( empty( $user ) ) {
+					$user_id = $args[1];
+					$user = get_userdata($user_id);
+				}
+				if ( !empty( $user ) ) {
+					if ( in_array( 'administrator', $user->roles ) ) {
+						$all_capabilities[$req_capability] = true;
+					}
+				}
+			}
+		}
+		else {
+			$req_capability = '';
+		}
+		return $all_capabilities;
 	}
 
 	public function check_for_update() {
@@ -20,6 +56,8 @@ class TeamDataInstaller extends TeamDataBase {
 		if ($this->version > $installed_version) {
 			$this->debug("Triggering upgrade from version '$installed_version' to version '$this->version'");
 			$this->update_tables();
+
+			$this->add_plugin_roles();
 		}
 	}
 
@@ -257,9 +295,38 @@ class TeamDataInstaller extends TeamDataBase {
 		}
 	}
 
+	public function add_plugin_roles() {
+		$role_map = $this->get_role_map();
+
+		foreach( $role_map as $role_name => $role_data ) {
+			$capabilities = $role_data['capabilities'];
+			$role = get_role( $role_name );
+
+			if ( !empty( $role ) ) {
+				foreach ($capabilities as $capability) {
+					if ( !$role->has_cap( $capability ) ) {
+						$role->add_cap( $capability );
+					}
+				}
+			}
+			else {
+				add_role( $role_name, $role_data['name'], $capabilities );
+			}
+		}
+	}
+
+	public function remove_plugin_roles() {
+		$role_map = $this->get_role_map();
+
+		foreach( $role_map as $role_name ) {
+			remove_role( $role_name );
+		}
+	}
+
 	public function uninstall() {
 		$this->delete_tables();
 		$this->delete_options();
+		$this->remove_plugin_roles();
 	}
 
 	public function delete_tables() {
@@ -278,6 +345,56 @@ class TeamDataInstaller extends TeamDataBase {
 		foreach ($this->permitted_options as $option) {
 			delete_option( 'team_data_' . $option );
 		}
+	}
+
+	protected function get_role_map() {
+		$role_map = array(
+			'team_data_mailer' => array(
+				'name' => __( 'Team Data Mailer', 'team_data' ),
+				'capabilities' => array(
+					'read' => true,
+					'team_data_admin_menu' => true,
+					'team_data_send_mail' => true,
+				),
+			),
+			'team_data_member_manager' => array(
+				'name' => __( 'Team Data Member Manager', 'team_data' ),
+				'capabilities' => array(
+					'read' => true,
+					'team_data_admin_menu' => true,
+					'team_data_manage_members' => true,
+				),
+			),
+			'team_data_mail_manager' => array(
+				'name' => __( 'Team Data Mail Manager', 'team_data' ),
+				'capabilities' => array(
+					'read' => true,
+					'team_data_admin_menu' => true,
+					'team_data_send_mail' => true,
+					'team_data_manage_members' => true,
+				),
+			),
+			'team_data_match_manager' => array(
+				'name' => __( 'Team Data Match Manager', 'team_data' ),
+				'capabilities' => array(
+					'read' => true,
+					'team_data_admin_menu' => true,
+					'team_data_manage_matches' => true,
+				),
+			),
+			'team_data_admin' => array(
+				'name' => __( 'Team Data Administrator', 'team_data' ),
+				'capabilities' => array(
+					'read' => true,
+					'team_data_admin_menu' => true,
+					'team_data_manage_options' => true,
+					'team_data_manage_matches' => true,
+					'team_data_send_mail' => true,
+					'team_data_manage_members' => true,
+				),
+			),
+		);
+		return $role_map;
 	}
 }
 ?>

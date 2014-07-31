@@ -61,7 +61,10 @@ class TeamDataAdminAjax extends TeamDataAjax {
 	public function set_option_ajax() {
 		header('Content-Type: application/json');
 		$response_data = array( 'set' => false );
-		if ($this->check_nonce() && isset($_POST['option_name']) && isset($_POST['option_value'])) {
+		if ( !current_user_can( 'team_data_manage_options' ) ) {
+			$response_data['error_message'] = __( 'You are not permitted to perform this action.', 'team_data' );
+		}
+		else if ($this->check_nonce() && isset($_POST['option_name']) && isset($_POST['option_value'])) {
 			$option = $_POST['option_name'];
 			$op_value = stripslashes($_POST['option_value']);
 			if ($op_value != null) {
@@ -80,7 +83,10 @@ class TeamDataAdminAjax extends TeamDataAjax {
 	public function send_email_ajax() {
 		header('Content-Type: application/json');
 		$response_data = array( 'sent' => false );
-		if ($this->check_nonce()) {
+		if ( !current_user_can( 'team_data_send_email' ) ) {
+			$response_data['error_message'] = __( 'You are not permitted to perform this action.', 'team_data' );
+		}
+		else if ($this->check_nonce()) {
 			$fields = array(
 				"subject" => '',
 				"replyto" => '',
@@ -113,7 +119,10 @@ class TeamDataAdminAjax extends TeamDataAjax {
 
 		header('Content-Type: application/json');
 		$response_data = array( 'result' => 'error', 'results' => array() );
-		if ($this->check_nonce() && isset($_POST['match_data'])) {
+		if ( !current_user_can( 'team_data_manage_matches' ) ) {
+			$response_data['error_message'] = __( 'You are not permitted to perform this action.', 'team_data' );
+		}
+		else if ($this->check_nonce() && isset($_POST['match_data'])) {
 			$match_data = $_POST['match_data'];
 			$match_data = stripslashes($match_data);
 			$matches = json_decode($match_data,true);
@@ -178,7 +187,10 @@ class TeamDataAdminAjax extends TeamDataAjax {
 		);
 		$match_id = $this->get_post_values($fields);
 		$response_data = array( 'result' => 'error' );
-		if (!$this->check_nonce()) {
+		if ( !current_user_can( 'team_data_manage_matches' ) ) {
+			$response_data['error_message'] = __( 'You are not permitted to perform this action.', 'team_data' );
+		}
+		else if (!$this->check_nonce()) {
 			$response_data['error_message'] = __("Invalid nonce", 'team_data');
 		}
 		else if ( empty($match_id) ) { // id is required for delete
@@ -222,7 +234,10 @@ class TeamDataAdminAjax extends TeamDataAjax {
 			unset($fields['opposition_score']);
 		}
 		$response_data = array( 'result' => 'error' );
-		if (!$this->check_nonce()) {
+		if ( !current_user_can( 'team_data_manage_matches' ) ) {
+			$response_data['error_message'] = __( 'You are not permitted to perform this action.', 'team_data' );
+		}
+		else if (!$this->check_nonce()) {
 			$response_data['error_message'] = __("Invalid nonce", 'team_data');
 		}
 		else if ($match_id == '') { // id is required for update
@@ -293,7 +308,10 @@ class TeamDataAdminAjax extends TeamDataAjax {
 
 		$response_data = array( 'result' => 'error' );
 		$ok = false;
-		if (!$this->check_nonce()) {
+		if ( !current_user_can( 'team_data_manage_matches' ) ) {
+			$response_data['error_message'] = __( 'You are not permitted to perform this action.', 'team_data' );
+		}
+		else if (!$this->check_nonce()) {
 			$response_data['error_message'] = __("Invalid nonce", 'team_data');
 		}
 		elseif ($fields['result'] !== '') {
@@ -337,7 +355,10 @@ class TeamDataAdminAjax extends TeamDataAjax {
 		$venue_id = $this->get_post_values($fields);
 
 		$response_data = array( 'result' => 'error' );
-		if (!$this->check_nonce()) {
+		if ( !current_user_can( 'team_data_manage_options' ) ) {
+			$response_data['error_message'] = __( 'You are not permitted to perform this action.', 'team_data' );
+		}
+		else if (!$this->check_nonce()) {
 			$response_data['error_message'] = __("Invalid nonce", 'team_data');
 		}
 		elseif ($fields['name'] == '') { // name is required
@@ -366,7 +387,10 @@ class TeamDataAdminAjax extends TeamDataAjax {
 		$level_id = $this->get_post_values($fields);
 
 		$response_data = array( "result" => "error" );
-		if (!$this->check_nonce()) {
+		if ( !current_user_can( 'team_data_manage_options' ) ) {
+			$response_data['error_message'] = __( 'You are not permitted to perform this action.', 'team_data' );
+		}
+		else if (!$this->check_nonce()) {
 			$response_data['error_message'] = __("Invalid nonce", 'team_data');
 		}
 		elseif ($fields["name"] == '') { // name is required
@@ -388,7 +412,10 @@ class TeamDataAdminAjax extends TeamDataAjax {
 		$member_id = $this->get_post_values($fields);
 
 		$response_data = array( "result" => "error" );
-		if (!$this->check_nonce()) {
+		if ( !current_user_can( 'team_data_manage_members' ) ) {
+			$response_data['error_message'] = __( 'You are not permitted to perform this action.', 'team_data' );
+		}
+		else if (!$this->check_nonce()) {
 			$response_data['error_message'] = __("Invalid nonce", 'team_data');
 		}
 		elseif (!$member_id) { // id is required
@@ -424,7 +451,10 @@ class TeamDataAdminAjax extends TeamDataAjax {
 		$member_id = $this->get_post_values($fields);
 
 		$response_data = array( "result" => "error" );
-		if (!$this->check_nonce()) {
+		if ( !current_user_can( 'team_data_manage_members' ) ) {
+			$response_data['error_message'] = __( 'You are not permitted to perform this action.', 'team_data' );
+		}
+		else if (!$this->check_nonce()) {
 			$response_data['error_message'] = __('Invalid nonce', 'team_data');
 		}
 		elseif ($this->validate_member($member_id,$fields,$response_data)) {
@@ -472,7 +502,10 @@ class TeamDataAdminAjax extends TeamDataAjax {
 		$member_id = $this->get_post_values($fields);
 
 		$response_data = array( "result" => "error" );
-		if (!$this->check_nonce()) {
+		if ( !current_user_can( 'team_data_manage_members' ) ) {
+			$response_data['error_message'] = __( 'You are not permitted to perform this action.', 'team_data' );
+		}
+		else if (!$this->check_nonce()) {
 			$response_data['error_message'] = __("Invalid nonce", 'team_data');
 		}
 		elseif ($this->validate_member($member_id,$fields,$response_data)) {
@@ -662,7 +695,10 @@ class TeamDataAdminAjax extends TeamDataAjax {
 		$list_id = $this->get_post_values($fields);
 
 		$response_data = array( 'result' => 'error' );
-		if (!$this->check_nonce()) {
+		if ( !current_user_can( 'team_data_manage_options' ) ) {
+			$response_data['error_message'] = __( 'You are not permitted to perform this action.', 'team_data' );
+		}
+		else if (!$this->check_nonce()) {
 			$response_data['error_message'] = __("Invalid nonce", 'team_data');
 		}
 		elseif ($fields['name'] == '') { // name is required
@@ -705,7 +741,10 @@ class TeamDataAdminAjax extends TeamDataAjax {
 		$team_id = $this->get_post_values($fields);
 
 		$response_data = array( 'result' => 'error' );
-		if (!$this->check_nonce()) {
+		if ( !current_user_can( 'team_data_manage_options' ) ) {
+			$response_data['error_message'] = __( 'You are not permitted to perform this action.', 'team_data' );
+		}
+		else if (!$this->check_nonce()) {
 			$response_data['error_message'] = __("Invalid nonce", 'team_data');
 		}
 		elseif ($fields['name'] == '') {
@@ -737,7 +776,10 @@ class TeamDataAdminAjax extends TeamDataAjax {
 		$stat_id = $this->get_post_values($fields);
 
 		$response_data = array( 'result' => 'error' );
-		if (!$this->check_nonce()) {
+		if ( !current_user_can( 'team_data_manage_options' ) ) {
+			$response_data['error_message'] = __( 'You are not permitted to perform this action.', 'team_data' );
+		}
+		else if (!$this->check_nonce()) {
 			$response_data['error_message'] = __("Invalid nonce", 'team_data');
 		}
 		elseif ($fields['name'] == '') {
@@ -766,7 +808,10 @@ class TeamDataAdminAjax extends TeamDataAjax {
 		$season_id = $this->get_post_values($fields);
 
 		$response_data = array( "result" => "error" );
-		if (!$this->check_nonce()) {
+		if ( !current_user_can( 'team_data_manage_options' ) ) {
+			$response_data['error_message'] = __( 'You are not permitted to perform this action.', 'team_data' );
+		}
+		else if (!$this->check_nonce()) {
 			$response_data['error_message'] = __("Invalid nonce", 'team_data');
 		}
 		elseif ($fields["year"] == '') { // year and season are required
@@ -797,7 +842,10 @@ class TeamDataAdminAjax extends TeamDataAjax {
 		if (isset($_POST['year'])) {
 			$year = $_POST['year'];
 		}
-		if (!$this->check_nonce()) {
+		if ( !current_user_can( 'team_data_manage_options' ) ) {
+			$response_data['error_message'] = __( 'You are not permitted to perform this action.', 'team_data' );
+		}
+		else if (!$this->check_nonce()) {
 			$response_data['error_message'] = __("Invalid nonce", 'team_data');
 		}
 		elseif ($year == '') {

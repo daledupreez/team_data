@@ -26,18 +26,48 @@ class TeamDataAdmin extends TeamDataBase {
 	}
 
 	public function add_admin_menu() {
-		$this->page_codes['main'] = add_menu_page( __('Admin','team_data'), __('Team Data Admin','team_data'), 'manage_options', 'team-data-admin', array($this, 'render_admin_main') );
-		$this->page_codes['matches'] = add_submenu_page('team-data-admin', __('Matches and Results','team_data'), __('Matches and Results','team_data'), 'manage_options', 'team-data-matches', array($this, 'render_matches'));
-		$this->page_codes['members'] = add_submenu_page('team-data-admin', __('Members','team_data'), __('Members','team_data'), 'manage_options', 'team-data-members', array($this, 'render_members'));
-		$this->page_codes['email'] = add_submenu_page('team-data-admin', __('Send Email','team_data'), __('Send Email','team_data'), 'manage_options', 'team-data-email', array($this, 'render_email'));
 
-		add_action('admin_footer-' . $this->page_codes['main'], array($this, 'render_main_js'));
-		add_action('admin_footer-' . $this->page_codes['matches'], array($this, 'render_matches_js'));
-		add_action('admin_footer-' . $this->page_codes['members'], array($this, 'render_member_js'));
-		add_action('admin_footer-' . $this->page_codes['email'], array($this, 'render_email_js'));
+		$menu_items = array(
+			'main' => array(
+				'menu_title' => __('Team Data Admin','team_data'),
+				'page_title' => __('Admin','team_data'),
+				'capability' => 'team_data_manage_options',
+				'slug' => 'team-data-admin',
+				'render_method' => 'render_admin_main',
+				'main_menu' => true,
+			),
+			'matches' => array(
+				'page_title' => __('Matches and Results','team_data'),
+				'capability' => 'team_data_manage_matches',
+			),
+			'members' => array(
+				'page_title' => __('Members','team_data'),
+				'capability' => 'team_data_manage_members',
+			),
+			'email' => array(
+				'page_title' => __('Send Email','team_data'),
+				'capability' => 'team_data_send_mail',
+			),
+		);
+		foreach ($menu_items as $menu => $data) {
+			$menu_title = ( isset( $data['menu_title'] ) ? $data['menu_title'] : $data['page_title'] );
+			$menu_slug = ( isset( $data['slug'] ) ? $data['slug'] : 'team-data-' . $menu );
+			$render_method = ( isset( $data['render_method'] ) ? $data['render_method'] : 'render_' . $menu );
+			$is_menu = ( isset( $data['main_menu'] ) && $data['main_menu'] );
+			if ( $is_menu ) {
+				$this->page_codes[$menu] = add_menu_page( $data['page_title'], $menu_title, $data['capability'], $menu_slug, array( $this, $render_method ) );
+			}
+			else {
+				$this->page_codes[$menu] = add_submenu_page( 'team-data-admin', $data['page_title'], $menu_title, $data['capability'], $menu_slug, array( $this, $render_method ) );
+			}
+			add_action( 'admin_footer-' . $this->page_codes[$menu], array( $this, 'render_' . $menu . '_js' ) );
+		}
 	}
 
-	public function render_matches() {	
+	public function render_matches() {
+		if ( !current_user_can( 'team_data_manage_matches' ) ) {
+			return;
+		}
 		echo '<div class="team_data_content">';
 		$this->render_match_list();
 
@@ -120,6 +150,9 @@ class TeamDataAdmin extends TeamDataBase {
 	}
 
 	public function render_email() {
+		if ( !current_user_can( 'team_data_send_email' ) ) {
+			return;
+		}
 		global $wpdb;
 
 		echo '<div class="team_data_content">';
@@ -187,6 +220,9 @@ class TeamDataAdmin extends TeamDataBase {
 	}
 
 	public function render_members() {
+		if ( !current_user_can( 'team_data_manage_members' ) ) {
+			return;
+		}
 		echo '<div class="team_data_content">';
 		echo '<h2>' . __('Member Administration Page', 'team_data') . '</h2>';
 		echo '<h4>' . __('Manage the team membership.', 'team_data') . '</h4>'; ?>
@@ -234,6 +270,9 @@ class TeamDataAdmin extends TeamDataBase {
 	}
 
 	public function render_admin_main() {
+		if ( !current_user_can( 'team_data_manage_options' ) ) {
+			return;
+		}
 		global $wpdb;
 		echo '<div class="team_data_content">';
 		echo '<h2>' . __('Main TeamData Administration Page', 'team_data') . '</h2>';
@@ -676,7 +715,10 @@ class TeamDataAdmin extends TeamDataBase {
 		//$this->debug('loc_hook=' . $hook);
 	}
 
-	public function render_member_js() {
+	public function render_members_js() {
+		if ( !current_user_can( 'team_data_manage_members' ) ) {
+			return;
+		}
 		global $wpdb;
 
 		$admin_ajax_obj = new TeamDataAdminAjax();
@@ -692,19 +734,25 @@ jQuery(document).ready( function() {
 	team_data.api.member_search.render();
 } );
 </script>
-<?php // end render_member_js()
+<?php // end render_members_js()
 	}
 
 	public function render_main_js() {
-		$this->render_footer_js('main');
+		if ( current_user_can( 'team_data_manage_options' ) ) {
+			$this->render_footer_js('main');
+		}
 	}
 
 	public function render_matches_js() {
-		$this->render_footer_js('matches');
+		if ( current_user_can( 'team_data_manage_matches' ) ) {
+			$this->render_footer_js('matches');
+		}
 	}
 	
 	public function render_email_js() {
-		$this->render_footer_js('email');
+		if ( current_user_can( 'team_data_send_email' ) ) {
+			$this->render_footer_js('email');
+		}
 	}
 	
 	private function render_footer_js($page = 'main') {
