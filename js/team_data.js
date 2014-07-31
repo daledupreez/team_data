@@ -534,32 +534,30 @@ team_data.api.member_search.getRowContents = function member_search_getRowConten
 		}
 		html.push('<td>' + val + '</td>');
 	}
-	if ((!member.lists) || (!member.lists.length) || (!haveLists)) {
-		html.push('<td>&nbsp;</td>');
+	if (haveLists && !member.lists) {
+		member.lists = [];
+	}
+	if (editable) {
+		html.push('<td id="member_search_edit_' + member.id + '__listTD">');
+		for (var listID in team_data.list.index) {
+			var listHTML = team_data.fn.escapeHTML(team_data.list.index[listID]);
+			var cellID = 'member_search_edit_' + member.id + '_list_' + listID;
+			var checked = (member.lists.indexOf(listID) > -1 ? 'checked="1"' : '');
+			html.push('<span nowrap="1">');
+			html.push('<input type="checkbox" id="' + cellID + '" name="list" listid="' + listID + '" title="' + listHTML + '" value="' + listID + '" ' + checked + ' class="team_data_checkbox" />');
+			html.push('<label for="' + cellID + '" class="team_data_checkbox_label">' + listHTML + '</label>');
+			html.push('</span>');
+		}
 	}
 	else {
-		if (editable) {
-			html.push('<td id="member_search_edit_' + member.id + '__listTD">');
-			for (var listID in team_data.list.index) {
-				var listHTML = team_data.fn.escapeHTML(team_data.list.index[listID]);
-				var cellID = 'member_search_edit_' + member.id + '_list_' + listID;
-				var checked = (member.lists.indexOf(listID) > -1 ? 'checked="1"' : '');
-				html.push('<span nowrap="1">');
-				html.push('<input type="checkbox" id="' + cellID + '" name="list" listid="' + listID + '" title="' + listHTML + '" value="' + listID + '" ' + checked + ' class="team_data_checkbox" />');
-				html.push('<label for="' + cellID + '" class="team_data_checkbox_label">' + listHTML + '</label>');
-				html.push('</span>');
-			}
+		var listNames = [];
+		for (var k = 0; k < member.lists.length; k++) {
+			var list_id = member.lists[k];
+			if (listIndex[list_id]) listNames.push(listIndex[list_id]);
 		}
-		else {
-			var listNames = [];
-			for (var k = 0; k < member.lists.length; k++) {
-				var list_id = member.lists[k];
-				if (listIndex[list_id]) listNames.push(listIndex[list_id]);
-			}
-			listNames = listNames.join(', ');
-			listNames = (listNames == '' ? '&nbsp;' : listNames);
-			html.push('<td>' + listNames + '</td>');
-		}
+		listNames = listNames.join(', ');
+		listNames = (listNames == '' ? '&nbsp;' : listNames);
+		html.push('<td>' + listNames + '</td>');
 	}
 	return html.join('');
 }
