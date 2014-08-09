@@ -221,13 +221,13 @@ class TeamDataAjax extends TeamDataBase {
 		}
 
 		$integerFields = array(
-			'level' => 'level',
-			'team' => 'team',
-			'venue' => 'venue'
+			'level' => 'match.level_id',
+			'team' => 'team.id',
+			'venue' => 'venue.id',
 		);
-		foreach ($integerFields as $field => $table) {
+		foreach ($integerFields as $field => $fieldRef) {
 			if (isset($conditions[$field])) {
-				$where['statement'][] = $table . '.id = %d';
+				$where['statement'][] = $fieldRef . ' = %d';
 				$where['args'][] = intval($conditions[$field]);
 			}
 		}
