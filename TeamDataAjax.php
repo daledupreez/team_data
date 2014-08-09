@@ -62,11 +62,11 @@ class TeamDataAjax extends TeamDataBase {
 	}
 
 	public function get_all_levels() {
-		return $this->run_select_all($this->tables->level, 'name', array( array( 'display_group', 'ASC' ), array( 'display_rank', 'ASC' ) );
+		return $this->run_select_all($this->tables->level, 'name', array( array( 'display_group', 'ASC' ), array( 'display_rank', 'ASC' ) ) );
 	}
 
 	public function get_all_levels_ajax() {
-		$this->run_select_all_ajax($this->tables->level, 'name', array( array( 'display_group', 'ASC' ), array( 'display_rank', 'ASC' ) );
+		$this->run_select_all_ajax($this->tables->level, 'name', array( array( 'display_group', 'ASC' ), array( 'display_rank', 'ASC' ) ) );
 	}
 
 	public function get_all_teams() {
