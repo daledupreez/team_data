@@ -221,7 +221,7 @@ team_data.api.venue.getFields = function venue_getFields()
 team_data.api.level = new team_data.apiObject('level');
 team_data.api.level.getFields = function level_getFields()
 {
-	return [ 'id', 'name', 'abbreviation' ];
+	return [ 'id', 'name', 'abbreviation', 'display_group', 'display_rank' ];
 }
 
 team_data.api.team = new team_data.apiObject('team');

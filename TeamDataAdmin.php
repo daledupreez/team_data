@@ -379,6 +379,14 @@ class TeamDataAdmin extends TeamDataBase {
 					<label for="team_data_level_edit__abbreviation" class="team_data_edit_label"><?php echo __('Short Name','team_data'); ?></label>
 					<input id="team_data_level_edit__abbreviation" class="team_data_edit_input" name="level_abbreviation" type="text" size="15" />
 				</div>
+				<div class="team_data_inline">
+					<label for="team_data_level_edit__display_group" class="team_data_edit_label"><?php echo __('Display Group','team_data'); ?></label>
+					<input id="team_data_level_edit__display_group" class="team_data_edit_input" name="level_display_group" type="number" />
+				</div>
+				<div class="team_data_inline">
+					<label for="team_data_level_edit__display_rank" class="team_data_edit_label"><?php echo __('Rank within Display Group','team_data'); ?></label>
+					<input id="team_data_level_edit__display_rank" class="team_data_edit_input" name="level_display_rank" type="number" />
+				</div>
 			</form>
 			<div class="team_data_buttonDiv">
 				<input id="team_data_level_edit__save" class="team_data_button" type="button" value="<?php echo __('Save Changes', 'team_data'); ?>" onclick="team_data.api.level.save();" />

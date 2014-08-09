@@ -383,6 +383,8 @@ class TeamDataAdminAjax extends TeamDataAjax {
 			'id' => '',
 			'name' => '',
 			'abbreviation' => '',
+			'display_group' => 1,
+			'display_rank' => 1,
 		);
 		$level_id = $this->get_post_values($fields);
 

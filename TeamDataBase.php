@@ -8,7 +8,7 @@ require_once 'TeamDataTables.php';
 */
 class TeamDataBase {
 
-	public $version = 0.38;
+	public $version = 0.39;
 
 	public $actions_added = false;
 
