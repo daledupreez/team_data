@@ -284,7 +284,7 @@ class TeamDataAjax extends TeamDataBase {
 
 		$all_query = "SELECT id, $name_col FROM $table";
 
-		$order_by = [];
+		$order_by = array();
 		if ( isset($order_by_cols) ) {
 			foreach ($order_by_cols as $pos => $order_by_pair) {
 				if ( (!empty($order_by_pair)) && ( !empty($order_by_pair[0]) ) && ( !empty($order_by_pair[1]) ) ) {
