@@ -62,11 +62,11 @@ class TeamDataAjax extends TeamDataBase {
 	}
 
 	public function get_all_levels() {
-		return $this->run_select_all($this->tables->level);
+		return $this->run_select_all($this->tables->level, 'name', array( array( 'display_group', 'ASC' ), array( 'display_rank', 'ASC' ) );
 	}
 
 	public function get_all_levels_ajax() {
-		$this->run_select_all_ajax($this->tables->level);
+		$this->run_select_all_ajax($this->tables->level, 'name', array( array( 'display_group', 'ASC' ), array( 'display_rank', 'ASC' ) );
 	}
 
 	public function get_all_teams() {
@@ -131,7 +131,7 @@ class TeamDataAjax extends TeamDataBase {
 			"MONTHNAME(match.date) AS `_month`",
 			"YEAR(match.date) AS `_year`",
 			"match.time AS `_time`",
-			"IF(level.abbreviation = '', level.name, level.abbreviation) AS level",
+			"match.level_name",
 			"match.team",
 			"match.tourney_name AS tourney_name",
 			"match.our_score AS our_score",
@@ -144,14 +144,12 @@ class TeamDataAjax extends TeamDataBase {
 
 		$sql_from = array(
 			$this->tables->season . ' AS season',
-			"( SELECT m.season_id, m.level_id, m.venue_id, m.date, m.time, m.tourney_name, m.our_score, m.opposition_score, m.result, m.comment, IF(m.opposition_id IS NULL, '', t.name) AS team FROM " . $this->tables->match . ' m LEFT OUTER JOIN ' . $this->tables->team . ' t ON m.opposition_id = t.id ) AS `match`',
-			$this->tables->level . ' AS level',
+			"( SELECT m.season_id, m.level_id, m.venue_id, m.date, m.time, m.tourney_name, m.our_score, m.opposition_score, m.result, m.comment, IF(m.opposition_id IS NULL, '', t.name) AS team, IF(level.abbreviation = '', level.name, level.abbreviation) AS level_name, level.display_group, level.display_rank FROM " . $this->tables->match . ' m LEFT OUTER JOIN ' . $this->tables->team . ' t ON m.opposition_id = t.id JOIN ' . $this->tables->level . ' level ON m.level_id = level.id ) AS `match`',
 			$this->tables->venue . ' AS venue',
 		);
 
 		$sql_where = array(
 			'match.season_id = season.id',
-			'match.level_id = level.id',
 			'match.venue_id = venue.id',
 		);
 
@@ -161,7 +159,7 @@ class TeamDataAjax extends TeamDataBase {
 		if ($sql_sub_where != '') {
 			$sql = $wpdb->prepare($sql . ' AND ' . $sql_sub_where, $where_data['args']);
 		}
-		$sql .= ' ORDER BY match.date ASC, match.time ASC';
+		$sql .= ' ORDER BY match.date ASC, match.time ASC, match.display_group ASC, match.display_rank ASC, match.level_name ASC';
 
 		return $wpdb->get_results($sql, ARRAY_A);
 	}
@@ -279,11 +277,31 @@ class TeamDataAjax extends TeamDataBase {
 	 *
 	 * @param string $table Name of table
 	 * @param string $name_col Name/expression for name value
+	 * @param array $order_by_cols Ordered list of columns to sort by in the form [ [ 'colname', 'ASC'], [ 'colname', 'DESC' ] ]. Both the column name and sort order are required.
 	 */
-	protected function run_select_all($table,$name_col = "name") {
+	protected function run_select_all($table,$name_col = "name",$order_by_cols = null) {
 		global $wpdb;
 
-		$all_query = "SELECT id, $name_col FROM $table ORDER BY id ASC";
+		$all_query = "SELECT id, $name_col FROM $table";
+
+		$order_by = [];
+		if ( isset($order_by_cols) ) {
+			foreach ($order_by_cols as $pos => $order_by_pair) {
+				if ( (!empty($order_by_pair)) && ( !empty($order_by_pair[0]) ) && ( !empty($order_by_pair[1]) ) ) {
+					$sort_order = strtoupper( $order_by_pair[1] );
+					if ( ($sort_order == 'ASC') || ($sort_order == 'DESC') ) {
+						$colname = $order_by_pair[0];
+						$order_by[] = $colname . ' ' . $sort_order;
+					}
+				}
+			}
+		}
+		if ( count($order_by) > 0) {
+			$all_query .= ' ORDER BY ' . implode(', ', $order_by);
+		}
+		else {
+			$all_query .= ' ORDER BY id ASC';
+		}
 		return $wpdb->get_results($all_query, ARRAY_A);
 	}
 
