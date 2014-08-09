@@ -145,6 +145,9 @@ class TeamDataMailer extends TeamDataBase {
 			if ($prop_name == 'Unsubscribe') {
 				$mailer->AddCustomHeader('List-Unsubscribe', '<' . $prop_value . '>');
 			}
+			elseif ($prop_name == 'ReplyTo') {
+				$mailer->AddReplyTo($prop_value);
+			}
 			else {
 				$mailer->{$prop_name} = $prop_value;
 			}
@@ -204,6 +207,7 @@ class TeamDataMailer extends TeamDataBase {
 		if ( !empty($default_from) ) {
 			$options['From'] = $default_from;
 			$options['Sender'] = $default_from;
+			$options['ReplyTo'] = $default_from;
 		}
 		$default_from_name = $this->get_option('email_from_name');
 		if ( !empty($default_from_name) ) {
