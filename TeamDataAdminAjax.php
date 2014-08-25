@@ -504,7 +504,8 @@ class TeamDataAdminAjax extends TeamDataAjax {
 		$member_id = $this->get_post_values($fields);
 
 		$response_data = array( "result" => "error" );
-		if ( !current_user_can( 'team_data_manage_members' ) ) {
+		// Allow public registrations
+		if ( true || !current_user_can( 'team_data_manage_members' ) ) {
 			$response_data['error_message'] = __( 'You are not permitted to perform this action.', 'team_data' );
 		}
 		else if (!$this->check_nonce()) {
