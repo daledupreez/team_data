@@ -505,10 +505,13 @@ class TeamDataAdminAjax extends TeamDataAjax {
 
 		$response_data = array( "result" => "error" );
 		// Allow public registrations
-		if ( true || !current_user_can( 'team_data_manage_members' ) ) {
+		/*
+		if ( !current_user_can( 'team_data_manage_members' ) ) {
 			$response_data['error_message'] = __( 'You are not permitted to perform this action.', 'team_data' );
 		}
-		else if (!$this->check_nonce()) {
+		else 
+		*/
+		if (!$this->check_nonce()) {
 			$response_data['error_message'] = __("Invalid nonce", 'team_data');
 		}
 		elseif ($this->validate_member($member_id,$fields,$response_data)) {
