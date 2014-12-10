@@ -166,6 +166,19 @@ class TeamDataMailer extends TeamDataBase {
 				'i' => array(),
 				'strong' => array(),
 				'u' => array(),
+				'img' => array(
+					'src' => array(),
+					'alt' => array(),
+					'style' => array(),
+					'class' => array(),
+				),
+				'ul' => array(
+					'style' => array(),
+				),
+				'li' => array(),
+				'ol' => array(
+					'style' => array(),
+				),
 			);
 			$msg_stripped = wp_kses($message, $permitted_tags);
 			// remove all carriage returns
