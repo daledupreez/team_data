@@ -543,7 +543,7 @@ team_data.api.member_search.getRowContents = function member_search_getRowConten
 			var listHTML = team_data.fn.escapeHTML(team_data.list.index[listID]);
 			var cellID = 'member_search_edit_' + member.id + '_list_' + listID;
 			var checked = (member.lists.indexOf(listID) > -1 ? 'checked="1"' : '');
-			html.push('<span nowrap="1">');
+			html.push('<span style="display: inline-block; white-space: nowrap;">');
 			html.push('<input type="checkbox" id="' + cellID + '" name="list" listid="' + listID + '" title="' + listHTML + '" value="' + listID + '" ' + checked + ' class="team_data_checkbox" />');
 			html.push('<label for="' + cellID + '" class="team_data_checkbox_label">' + listHTML + '</label>');
 			html.push('</span>');
