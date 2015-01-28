@@ -139,11 +139,12 @@ class TeamDataMailer extends TeamDataBase {
 		}
 		else { // make sure we clean up the existing $mailer
 			$mailer->ClearAllRecipients();
+			$mailer->ClearCustomHeaders();
 			$mailer->ClearReplyTos();
 		}
 		foreach ($options as $prop_name => $prop_value) {
 			if ($prop_name == 'Unsubscribe') {
-				$mailer->AddCustomHeader('List-Unsubscribe', '<' . $prop_value . '>');
+				$mailer->AddCustomHeader('List-Unsubscribe', '<mailto:' . $prop_value . '>');
 			}
 			elseif ($prop_name == 'ReplyTo') {
 				$mailer->AddReplyTo($prop_value);
@@ -208,13 +209,14 @@ class TeamDataMailer extends TeamDataBase {
 				$html = str_replace('[[SENDTIME]]', $send_time ,$html);
 			}
 		}
-		return $html;
+		return wordwrap($html,78);
 	}
 
 	protected function get_mail_config() {
 		$options = array();
 		$use_smtp = ('1' == $this->get_option('use_smtp'));
 		$options['CharSet'] = 'UTF-8';
+		$options['WordWrap'] = 78;
 
 		$default_from = $this->get_option('email_from');
 		if ( !empty($default_from) ) {
