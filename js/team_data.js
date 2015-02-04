@@ -743,8 +743,35 @@ team_data.api.match.editMatchHandler = function match_editMatchHandler(match_dat
 	var matchForm = document.getElementById('team_data_match_edit');
 	if (matchForm) {
 		matchForm.reset();
+		var showOpposition = true;
+		if (match_data.opposition_id === '0') {
+			delete match_data.opposition_id;
+			showOpposition = false;
+		}
+		team_data.api.match.toggleOppositionDivs(showOpposition);
 		team_data.api.match.setFieldsFromObject(matchForm,match_data,'match');
 		team_data.api.match.toggleEditDiv(true);
+	}
+}
+
+team_data.api.match.toggleOppositionDivs = function match_toggleOppositionDivs(showOpposition)
+{
+	var oppositionDiv = null;
+	var tourneyDiv = null;
+	var oppositionInput = document.getElementById('team_data_match_edit__opposition');
+	if (oppositionInput) {
+		oppositionDiv = oppositionInput.parentElement;
+	}
+	var tourneyInput = document.getElementById('team_data_match_edit__tourney_name');
+	if (tourneyInput) {
+		tourneyDiv = tourneyInput.parentElement;
+	}
+	
+	if (oppositionDiv) {
+		oppositionDiv.style.display = (showOpposition ? '' : 'none');
+	}
+	if (tourneyDiv) {
+		tourneyDiv.style.display = (!showOpposition ? '' : 'none');
 	}
 }
 
@@ -901,7 +928,7 @@ team_data.api.match.getFieldsFromForm = function match_getFieldsFromForm(formObj
 			else if (team_data[lookupName] && team_data[lookupName].nameIndex) {
 				fieldValue = team_data[lookupName].nameIndex[fieldValue];
 				if (!fieldValue) {
-					errors.push(team_data.fn.getLocText("Please select property '%1' from the drop-down list",fieldValue));
+					errors.push(team_data.fn.getLocText("Please select property '%1' from the drop-down list",fieldName));
 					focusList.push(control);
 				}
 				else {
@@ -976,10 +1003,14 @@ team_data.api.match.newMatches = function match_newMatches()
 	if ((!isNaN(matchCount)) && (matchCount > 0)) {
 		team_data.api.match.toggleNewMatchDiv(true,false);
 		var matchCountControl = document.getElementById('team_data_new_match_shared__matchCount');
-		if (matchCountControl) matchCountControl.value = matchCount;
+		if (matchCountControl) {
+			matchCountControl.value = matchCount;
+		}
 		for (var i = 1; i <= matchCount; i++) {
 			var matchForm = document.getElementById('team_data_new_match_' + i);
-			if (matchForm) matchForm.style.display = '';
+			if (matchForm) {
+				matchForm.style.display = '';
+			}
 		}
 	}
 }
@@ -1002,10 +1033,24 @@ team_data.api.match.toggleNewMatchDiv = function match_toggleNewMatchDiv(showNew
 	if (newMatchDiv) {
 		newMatchDiv.style.display = (showNewMatch ? '' : 'none');
 		var sharedForm = document.getElementById('team_data_new_match_shared');
-		if (sharedForm) sharedForm.reset();
+		if (sharedForm) {
+			sharedForm.reset();
+		}
 		if (!showNewMatch) {
 			var matchCountControl = document.getElementById('team_data_new_match_shared__matchCount');
 			if (matchCountControl) matchCountControl.value = 0;
+		}
+		else {
+			var seasonSelect = document.getElementById('team_data_season_select');
+			if (seasonSelect) {
+				var seasonID = team_data.fn.getControlValue(seasonSelect);
+				if ((seasonID !== '') && (team_data.season.index[seasonID])) {
+					var newMatchSeason = document.getElementById('team_data_new_match_shared__season');
+					if (newMatchSeason) {
+						team_data.fn.setControlValue(newMatchSeason,team_data.season.index[seasonID]);
+					}
+				}
+			}
 		}
 		var oppositionDiv = document.getElementById('team_data_new_match_shared_opposition_div');
 		if (oppositionDiv) oppositionDiv.style.display = (showTourney ? 'none' : '');
