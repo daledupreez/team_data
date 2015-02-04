@@ -241,6 +241,7 @@ team_data.api.email.getFields = function email_getFields()
 {
 	return [ 'subject', 'message', 'list_id', 'replyto' ];
 }
+
 team_data.api.email.closeDialog = function email_closeDialog()
 {
 	jQuery("#team_data_send_email_dialog").dialog( 'close' );
@@ -254,6 +255,7 @@ team_data.api.email.closeDialog = function email_closeDialog()
 		}
 	}
 }
+
 team_data.api.email.launchDialog = function email_launchDialog()
 {
 	var progressbar = document.getElementById('team_data_send_email_progress');
@@ -268,6 +270,7 @@ team_data.api.email.launchDialog = function email_launchDialog()
 	jQuery("#team_data_send_email_dialog").dialog( 'open' );
 	jQuery("#team_data_send_email_progress").progressbar( { value: false } );
 }
+
 team_data.api.email.sendEmail = function email_sendEmail()
 {
 	var formPrefix = 'team_data_send_email_';
@@ -305,8 +308,6 @@ team_data.api.email.sendEmailHandler = function email_sendEmailHandler(sendResul
 	var doneDiv = document.getElementById('team_data_send_email_done');
 	if (doneDiv) doneDiv.style.display = '';
 }
-
-
 
 team_data.api.season = new team_data.apiObject('season');
 team_data.api.season.nameIsRequired = false;
@@ -353,7 +354,6 @@ team_data.api.stat.getFields = function stat_getFields()
 	return [ 'id', 'name', 'value_type' ];
 }
 
-
 team_data.api.options = {
 	"fields": [ "max_matches", "email_enabled", "allow_all_member_mail", "html_template", "text_footer",
 		"email_from", "email_from_name", "email_prefix", "email_summary_to", "use_smtp", "smtp_server", "smtp_port",
@@ -366,6 +366,7 @@ team_data.api.options.getControls = function options_getControls(fieldName) {
 		"original": document.getElementById('team_data_options_edit__' + fieldName + '_orig')
 	};
 }
+
 team_data.api.options.save = function options_save() {
 	for (var i = 0; i < this.fields.length; i++) {
 		var field = this.fields[i];
@@ -401,6 +402,7 @@ team_data.api.options.save = function options_save() {
 		}
 	}
 }
+
 team_data.api.options.saveHandler = function options_saveHandler(saveResult) {
 	if (saveResult && saveResult.set && saveResult.option) {
 		var controls = this.getControls(saveResult.option);
@@ -471,7 +473,6 @@ team_data.api.member_search.deleteMemberHandler = function member_search_deleteM
 	}
 }
 
-
 team_data.api.member_search.editMember = function member_search_editMember(memberPos)
 {
 	memberPos = parseInt(memberPos,10);
@@ -488,10 +489,12 @@ team_data.api.member_search.getAllMembers = function member_search_getAllMembers
 	var apiObject = this;
 	jQuery.post(ajaxurl,postData, function(postResponse) { apiObject.updateAllMembers(postResponse); } );
 }
+
 team_data.api.member_search.getForm = function member_search_getForm()
 {
 	return document.getElementById('team_data_member_search');
 }
+
 team_data.api.member_search.getRowContents = function member_search_getRowContents(member,pos,editable)
 {
 	var html = [];
@@ -657,6 +660,7 @@ team_data.api.member_search.search = function member_search_search()
 	}
 	this.render(results);
 }
+
 team_data.api.member_search.updateAllMembers = function member_search_updateAllMembers(member_data)
 {
 	team_data.member_data = {
@@ -731,80 +735,6 @@ team_data.api.match = {
 };
 team_data.api.match.allFields = team_data.api.match.sharedFields.concat(team_data.api.match.fields, [ 'id' ]);
 
-team_data.api.match.editMatch = function match_editMatch(match_id)
-{
-	team_data.api.match.toggleNewMatchDiv(false);
-	var postData = { "action": "team_data_get_basic_match", "match_id": match_id, "nonce": team_data_ajax.nonce };
-	jQuery.post(ajaxurl,postData,team_data.api.match.editMatchHandler);
-}
-team_data.api.match.editMatchHandler = function match_editMatchHandler(match_data)
-{
-	if (!match_data) return;
-	var matchForm = document.getElementById('team_data_match_edit');
-	if (matchForm) {
-		matchForm.reset();
-		var showOpposition = true;
-		if (match_data.opposition_id === '0') {
-			delete match_data.opposition_id;
-			showOpposition = false;
-		}
-		team_data.api.match.toggleOppositionDivs(showOpposition);
-		team_data.api.match.setFieldsFromObject(matchForm,match_data,'match');
-		team_data.api.match.toggleEditDiv(true);
-	}
-}
-
-team_data.api.match.toggleOppositionDivs = function match_toggleOppositionDivs(showOpposition)
-{
-	var oppositionDiv = null;
-	var tourneyDiv = null;
-	var oppositionInput = document.getElementById('team_data_match_edit__opposition');
-	if (oppositionInput) {
-		oppositionDiv = oppositionInput.parentElement;
-	}
-	var tourneyInput = document.getElementById('team_data_match_edit__tourney_name');
-	if (tourneyInput) {
-		tourneyDiv = tourneyInput.parentElement;
-	}
-	
-	if (oppositionDiv) {
-		oppositionDiv.style.display = (showOpposition ? '' : 'none');
-	}
-	if (tourneyDiv) {
-		tourneyDiv.style.display = (!showOpposition ? '' : 'none');
-	}
-}
-
-team_data.api.match.toggleEditDiv = function match_toggleEditDiv(showEdit)
-{
-	var match_edit_div = document.getElementById('team_data_match_edit_div');
-	if (match_edit_div) match_edit_div.style.display = (showEdit ? '' : 'none');
-}
-
-team_data.api.match.getScoreDisplayDiv = function match_getScoreDisplayDiv(match_id)
-{
-	return document.getElementById('team_data_edit__score_display_' + match_id);
-}
-
-team_data.api.match.getScoreEditForm = function match_getScoreEditForm(match_id)
-{
-	return document.getElementById('team_data_edit__score_edit_' + match_id);
-}
-
-team_data.api.match.toggleScoreControls = function match_toggleScoreControls(match_id,showEdit)
-{
-	showEdit = !!showEdit;
-	var editForm = team_data.api.match.getScoreEditForm(match_id);
-	if (editForm) editForm.style.display = (showEdit ? '' : 'none');
-	var saveButton = document.getElementById('team_data_edit_match_score_save_' + match_id);
-	if (saveButton) saveButton.style.display = (showEdit ? '' : 'none');
-	var editButton = document.getElementById('team_data_edit_match_score_' + match_id);
-	if (editButton) editButton.style.display = (showEdit ? 'none' : '');
-	var displayDiv = team_data.api.match.getScoreDisplayDiv(match_id);
-	if (displayDiv) displayDiv.style.display = (showEdit ? 'none' : '');
-
-}
-
 team_data.api.match.deleteMatch = function match_deleteMatch()
 {
 	var matchForm = document.getElementById('team_data_match_edit');
@@ -837,6 +767,30 @@ team_data.api.match.deleteMatchHandler = function match_deleteMatchHandler(delet
 	}
 	else {
 		document.location.reload();
+	}
+}
+
+team_data.api.match.editMatch = function match_editMatch(match_id)
+{
+	team_data.api.match.toggleNewMatchDiv(false);
+	var postData = { "action": "team_data_get_basic_match", "match_id": match_id, "nonce": team_data_ajax.nonce };
+	jQuery.post(ajaxurl,postData,team_data.api.match.editMatchHandler);
+}
+
+team_data.api.match.editMatchHandler = function match_editMatchHandler(match_data)
+{
+	if (!match_data) return;
+	var matchForm = document.getElementById('team_data_match_edit');
+	if (matchForm) {
+		matchForm.reset();
+		var showOpposition = true;
+		if (match_data.opposition_id === '0') {
+			delete match_data.opposition_id;
+			showOpposition = false;
+		}
+		team_data.api.match.toggleOppositionDivs(showOpposition);
+		team_data.api.match.setFieldsFromObject(matchForm,match_data,'match');
+		team_data.api.match.toggleEditDiv(true);
 	}
 }
 
@@ -943,56 +897,14 @@ team_data.api.match.getFieldsFromForm = function match_getFieldsFromForm(formObj
 	return (errors.length > 0);
 }
 
-team_data.api.match.setFieldsFromObject = function match_setFieldsFromObject(targetForm,data,namePrefix)
+team_data.api.match.getScoreDisplayDiv = function match_getScoreDisplayDiv(match_id)
 {
-	if ((!targetForm) || (!data)) return;
-	if (typeof namePrefix == 'undefined') namePrefix = 'match';
-	for (var fieldName in data) {
-		var displayField = fieldName;
-		if (fieldName.indexOf('_id') > 0) displayField = fieldName.substring(0,fieldName.indexOf('_id'));
-		var control = targetForm[namePrefix + '_' + displayField];
-		if (control) {
-			var displayValue = data[fieldName];
-			var dataField = ( team_data.sourceMap[displayField] ? team_data.sourceMap[displayField] : displayField );
-			if ((control.nodeName != 'SELECT') && team_data[dataField] && team_data[dataField].index && team_data[dataField].index[displayValue]) {
-				displayValue = team_data[dataField].index[displayValue];
-			}
-			team_data.fn.setControlValue(control,displayValue);
-		}
-	}
+	return document.getElementById('team_data_edit__score_display_' + match_id);
 }
 
-team_data.api.match.saveMatch = function match_saveMatch()
+team_data.api.match.getScoreEditForm = function match_getScoreEditForm(match_id)
 {
-	var matchForm = document.getElementById('team_data_match_edit');
-	if (matchForm) {
-		var focusList = [];
-		var errors = [];
-		var matchData = {};
-		team_data.api.match.getFieldsFromForm(matchForm,team_data.api.match.allFields,matchData,errors,focusList,'match');
-		if (errors.length > 0) {
-			errors.splice(0,0,team_data.fn.getLocText('Errors saving data:'));
-			team_data.ui.reportErrors(errors,focusList);
-		}
-		else {
-			matchData.action = 'team_data_update_match';
-			matchData.nonce = team_data_ajax.nonce;
-			jQuery.post(ajaxurl,matchData,team_data.api.match.saveMatchHandler);
-		}
-	}
-}
-
-team_data.api.match.saveMatchHandler = function match_saveMatchHandler(saveResult)
-{
-	if (!saveResult) return;
-	if (saveResult.result == 'error') {
-		var msg = team_data.fn.getLocText('Error in save');
-		if (saveResult.error_message) msg += '\n' + saveResult.error_message;
-		alert(msg);
-	}
-	else {
-		document.location.reload();
-	}
+	return document.getElementById('team_data_edit__score_edit_' + match_id);
 }
 
 team_data.api.match.newMatches = function match_newMatches()
@@ -1027,47 +939,36 @@ team_data.api.match.newTournament = function match_newTournament()
 
 }
 
-team_data.api.match.toggleNewMatchDiv = function match_toggleNewMatchDiv(showNewMatch,showTourney)
+team_data.api.match.saveMatch = function match_saveMatch()
 {
-	var newMatchDiv = document.getElementById('team_data_new_match');
-	if (newMatchDiv) {
-		newMatchDiv.style.display = (showNewMatch ? '' : 'none');
-		var sharedForm = document.getElementById('team_data_new_match_shared');
-		if (sharedForm) {
-			sharedForm.reset();
-		}
-		if (!showNewMatch) {
-			var matchCountControl = document.getElementById('team_data_new_match_shared__matchCount');
-			if (matchCountControl) matchCountControl.value = 0;
+	var matchForm = document.getElementById('team_data_match_edit');
+	if (matchForm) {
+		var focusList = [];
+		var errors = [];
+		var matchData = {};
+		team_data.api.match.getFieldsFromForm(matchForm,team_data.api.match.allFields,matchData,errors,focusList,'match');
+		if (errors.length > 0) {
+			errors.splice(0,0,team_data.fn.getLocText('Errors saving data:'));
+			team_data.ui.reportErrors(errors,focusList);
 		}
 		else {
-			var seasonSelect = document.getElementById('team_data_season_select');
-			if (seasonSelect) {
-				var seasonID = team_data.fn.getControlValue(seasonSelect);
-				if ((seasonID !== '') && (team_data.season.index[seasonID])) {
-					var newMatchSeason = document.getElementById('team_data_new_match_shared__season');
-					if (newMatchSeason) {
-						team_data.fn.setControlValue(newMatchSeason,team_data.season.index[seasonID]);
-					}
-				}
-			}
+			matchData.action = 'team_data_update_match';
+			matchData.nonce = team_data_ajax.nonce;
+			jQuery.post(ajaxurl,matchData,team_data.api.match.saveMatchHandler);
 		}
-		var oppositionDiv = document.getElementById('team_data_new_match_shared_opposition_div');
-		if (oppositionDiv) oppositionDiv.style.display = (showTourney ? 'none' : '');
-		var tourneyDiv = document.getElementById('team_data_new_match_shared_tourney_div');
-		if (tourneyDiv) tourneyDiv.style.display = (showTourney ? '' : 'none');
-		var matchSave = document.getElementById('team_data_new_match__save');
-		if (matchSave) matchSave.style.display = (showTourney ? 'none' : '');
-		var tourneySave = document.getElementById('team_data_new_tourney__save');
-		if (tourneySave) tourneySave.style.display = (showTourney ? '' : 'none');
-		var i = 1;
-		var matchForm = document.getElementById('team_data_new_match_' + i);
-		while (matchForm) {
-			matchForm.reset();
-			matchForm.style.display = 'none';
-			i++;
-			matchForm = document.getElementById('team_data_new_match_' + i);
-		}
+	}
+}
+
+team_data.api.match.saveMatchHandler = function match_saveMatchHandler(saveResult)
+{
+	if (!saveResult) return;
+	if (saveResult.result == 'error') {
+		var msg = team_data.fn.getLocText('Error in save');
+		if (saveResult.error_message) msg += '\n' + saveResult.error_message;
+		alert(msg);
+	}
+	else {
+		document.location.reload();
 	}
 }
 
@@ -1129,9 +1030,112 @@ team_data.api.match.saveNewMatchesHandler = function match_saveNewMatchesHandler
 	}
 }
 
+team_data.api.match.setFieldsFromObject = function match_setFieldsFromObject(targetForm,data,namePrefix)
+{
+	if ((!targetForm) || (!data)) return;
+	if (typeof namePrefix == 'undefined') namePrefix = 'match';
+	for (var fieldName in data) {
+		var displayField = fieldName;
+		if (fieldName.indexOf('_id') > 0) displayField = fieldName.substring(0,fieldName.indexOf('_id'));
+		var control = targetForm[namePrefix + '_' + displayField];
+		if (control) {
+			var displayValue = data[fieldName];
+			var dataField = ( team_data.sourceMap[displayField] ? team_data.sourceMap[displayField] : displayField );
+			if ((control.nodeName != 'SELECT') && team_data[dataField] && team_data[dataField].index && team_data[dataField].index[displayValue]) {
+				displayValue = team_data[dataField].index[displayValue];
+			}
+			team_data.fn.setControlValue(control,displayValue);
+		}
+	}
+}
+
+team_data.api.match.toggleEditDiv = function match_toggleEditDiv(showEdit)
+{
+	var match_edit_div = document.getElementById('team_data_match_edit_div');
+	if (match_edit_div) match_edit_div.style.display = (showEdit ? '' : 'none');
+}
+
+team_data.api.match.toggleOppositionDivs = function match_toggleOppositionDivs(showOpposition)
+{
+	var oppositionDiv = null;
+	var tourneyDiv = null;
+	var oppositionInput = document.getElementById('team_data_match_edit__opposition');
+	if (oppositionInput) {
+		oppositionDiv = oppositionInput.parentElement;
+	}
+	var tourneyInput = document.getElementById('team_data_match_edit__tourney_name');
+	if (tourneyInput) {
+		tourneyDiv = tourneyInput.parentElement;
+	}
+	
+	if (oppositionDiv) {
+		oppositionDiv.style.display = (showOpposition ? '' : 'none');
+	}
+	if (tourneyDiv) {
+		tourneyDiv.style.display = (!showOpposition ? '' : 'none');
+	}
+}
+
+team_data.api.match.toggleScoreControls = function match_toggleScoreControls(match_id,showEdit)
+{
+	showEdit = !!showEdit;
+	var editForm = team_data.api.match.getScoreEditForm(match_id);
+	if (editForm) editForm.style.display = (showEdit ? '' : 'none');
+	var saveButton = document.getElementById('team_data_edit_match_score_save_' + match_id);
+	if (saveButton) saveButton.style.display = (showEdit ? '' : 'none');
+	var editButton = document.getElementById('team_data_edit_match_score_' + match_id);
+	if (editButton) editButton.style.display = (showEdit ? 'none' : '');
+	var displayDiv = team_data.api.match.getScoreDisplayDiv(match_id);
+	if (displayDiv) displayDiv.style.display = (showEdit ? 'none' : '');
+
+}
+
+team_data.api.match.toggleNewMatchDiv = function match_toggleNewMatchDiv(showNewMatch,showTourney)
+{
+	var newMatchDiv = document.getElementById('team_data_new_match');
+	if (newMatchDiv) {
+		newMatchDiv.style.display = (showNewMatch ? '' : 'none');
+		var sharedForm = document.getElementById('team_data_new_match_shared');
+		if (sharedForm) {
+			sharedForm.reset();
+		}
+		if (!showNewMatch) {
+			var matchCountControl = document.getElementById('team_data_new_match_shared__matchCount');
+			if (matchCountControl) matchCountControl.value = 0;
+		}
+		else {
+			var seasonSelect = document.getElementById('team_data_season_select');
+			if (seasonSelect) {
+				var seasonID = team_data.fn.getControlValue(seasonSelect);
+				if ((seasonID !== '') && (team_data.season.index[seasonID])) {
+					var newMatchSeason = document.getElementById('team_data_new_match_shared__season');
+					if (newMatchSeason) {
+						team_data.fn.setControlValue(newMatchSeason,team_data.season.index[seasonID]);
+					}
+				}
+			}
+		}
+		var oppositionDiv = document.getElementById('team_data_new_match_shared_opposition_div');
+		if (oppositionDiv) oppositionDiv.style.display = (showTourney ? 'none' : '');
+		var tourneyDiv = document.getElementById('team_data_new_match_shared_tourney_div');
+		if (tourneyDiv) tourneyDiv.style.display = (showTourney ? '' : 'none');
+		var matchSave = document.getElementById('team_data_new_match__save');
+		if (matchSave) matchSave.style.display = (showTourney ? 'none' : '');
+		var tourneySave = document.getElementById('team_data_new_tourney__save');
+		if (tourneySave) tourneySave.style.display = (showTourney ? '' : 'none');
+		var i = 1;
+		var matchForm = document.getElementById('team_data_new_match_' + i);
+		while (matchForm) {
+			matchForm.reset();
+			matchForm.style.display = 'none';
+			i++;
+			matchForm = document.getElementById('team_data_new_match_' + i);
+		}
+	}
+}
+
 team_data.api.match.validateMatch = function match_validateMatch(matchObject,checkScore) {
 	checkScore = !!checkScore;
-
 }
 // END API construction
 
