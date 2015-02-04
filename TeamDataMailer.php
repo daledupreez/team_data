@@ -172,6 +172,8 @@ class TeamDataMailer extends TeamDataBase {
 					'alt' => array(),
 					'style' => array(),
 					'class' => array(),
+					'height' => array(),
+					'width' => array(),
 				),
 				'ul' => array(
 					'style' => array(),
