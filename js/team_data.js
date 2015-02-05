@@ -730,7 +730,8 @@ team_data.api.match = {
 		"our_score": true,
 		"opposition_score": true,
 		"result": true,
-		"comment": true
+		"comment": true,
+		"tourney_name": true,
 	}
 };
 team_data.api.match.allFields = team_data.api.match.sharedFields.concat(team_data.api.match.fields, [ 'id' ]);
