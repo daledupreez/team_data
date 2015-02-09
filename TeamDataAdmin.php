@@ -619,6 +619,14 @@ class TeamDataAdmin extends TeamDataBase {
 						</td>
 					</tr>
 					<tr>
+						<td><label for="team_data_options_edit__email_list_name_custom_header"><?php echo esc_html(__('Custom Header for List Names','team_data')); ?></label></td>
+						<td>
+							<input id="team_data_options_edit__email_list_name_custom_header" class="team_data_edit_input" name="options_email_list_name_custom_header" type="text" size="50" value="<?php $email_list_name_custom_header = $this->get_option('email_list_name_custom_header'); $email_list_name_custom_header = (empty($email_list_name_custom_header) ? '' : $email_list_name_custom_header); echo esc_attr($email_list_name_custom_header); ?>" />
+							<input id="team_data_options_edit__email_list_name_custom_header_orig" type="hidden" value="<?php echo esc_attr($email_list_name_custom_header); ?>" />
+						</td>
+					</tr>
+
+					<tr>
 						<td><label for="team_data_options_edit__allow_all_member_mail"><?php echo esc_html(__('Allow All Member Emails','team_data')); ?></label></td>
 						<td>
 							<input id="team_data_options_edit__allow_all_member_mail" class="team_data_admin_checkbox" name="options_allow_all_member_mail" type="checkbox" <?php $allow_all_member_mail = ($this->get_option('allow_all_member_mail') == '1' ? true : false); if ($allow_all_member_mail) { echo 'checked="checked"'; } ?> />

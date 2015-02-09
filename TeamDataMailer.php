@@ -35,6 +35,12 @@ class TeamDataMailer extends TeamDataBase {
 
 		$mail_config = $this->get_mail_config();
 		if ($this->debug_flag) $this->debug('Mail Config: ' . json_encode($mail_config));
+
+		$email_list_name_custom_header = $this->get_option('email_list_name_custom_header');
+		if ((!empty($email_list_name_custom_header)) && (count($list_names) > 0)) {
+			$mail_config[$email_list_name_custom_header] = implode($list_names,',');			
+		}
+
 		$html_content = $this->build_html_content($message_content);
 		$text_footer = $this->get_option('text_footer');
 		if (empty($text_footer)) $text_footer = '';
@@ -148,6 +154,9 @@ class TeamDataMailer extends TeamDataBase {
 			}
 			elseif ($prop_name == 'ReplyTo') {
 				$mailer->AddReplyTo($prop_value);
+			}
+			elseif (substr($prop_name,0,2) == 'X-') {
+				$mailer->AddCustomHeader($prop_name, $prop_value);
 			}
 			else {
 				$mailer->{$prop_name} = $prop_value;
