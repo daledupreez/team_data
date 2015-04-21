@@ -43,8 +43,13 @@ class TeamDataMailer extends TeamDataBase {
 
 		$html_content = $this->build_html_content($message_content);
 		$text_footer = $this->get_option('text_footer');
-		if (empty($text_footer)) $text_footer = '';
-		$text_content = wp_kses( $message_content, array() ) . $text_footer;
+		if (empty($text_footer)) {
+			$text_footer = '';
+		}
+		// ensure that <li> elements are transformed to something like a plain text list
+		// note that ordered lists are converted to a "bulleted" list
+		$text_content = str_replace('<li>',' - ', $message_content);
+		$text_content = wp_kses( $text_content, array() ) . $text_footer;
 
 		$errors = array();
 		$ok_count = 0;
@@ -205,6 +210,13 @@ class TeamDataMailer extends TeamDataBase {
 			$msg_stripped = str_replace('<br/><br/>', '</p><p>', $msg_stripped);
 			// remove any empty <p> tags
 			$msg_stripped = str_replace('<p></p>', '', $msg_stripped);
+			// remove <br/> from between <ul>, <ol> and <li> elements
+			// NOTE: the current logic doesn't handle ul and ol elements with style attributes
+			$msg_stripped = str_replace('<ul><br/><li>', '<ul><li>', $msg_stripped);
+			$msg_stripped = str_replace('</li><br/></ul>', '</li></ul>', $msg_stripped);
+			$msg_stripped = str_replace('<ol><br/><li>', '<ol><li>', $msg_stripped);
+			$msg_stripped = str_replace('</li><br/></ol>', '</li></ol>', $msg_stripped);
+			$msg_stripped = str_replace('</li><br/><li>', '</li><li>', $msg_stripped);
 			// add manual styles for <p> elements
 			$msg_stripped = str_replace('<p>', '<p style="margin: 1em 0em;">', $msg_stripped);
 			// put stripped content in template
