@@ -46,6 +46,9 @@ class TeamDataMailer extends TeamDataBase {
 		if (empty($text_footer)) {
 			$text_footer = '';
 		}
+		else {
+			$text_footer = "\n\n" . $text_footer;
+		}
 		// ensure that <li> elements are transformed to something like a plain text list
 		// note that ordered lists are converted to a "bulleted" list
 		$text_content = str_replace('<li>',' - ', $message_content);
